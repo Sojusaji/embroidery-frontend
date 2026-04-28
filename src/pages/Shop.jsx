@@ -79,7 +79,8 @@ const Shop = () => {
         </div>
 
         {/* Categories Bar - Sticky */}
-        <div className="sticky top-[80px] z-30 bg-background/80 backdrop-blur-md py-4 mb-10 border-b border-white/5 -mx-4 px-4 overflow-x-auto hide-scrollbar">
+        <div className="sticky top-[80px] z-30 bg-background/80 backdrop-blur-md py-4 mb-10 border-b border-white/5 -mx-4 px-4  overflow-x-auto
+         hide-scrollbar">
           <div className="flex gap-4 min-w-max">
             {CATEGORIES.map(category => (
               <button
@@ -96,7 +97,6 @@ const Shop = () => {
             ))}
           </div>
         </div>
-
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-20">
           {filteredProducts.map((product, idx) => (
@@ -107,7 +107,6 @@ const Shop = () => {
           )}
         </div>
       </div>
-      
       <Footer />
     </div>
   );
