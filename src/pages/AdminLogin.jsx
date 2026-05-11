@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-// import { useAdminAuth } from '../context/AdminAuthContext';
 import { useAdminLogin } from "../hook/useAdminLogin"
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 

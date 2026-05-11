@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Camera, X, ImageIcon, ZoomIn, Filter } from 'lucide-react';
 import Footer from '../components/layout/Footer';
+import { useProducts } from '../hook/useProducts';
 
 const placeholderGallery = [
   { id: 1, title: 'Floral Elegance', category: 'Embroidery', size: 'large', img: '/gallery/floral.png' },
@@ -13,35 +14,19 @@ const categories = ['All', 'Embroidery'];
 
 const Gallery = () => {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: fetchedProducts, isLoading: loading } = useProducts();
   const [selectedImage, setSelectedImage] = useState(null);
   const [activeFilter, setActiveFilter] = useState('All');
 
   useEffect(() => {
-    // Attempt to fetch actual products to use as a gallery
-    const fetchGalleryItems = async () => {
-      try {
-        const res = await fetch('/api/products');
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.length > 0) {
-            // Combine API products with placeholders so the gallery always looks full
-            setItems([...data, ...placeholderGallery]);
-          } else {
-            setItems(placeholderGallery);
-          }
-        } else {
-          setItems(placeholderGallery);
-        }
-      } catch (err) {
+    if (!loading) {
+      if (fetchedProducts && fetchedProducts.length > 0) {
+        setItems([...fetchedProducts, ...placeholderGallery]);
+      } else {
         setItems(placeholderGallery);
-      } finally {
-        setLoading(false);
       }
-    };
-    
-    fetchGalleryItems();
-  }, []);
+    }
+  }, [fetchedProducts, loading]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

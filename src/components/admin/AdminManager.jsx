@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Shield, UserPlus, Trash2, Mail, User, Key, AlertCircle, Loader2 } from 'lucide-react';
+import { useAdmins, useCreateAdmin, useDeleteAdmin } from '../../hook/useAdmins';
 
 const AdminManager = () => {
-  const [admins, setAdmins] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: fetchedAdmins, isLoading: loading, isError: fetchError, error: fetchErrorMsg } = useAdmins();
+  const createAdminMutation = useCreateAdmin();
+  const deleteAdminMutation = useDeleteAdmin();
+
+  const admins = fetchedAdmins?.data || [];
+  
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -14,27 +19,6 @@ const AdminManager = () => {
     role: 'admin'
   });
 
-  const fetchAdmins = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/admin/admins');
-      const data = await res.json();
-      if (res.ok && data.status === 'success') {
-        setAdmins(data.data);
-      } else {
-        setError(data.message || 'Failed to fetch admins');
-      }
-    } catch (err) {
-      setError('Network error. Failed to fetch admins.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAdmins();
-  }, []);
-
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -44,22 +28,16 @@ const AdminManager = () => {
     setError(null);
     setSuccess(null);
     try {
-      const res = await fetch('/api/admin/admins', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (res.ok) {
+      const data = await createAdminMutation.mutateAsync(formData);
+      if (data.status === 'success' || data._id) { // Checking if successful response
         setSuccess('Admin added successfully');
         setShowAddForm(false);
         setFormData({ username: '', gmail: '', password: '', role: 'admin' });
-        fetchAdmins();
       } else {
         setError(data.message || 'Failed to add admin');
       }
     } catch (err) {
-      setError('Network error. Failed to add admin.');
+      setError(err?.response?.data?.message || err.message || 'Network error. Failed to add admin.');
     }
   };
 
@@ -67,18 +45,10 @@ const AdminManager = () => {
     if (!window.confirm('Are you sure you want to delete this admin?')) return;
     
     try {
-      const res = await fetch(`/api/admin/admins/${id}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        setSuccess('Admin deleted successfully');
-        fetchAdmins();
-      } else {
-        const data = await res.json();
-        setError(data.message || 'Failed to delete admin');
-      }
+      await deleteAdminMutation.mutateAsync(id);
+      setSuccess('Admin deleted successfully');
     } catch (err) {
-      setError('Network error. Failed to delete admin.');
+      setError(err?.response?.data?.message || err.message || 'Network error. Failed to delete admin.');
     }
   };
 
@@ -99,10 +69,10 @@ const AdminManager = () => {
         </button>
       </div>
 
-      {error && (
+      {(error || fetchError) && (
         <div className="mb-6 p-4 bg-red-900/20 border border-red-500/30 text-red-400 rounded-xl flex items-center gap-3">
           <AlertCircle className="w-5 h-5" />
-          <span>{error}</span>
+          <span>{error || fetchErrorMsg?.message || 'Error fetching admins'}</span>
         </div>
       )}
 

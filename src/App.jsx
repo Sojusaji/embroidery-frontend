@@ -8,7 +8,6 @@ import Gallery from './pages/Gallery';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 import { CartProvider } from './context/CartContext';
-// import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from "./hook/useAuth"
@@ -32,7 +31,6 @@ const ProtectedAdminRoute = ({ children }) => {
 
 function App() {
   return (
-    // <AdminAuthProvider>
     <CartProvider>
       <Router>
         <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-white flex flex-col relative">
