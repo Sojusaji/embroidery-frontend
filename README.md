@@ -14,8 +14,6 @@ An interactive, full-stack web application designed for a dual-revenue business 
 
 ---
 
-## 🚀 Key Features
-
 ### 🛒 Customer Experience & Storefront
 * **Product Showcase:** Browse high-quality custom embroidery works and stitching designs.
 * **Flexible Payments:** Integrated secure checkout supporting both online and offline payment methods.
