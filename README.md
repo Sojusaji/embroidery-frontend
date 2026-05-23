@@ -4,6 +4,14 @@ An interactive, full-stack web application designed for a dual-revenue business 
 
 ---
 
+## 🔗 Project Repositories
+
+| Repository | Link |
+| :--- | :--- |
+| **🖥️ Frontend Client** | [View Repository](https://github.com/Sojusaji/embroidery-frontend) |
+| **⚙️ Backend Server** | [View Repository](https://github.com/Sojusaji/Embroidery-server) |
+
+
 ## 🚀 Key Features
 
 ### 🛒 Customer Experience & Dual-Marketplace
