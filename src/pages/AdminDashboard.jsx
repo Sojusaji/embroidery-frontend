@@ -14,9 +14,9 @@ import OrdersManager from '../components/admin/OrdersManager';
 import CustomersManager from '../components/admin/CustomersManager';
 import SettingsManager from '../components/admin/SettingsManager';
 import AdminManager from '../components/admin/AdminManager';
+import ProductInventoryTable from '../components/admin/ProductInventoryTable';
 import { useAuth } from "../hook/useAuth";
 import { useUploadImage, useCreateProduct } from '../hook/useProducts';
-
 const AdminDashboard = () => {
   // 2. Add state for lightbox
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +33,8 @@ const AdminDashboard = () => {
     name: '',
     description: '',
     price: '',
-    category: 'Embroidery'
+    category: 'Embroidery',
+    totalStock: 0
   });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -66,6 +67,8 @@ const AdminDashboard = () => {
 
     try {
       let imageUrl = '';
+      let sha = undefined;
+      let filePath = undefined;
 
       // 1. Upload the image first if there is one
       if (file) {
@@ -73,25 +76,29 @@ const AdminDashboard = () => {
           file,
           category: formData.category
         });
-        imageUrl = uploadResult.imageUrl;
+
+        console.log("backend-data:", uploadResult.data);
+        ({ imageUrl, sha, filePath } = uploadResult.data);
         console.log('imageUrl:', imageUrl);
       }
 
       // 2. Submit the product
       await createProductMutation.mutateAsync({
         ...formData,
-        image: imageUrl
+        image: imageUrl,
+        sha: sha,
+        imagefilePath: filePath,
       });
 
       setMessage('Product added to database successfully!');
-      setFormData({ name: '', description: '', price: '', category: '' });
+      setFormData({ name: '', description: '', price: '', category: '', totalStock: 0 });
       setFile(null);
       setPreview(null);
 
     } catch (err) {
       setMessage(err.message || 'Error uploading product.');
     }
-  };
+  }
 
   const removeImage = () => {
     setPreview(null);
@@ -99,7 +106,7 @@ const AdminDashboard = () => {
   }
   return (
 
-    <div className="min-h-screen bg-background flex flex-col pt-[72px]">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* for live preview  */}
 
       <Lightbox
@@ -129,6 +136,7 @@ const AdminDashboard = () => {
                 </h1>
                 <p className="text-gray-400 mt-2">Welcome back, {admin?.username}. Here is what's happening today.</p>
               </div>
+
 
               {/* High-level metrics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -179,12 +187,12 @@ const AdminDashboard = () => {
                         value={formData.name}
                         onChange={handleProductChange}
                         required
-                        className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-1 focus:ring-primary outline-none"
+                        className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                      <div className="col-span-1 md:col-span-3">
                         <label className="text-sm text-gray-400 block mb-1">Price ($)</label>
                         <input
                           type="number"
@@ -192,22 +200,36 @@ const AdminDashboard = () => {
                           value={formData.price}
                           onChange={handleProductChange}
                           required
-                          className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-1 focus:ring-primary outline-none"
+                          className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
                         />
                       </div>
-                      <div>
+                      <div className="col-span-1 md:col-span-5">
                         <label className="text-sm text-gray-400 block mb-1">Category</label>
                         <select
                           name="category"
                           value={formData.category}
                           onChange={handleProductChange}
-                          className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none"
+                          className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 cursor-pointer"
                         >
                           <option value="">Select Category</option>
                           <option value="embroidery">Embroidery</option>
                           <option value="stitching">Stitching</option>
                           <option value="rolled-gold-ornaments">Rolled Gold Ornaments</option>
                         </select>
+                      </div>
+                      {/* 3. NEW TOTAL STOCK INPUT */}
+                      <div className="col-span-1 md:col-span-4">
+                        <label className="text-sm text-gray-400 block mb-1">Available Stock</label>
+                        <input
+                          type="number"
+                          name="totalStock"
+                          min="0"
+                          value={formData.totalStock || ''}
+                          onChange={handleProductChange}
+                          required
+                          placeholder="0"
+                          className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
+                        />
                       </div>
                     </div>
 
@@ -217,7 +239,7 @@ const AdminDashboard = () => {
                         name="description"
                         value={formData.description}
                         onChange={handleProductChange}
-                        className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white min-h-[100px] outline-none"
+                        className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white min-h-[100px] focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
                       />
                     </div>
 
@@ -286,6 +308,10 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div className="mt-12">
+                <ProductInventoryTable />
               </div>
             </div>
           )}

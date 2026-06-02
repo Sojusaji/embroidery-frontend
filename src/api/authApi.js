@@ -26,3 +26,14 @@ export const adminLogin = async ({email, password}) => {
         throw new Error(errorMessage);
     }
 };
+
+export const adminLogout = async () => {
+    try {
+        const { data } = await api.post('/api/admin/logout');
+        return data;
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || "An unexpected error occurred during logout.";
+        console.error('Logout Service Error:', errorMessage);
+        throw new Error(errorMessage);
+    }
+};

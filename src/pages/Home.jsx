@@ -27,7 +27,7 @@ const Home = () => {
   return (
     <div>
       <Hero />
-      
+
       {/* Search & Category Shortcuts */}
       <section className="py-12 relative z-10 -mt-10 overflow-hidden">
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
@@ -45,7 +45,7 @@ const Home = () => {
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 whileHover={{ y: -5 }}
               >
-                <Link 
+                <Link
                   to={`/shop?category=${col.category}`}
                   className="group relative block p-8 rounded-3xl glass-panel border-white/10 overflow-hidden h-full"
                 >
@@ -67,10 +67,10 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       <section className="py-24 relative z-10 bg-surface">
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -86,7 +86,7 @@ const Home = () => {
               View Entire Collection
             </Link>
           </motion.div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {DUMMY_PRODUCTS.map((product, idx) => (
               <ProductCard key={product.id} product={product} index={idx} />
@@ -104,12 +104,12 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[ 
+            {[
               { icon: Ruler, title: 'Provide Measurements', desc: 'Use our interactive form to submit your exact body measurements digitally.' },
               { icon: Scissors, title: 'Master Tailoring', desc: 'Our artisans cut and stitch the premium fabric to your exact specifications.' },
               { icon: Truck, title: 'Secure Delivery', desc: 'Your bespoke garment is packaged securely and delivered to your doorstep.' }
             ].map((step, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -133,15 +133,15 @@ const Home = () => {
         <div className="text-center mb-12 relative z-10">
           <h2 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">Loved by Clients</h2>
         </div>
-        
+
         <div className="flex gap-6 overflow-hidden max-w-[100vw] relative">
           {/* Fading Edges */}
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-surface to-transparent z-10" />
           <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-surface to-transparent z-10" />
-          
+
           {/* Animated Track */}
-          <motion.div 
-            animate={{ x: [0, -1500] }} 
+          <motion.div
+            animate={{ x: [0, -1500] }}
             transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
             className="flex gap-6 min-w-max px-4"
           >
@@ -167,7 +167,7 @@ const Home = () => {
           </motion.div>
         </div>
       </section>
-      
+
       <Footer />
     </div>
   );

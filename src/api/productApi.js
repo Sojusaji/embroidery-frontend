@@ -7,15 +7,17 @@ export const fetchProducts = async () => {
 
 export const uploadProductImage = async (data) => {
   console.log("data:",data);
-  const { data:response } = await api.post('/api/products/upload', data, {
+  const { data:response } = await api.post('/api/products/image-upload', data, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
+  console.log('response via uploadproductImage route:',response);
   return response;
 };
 
 export const createProduct = async (productData) => {
+  console.log('productData coming for mutation function:',productData);
   const { data } = await api.post('/api/products', productData);
   return data;
 };

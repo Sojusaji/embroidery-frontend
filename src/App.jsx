@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
+import AdminHeader from './components/admin/AdminHeader';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import StitchingOrder from './pages/StitchingOrder';
@@ -10,11 +11,12 @@ import AdminLogin from './pages/AdminLogin';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from "./hook/useAuth"
+import { useAuth } from "./hook/useAuth";
+import ErrorBoundary from './components/ErrorBoundary';
 
 const ProtectedAdminRoute = ({ children }) => {
   const { data: user, isLoading } = useAuth();
- console.log('user && isLoading',user,isLoading);
+  console.log('user && isLoading', user, isLoading);
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
@@ -23,7 +25,7 @@ const ProtectedAdminRoute = ({ children }) => {
     );
   }
 
-  const isAuthorized = user?.status === "success"||
+  const isAuthorized = user?.status === "success" ||
     (user?.role === 'admin' || user?.role === 'superAdmin');
 
   return isAuthorized ? children : <Navigate to="/admin/login" replace />;
@@ -31,28 +33,33 @@ const ProtectedAdminRoute = ({ children }) => {
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-white flex flex-col relative">
-          <Navbar />
-          <CartDrawer />
-          <main className="flex-grow pt-20 pb-16">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/custom-orders" element={<StitchingOrder />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={
-                <ProtectedAdminRoute>
-                  <AdminDashboard />
-                </ProtectedAdminRoute>
-              } />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </CartProvider>
+    <ErrorBoundary>
+      <CartProvider>
+        <Router>
+          <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-white flex flex-col relative">
+            <Navbar />
+            <AdminHeader />
+            <CartDrawer />
+            <main className="flex-grow pt-20 pb-16">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/shop" element={<Shop />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/custom-orders" element={<StitchingOrder />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={
+                  <ProtectedAdminRoute>
+                    <ErrorBoundary>
+                      <AdminDashboard />
+                    </ErrorBoundary>
+                  </ProtectedAdminRoute>
+                } />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </CartProvider>
+    </ErrorBoundary>
     // </AdminAuthProvider>
   );
 }

@@ -1,9 +1,10 @@
 import React from 'react';
 import { LayoutDashboard, Package, Users, Settings, LogOut, ShoppingCart, Shield } from 'lucide-react';
-import {useAuth} from "../../hook/useAuth"
+import { useAuth, useAdminLogout } from "../../hook/useAuth"
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {
   const { data:admin, isLoading} = useAuth();
+  const logoutMutation = useAdminLogout();
   
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -49,11 +50,12 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
 
       <div className="px-4 mt-auto hidden lg:block">
         <button 
-          // onClick={logoutAdmin}
-          className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-xl transition-colors border border-transparent"
+          onClick={() => logoutMutation.mutate()}
+          disabled={logoutMutation.isPending}
+          className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-xl transition-colors border border-transparent disabled:opacity-50"
         >
           <LogOut className="w-5 h-5" />
-          <span className="font-medium">Logout</span>
+          <span className="font-medium">{logoutMutation.isPending ? 'Logging out...' : 'Logout'}</span>
         </button>
       </div>
     </div>

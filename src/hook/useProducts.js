@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchProducts, uploadProductImage, createProduct } from '../api/productApi';
 
-export const useProducts = () => {
+export const useGetProducts = () => {
   return useQuery({
     queryKey: ['products'],
     queryFn: fetchProducts,
@@ -14,7 +14,7 @@ export const useUploadImage = () => {
       const data = new FormData();
       data.append("category",category);
       data.append('image',file);
-      uploadProductImage(data)
+     return uploadProductImage(data)
     }
   });
 };

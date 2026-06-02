@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Camera, X, ImageIcon, ZoomIn, Filter } from 'lucide-react';
 import Footer from '../components/layout/Footer';
-import { useProducts } from '../hook/useProducts';
+import { useGetProducts } from '../hook/useProducts';
 
 const placeholderGallery = [
   { id: 1, title: 'Floral Elegance', category: 'Embroidery', size: 'large', img: '/gallery/floral.png' },
@@ -14,7 +14,7 @@ const categories = ['All', 'Embroidery'];
 
 const Gallery = () => {
   const [items, setItems] = useState([]);
-  const { data: fetchedProducts, isLoading: loading } = useProducts();
+  const { data: fetchedProducts, isLoading: loading } = useGetProducts();
   const [selectedImage, setSelectedImage] = useState(null);
   const [activeFilter, setActiveFilter] = useState('All');
 
