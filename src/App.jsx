@@ -13,6 +13,7 @@ import CartDrawer from './components/cart/CartDrawer';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from "./hook/useAuth";
 import ErrorBoundary from './components/ErrorBoundary';
+import { Toaster } from 'react-hot-toast';
 
 const ProtectedAdminRoute = ({ children }) => {
   const { data: user, isLoading } = useAuth();
@@ -56,6 +57,19 @@ function App() {
                 } />
               </Routes>
             </main>
+            <Toaster
+              position="top-right"
+              reverseOrder={false}
+              toastOptions={{
+                style: {
+                  background: '#121212', // Clean premium glass background to match your design
+                  color: '#ffffff',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '12px',
+                  fontSize: '14px'
+                }
+              }}
+            />
           </div>
         </Router>
       </CartProvider>

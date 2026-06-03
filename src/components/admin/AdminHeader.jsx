@@ -4,19 +4,16 @@ import { useLocation } from 'react-router-dom';
 import { useAuth, useAdminLogout } from '../../hook/useAuth';
 
 const AdminHeader = () => {
+
   const location = useLocation();
-  const isAdminDashboardRoute = location.pathname.startsWith('/admin') && location.pathname !== '/admin/login';
-
-  if (!isAdminDashboardRoute) return null;
-
   const { data: admin } = useAuth();
   const logoutMutation = useAdminLogout();
-  
+
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const profileRef = useRef(null);
   const notificationsRef = useRef(null);
 
@@ -55,9 +52,6 @@ const AdminHeader = () => {
     };
   }, [isMobileSearchOpen]);
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
 
   // Sample system notifications
   const [notifications, setNotifications] = useState([
@@ -89,6 +83,14 @@ const AdminHeader = () => {
       unread: true
     }
   ]);
+
+  const isAdminDashboardRoute = location.pathname.startsWith('/admin') && location.pathname !== '/admin/login';
+
+  if (!isAdminDashboardRoute) return null;
+  
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
 
   const markAllRead = () => {
     setNotifications(notifications.map(n => ({ ...n, unread: false })));
@@ -131,9 +133,9 @@ const AdminHeader = () => {
 
             {/* Right Section: Notifications and Profile */}
             <div className="flex items-center gap-4">
-              
+
               {/* Mobile Search Toggle */}
-              <button 
+              <button
                 onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
                 className={`p-2 text-gray-300 hover:text-white transition-all rounded-xl hover:bg-white/5 border md:hidden ${isMobileSearchOpen ? 'border-primary bg-primary/10 text-primary' : 'border-transparent'}`}
                 aria-label="Toggle search bar"
@@ -143,7 +145,7 @@ const AdminHeader = () => {
 
               {/* Notifications Menu */}
               <div className="relative" ref={notificationsRef}>
-                <button 
+                <button
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                   className={`relative p-2 text-gray-300 hover:text-white transition-all rounded-xl hover:bg-white/5 border ${isNotificationsOpen ? 'border-primary bg-primary/10 text-primary' : 'border-transparent'}`}
                   aria-label="System notifications"
@@ -163,8 +165,8 @@ const AdminHeader = () => {
                     <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
                       <h3 className="font-bold text-white text-base">System Notifications</h3>
                       {unreadCount > 0 && (
-                        <button 
-                          onClick={markAllRead} 
+                        <button
+                          onClick={markAllRead}
                           className="text-xs text-primary hover:text-primary-dark font-semibold transition-colors"
                         >
                           Mark all as read
@@ -179,8 +181,8 @@ const AdminHeader = () => {
                         notifications.map((n) => {
                           const Icon = n.icon;
                           return (
-                            <div 
-                              key={n.id} 
+                            <div
+                              key={n.id}
                               className={`flex gap-3.5 p-3 rounded-xl transition-all duration-300 border ${n.unread ? 'bg-white/5 border-primary/20' : 'bg-transparent border-transparent'} hover:bg-white/10`}
                             >
                               <div className={`p-2.5 rounded-xl h-fit shrink-0 ${n.color}`}>
@@ -212,7 +214,7 @@ const AdminHeader = () => {
 
               {/* Profile Dropdown */}
               <div className="relative" ref={profileRef}>
-                <button 
+                <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl transition-all hover:bg-white/5 border ${isProfileOpen ? 'border-primary/30 bg-primary/5' : 'border-transparent'}`}
                 >
@@ -232,8 +234,8 @@ const AdminHeader = () => {
                       <p className="text-xs font-bold text-white truncate">{admin?.username || 'Admin'}</p>
                       <p className="text-[10px] text-primary font-medium uppercase mt-0.5">{admin?.role === 'superAdmin' ? 'Super Admin' : 'Admin'}</p>
                     </div>
-                    
-                    <button 
+
+                    <button
                       onClick={() => {
                         setIsProfileOpen(false);
                       }}
@@ -243,7 +245,7 @@ const AdminHeader = () => {
                       <span>My Profile</span>
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => setIsProfileOpen(false)}
                       className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
                     >
@@ -253,7 +255,7 @@ const AdminHeader = () => {
 
                     <div className="border-t border-white/5 my-1.5" />
 
-                    <button 
+                    <button
                       onClick={handleLogout}
                       disabled={logoutMutation.isPending}
                       className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors font-semibold"
@@ -269,12 +271,11 @@ const AdminHeader = () => {
           </div>
 
           {/* Mobile Search Bar Expansion — pb lives INSIDE so overflow-hidden collapses it cleanly */}
-          <div 
-            className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
-              isMobileSearchOpen 
-                ? 'max-h-[58px] opacity-100' 
-                : 'max-h-0 opacity-0 pointer-events-none'
-            }`}
+          <div
+            className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${isMobileSearchOpen
+              ? 'max-h-[58px] opacity-100'
+              : 'max-h-0 opacity-0 pointer-events-none'
+              }`}
           >
             <div className="px-6 pb-4 relative">
               <div className="absolute inset-y-0 left-6 pl-3 flex items-center pointer-events-none text-gray-400">

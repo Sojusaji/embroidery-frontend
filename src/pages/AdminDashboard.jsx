@@ -8,8 +8,10 @@ import AdminSidebar from '../components/admin/AdminSidebar';
 import StatCard from '../components/admin/StatCard';
 import AnalyticsCharts from '../components/admin/AnalyticsCharts';
 import TopCustomersList from '../components/admin/TopCustomersList';
+import { toast } from "react-hot-toast";
 
 // Phase 2 Components
+import { logError } from "../utils/logger.js";
 import OrdersManager from '../components/admin/OrdersManager';
 import CustomersManager from '../components/admin/CustomersManager';
 import SettingsManager from '../components/admin/SettingsManager';
@@ -38,7 +40,6 @@ const AdminDashboard = () => {
   });
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [message, setMessage] = useState('');
 
   const loading = uploadImageMutation.isPending || createProductMutation.isPending;
 
@@ -63,7 +64,6 @@ const AdminDashboard = () => {
 
   const handleProductSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
 
     try {
       let imageUrl = '';
@@ -90,13 +90,20 @@ const AdminDashboard = () => {
         imagefilePath: filePath,
       });
 
-      setMessage('Product added to database successfully!');
+      toast.success("Product added to inventory successfully! 🎉");
+
+     
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+
+    
       setFormData({ name: '', description: '', price: '', category: '', totalStock: 0 });
       setFile(null);
       setPreview(null);
 
     } catch (err) {
-      setMessage(err.message || 'Error uploading product.');
+      logError('AdminDashboard_ProductUpload_error', err);
     }
   }
 
@@ -175,8 +182,6 @@ const AdminDashboard = () => {
                   <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                     <Plus className="text-primary w-5 h-5" /> Add New Design or Product
                   </h2>
-
-                  {message && <div className="p-3 bg-green-900/50 text-green-400 rounded-lg mb-6">{message}</div>}
 
                   <form onSubmit={handleProductSubmit} className="space-y-4">
                     <div>

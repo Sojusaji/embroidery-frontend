@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {logError  } from "../../utils/logger";
 import { Trash2, Edit2, Package, AlertTriangle, Loader2 } from 'lucide-react';
 import { useGetProducts } from '../../hook/useProducts'; // Adjust path if needed
 
@@ -26,7 +27,7 @@ const ProductInventoryTable = () => {
       // Execute your delete mutation here...
       closeDeleteModal();
     } catch (error) {
-      console.error("Failed to delete product:", error);
+      logError("ProductInventoryTable", error);
     }
   };
 
