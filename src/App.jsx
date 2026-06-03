@@ -39,7 +39,6 @@ function App() {
         <Router>
           <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-white flex flex-col relative">
             <Navbar />
-            <AdminHeader />
             <CartDrawer />
             <main className="flex-grow pt-20 pb-16">
               <Routes>
@@ -51,6 +50,7 @@ function App() {
                 <Route path="/admin" element={
                   <ProtectedAdminRoute>
                     <ErrorBoundary>
+                      <AdminHeader />
                       <AdminDashboard />
                     </ErrorBoundary>
                   </ProtectedAdminRoute>
