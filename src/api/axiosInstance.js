@@ -23,11 +23,11 @@ api.interceptors.response.use(
                     break;
 
                 case 401:
-                    if (!toast.isActive('auth-error')) {
-                        toast.error(isAdminRoute ? 'Admin session expired.' : 'Session expired.', {
-                            id: 'auth-error'
-                        });
-                    }
+                    toast.error(
+                        isAdminRoute ? 'Admin session expired.' : 'Session expired.',
+                        { id: 'auth-error' }
+                    );
+                    break;
 
                 case 403:
                     toast.error('Access Denied: You do not have permission to perform this action.', { id: 'access-denied' });
@@ -45,13 +45,11 @@ api.interceptors.response.use(
                     toast.error(serverMessage, { id: 'server-error', duration: 6000 });
             }
         } else if (error.request) {
-            // Handles network down/timeout
             toast.error('Network Error: Cannot connect to server. Check your connection.', { id: 'network-error' });
         } else {
             toast.error(`Configuration Error: ${error.message}`, { id: 'configuration-error' });
         }
 
-        // Always reject the promise so calling components can terminate their local loading spinners
         return Promise.reject(error);
     }
 );
