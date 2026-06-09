@@ -17,6 +17,7 @@ import CustomersManager from '../components/admin/CustomersManager';
 import SettingsManager from '../components/admin/SettingsManager';
 import AdminManager from '../components/admin/AdminManager';
 import ProductInventoryTable from '../components/admin/ProductInventoryTable';
+import TrashBinManager from '../components/admin/TrashBinManager'; 
 import { useAuth } from "../hook/useAuth";
 import { useUploadImage, useCreateProduct } from '../hook/useProducts';
 const AdminDashboard = () => {
@@ -26,6 +27,8 @@ const AdminDashboard = () => {
 
   const { data: admin } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+
+  const [productView, setProductView] = useState('catalog'); // 'catalog' or 'trash'
 
   const uploadImageMutation = useUploadImage();
   const createProductMutation = useCreateProduct();
@@ -167,157 +170,96 @@ const AdminDashboard = () => {
           )}
 
           {/* MANAGE PRODUCTS TAB */}
+         {/* 3. CONDITIONAL SUB-VIEW FILTERING WITHIN PRODUCTS TAB */}
           {activeTab === 'products' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="mb-8 flex justify-between items-center">
-                <div>
-                  <h1 className="text-3xl font-bold text-white tracking-wide">Manage Products</h1>
-                  <p className="text-gray-400 mt-2">Add new embroidery designs or stitching services and rolled gold ornaments to your catalog.</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Form */}
-                <div className="glass-panel p-6 bg-surface/50 border-white/5">
-                  <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <Plus className="text-primary w-5 h-5" /> Add New Design or Product
-                  </h2>
-
-                  <form onSubmit={handleProductSubmit} className="space-y-4">
+              {productView === 'catalog' ? (
+                <>
+                  <div className="mb-8 flex justify-between items-center">
                     <div>
-                      <label className="text-sm text-gray-400 block mb-1">Product Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleProductChange}
-                        required
-                        className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
-                      />
+                      <h1 className="text-3xl font-bold text-white tracking-wide">Manage Products</h1>
+                      <p className="text-gray-400 mt-2">Add new embroidery designs or stitching services and rolled gold ornaments to your catalog.</p>
                     </div>
+                  </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                      <div className="col-span-1 md:col-span-3">
-                        <label className="text-sm text-gray-400 block mb-1">Price ($)</label>
-                        <input
-                          type="number"
-                          name="price"
-                          value={formData.price}
-                          onChange={handleProductChange}
-                          required
-                          className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
-                        />
-                      </div>
-                      <div className="col-span-1 md:col-span-5">
-                        <label className="text-sm text-gray-400 block mb-1">Category</label>
-                        <select
-                          name="category"
-                          value={formData.category}
-                          onChange={handleProductChange}
-                          className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 cursor-pointer"
-                        >
-                          <option value="">Select Category</option>
-                          <option value="embroidery">Embroidery</option>
-                          <option value="stitching">Stitching</option>
-                          <option value="rolled-gold-ornaments">Rolled Gold Ornaments</option>
-                        </select>
-                      </div>
-                      {/* 3. NEW TOTAL STOCK INPUT */}
-                      <div className="col-span-1 md:col-span-4">
-                        <label className="text-sm text-gray-400 block mb-1">Available Stock</label>
-                        <input
-                          type="number"
-                          name="totalStock"
-                          min="0"
-                          value={formData.totalStock || ''}
-                          onChange={handleProductChange}
-                          required
-                          placeholder="0"
-                          className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-sm text-gray-400 block mb-1">Description</label>
-                      <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleProductChange}
-                        className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white min-h-[100px] focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm text-gray-400 block mb-1">Upload High-Res Photo</label>
-                      <label className="border-2 border-dashed border-white/10 hover:border-primary transition-colors bg-black/30 rounded-lg flex flex-col items-center justify-center py-8 cursor-pointer group">
-                        <Upload className="w-8 h-8 text-gray-500 group-hover:text-primary mb-2 transition-colors" />
-                        <span className="text-sm text-gray-400">Click to browse or drag file here</span>
-                        <input type="file" name='image' className="hidden" accept="image/*" onChange={handleFileChange} />
-                      </label>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg mt-6 transition-all active:scale-95"
-                    >
-                      {loading ? 'Publishing...' : 'Publish to Store'}
-                    </button>
-                  </form>
-                </div>
-
-
-                {/* Live Preview */}
-                <div className="glass-panel p-6 bg-black/20 border-white/5 border-dashed border">
-                  <h2 className="text-xl font-bold mb-6 text-gray-400">Live Card Preview</h2>
-                  <div className="max-w-[300px] mx-auto opacity-70 hover:opacity-100 transition-opacity">
-                    <div className="overflow-hidden rounded-2xl glass-panel p-2">
-                      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-subtle flex-center">
-                        {preview ? (
-                          <div className="relative w-full h-full" onClick={() => setIsOpen(true)}>
-                            <img
-                              src={preview}
-                              alt="Live Preview"
-                              className="w-full h-full object-contain touch-none"
-                            />
-
-                            {/* Change the hint to 'Click to Expand' */}
-                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full pointer-events-none">
-                              <p className="text-[10px] text-white/70 flex items-center gap-1">
-                                <ZoomIn size={12} /> Click to Fullscreen
-                              </p>
-                            </div>
-
-                            {/* Existing Remove Button */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevents lightbox from opening when deleting
-                                removeImage();
-                              }}
-                              className="absolute top-3 right-3 z-30 bg-white text-red-500 rounded-full p-2 shadow-xl hover:scale-110 active:scale-95 transition-all"
-                            >
-                              <X size={20} strokeWidth={3} />
-                            </button>
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="glass-panel p-6 bg-surface/50 border-white/5">
+                      <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <Plus className="text-primary w-5 h-5" /> Add New Design or Product
+                      </h2>
+                      <form onSubmit={handleProductSubmit} className="space-y-4">
+                        <div>
+                          <label className="text-sm text-gray-400 block mb-1">Product Name</label>
+                          <input type="text" name="name" value={formData.name} onChange={handleProductChange} required className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                          <div className="col-span-1 md:col-span-3">
+                            <label className="text-sm text-gray-400 block mb-1">Price ($)</label>
+                            <input type="number" name="price" value={formData.price} onChange={handleProductChange} required className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300" />
                           </div>
-                        ) : (
-                          <ImageIcon className="w-12 h-12 text-gray-600" />
-                        )}
-                      </div>
+                          <div className="col-span-1 md:col-span-5">
+                            <label className="text-sm text-gray-400 block mb-1">Category</label>
+                            <select name="category" value={formData.category} onChange={handleProductChange} className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 cursor-pointer">
+                              <option value="embroidery">Embroidery</option>
+                              <option value="stitching">Stitching</option>
+                              <option value="rolled-gold-ornaments">Rolled Gold Ornaments</option>
+                            </select>
+                          </div>
+                          <div className="col-span-1 md:col-span-4">
+                            <label className="text-sm text-gray-400 block mb-1">Available Stock</label>
+                            <input type="number" name="totalStock" min="0" value={formData.totalStock || ''} onChange={handleProductChange} required placeholder="0" className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-sm text-gray-400 block mb-1">Description</label>
+                          <textarea name="description" value={formData.description} onChange={handleProductChange} className="w-full bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-2.5 text-white min-h-[100px] focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300" />
+                        </div>
+                        <div>
+                          <label className="text-sm text-gray-400 block mb-1">Upload High-Res Photo</label>
+                          <label className="border-2 border-dashed border-white/10 hover:border-primary transition-colors bg-black/30 rounded-lg flex flex-col items-center justify-center py-8 cursor-pointer group">
+                            <Upload className="w-8 h-8 text-gray-500 group-hover:text-primary mb-2 transition-colors" />
+                            <span className="text-sm text-gray-400">Click to browse or drag file here</span>
+                            <input type="file" name='image' className="hidden" accept="image/*" onChange={handleFileChange} />
+                          </label>
+                        </div>
+                        <button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-lg mt-6 transition-all active:scale-95">{loading ? 'Publishing...' : 'Publish to Store'}</button>
+                      </form>
+                    </div>
 
-                      <div className="mt-4 p-2">
-                        <h3 className="text-white font-semibold truncate">{formData.name || 'Product Name'}</h3>
-                        <p className="text-primary font-medium mt-1">${formData.price || '0.00'}</p>
+                    <div className="glass-panel p-6 bg-black/20 border-white/5 border-dashed border">
+                      <h2 className="text-xl font-bold mb-6 text-gray-400">Live Card Preview</h2>
+                      <div className="max-w-[300px] mx-auto opacity-70 hover:opacity-100 transition-opacity">
+                        <div className="overflow-hidden rounded-2xl glass-panel p-2">
+                          <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-subtle flex-center">
+                            {preview ? (
+                              <div className="relative w-full h-full" onClick={() => setIsOpen(true)}>
+                                <img src={preview} alt="Live Preview" className="w-full h-full object-contain touch-none" />
+                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full pointer-events-none">
+                                  <p className="text-[10px] text-white/70 flex items-center gap-1"><ZoomIn size={12} /> Click to Fullscreen</p>
+                                </div>
+                                <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(); }} className="absolute top-3 right-3 z-30 bg-white text-red-500 rounded-full p-2 shadow-xl hover:scale-110 active:scale-95 transition-all">
+                                  <X size={20} strokeWidth={3} />
+                                </button>
+                              </div>
+                            ) : ( <ImageIcon className="w-12 h-12 text-gray-600" /> )}
+                          </div>
+                          <div className="mt-4 p-2">
+                            <h3 className="text-white font-semibold truncate">{formData.name || 'Product Name'}</h3>
+                            <p className="text-primary font-medium mt-1">${formData.price || '0.00'}</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="mt-12">
-                <ProductInventoryTable />
-              </div>
+                  <div className="mt-12">
+                    {/* TRIGGER SUB-VIEW POP ACTION */}
+                    <ProductInventoryTable onViewTrash={() => setProductView('trash')} />
+                  </div>
+                </>
+              ) : (
+                <TrashBinManager onBackToInventory={() => setProductView('catalog')} />
+              )}
             </div>
           )}
 
