@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, Menu, X, Scissors } from 'lucide-react';
 import { cn } from '../../utils/cn';
@@ -7,7 +7,7 @@ import { useCart } from '../../context/CartContext';
 
 const Navbar = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/profile');
 
   if (isAdminRoute) return null;
 
@@ -27,59 +27,71 @@ const Navbar = () => {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'fixed top-0 inset-x-0 z-50 transition-all duration-300',
-        scrolled ? 'py-4' : 'py-6'
+        'fixed top-0 inset-x-0 z-50 w-full transition-all duration-300 border-b py-4',
+        scrolled 
+          ? 'bg-black/60 backdrop-blur-md border-white/10  shadow-lg' 
+          : 'bg-transparent border-transparent '
       )}
     >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className={cn(
-          'flex items-center justify-between px-6 py-3 mx-auto max-w-7xl',
-          'glass-panel border-white/5 bg-black/40 shadow-xl'
-        )}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-12">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
-              <Scissors className="w-6 h-6 text-primary" />
+              <Scissors className="w-5 h-5 text-primary" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">Stitch&Art</span>
+            <span className="text-lg font-bold tracking-tight text-white">Stitch&Art</span>
           </Link>
 
-          {/* Desktop Nav */}
+          {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            {['Home', 'Shop', 'Custom Orders', 'Gallery'].map((item) => (
-              <Link 
-                key={item} 
-                to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                {item}
-              </Link>
-            ))}
+            {['Home', 'Shop', 'Custom Orders', 'Gallery'].map((item) => {
+              const targetPath = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`;
+              const isActive = location.pathname === targetPath;
+              return (
+                <Link 
+                  key={item} 
+                  to={targetPath}
+                  className={cn(
+                    "transition-colors relative py-2",
+                    isActive ? "text-primary font-semibold" : "text-gray-400 hover:text-white"
+                  )}
+                >
+                  {item}
+                  {isActive && (
+                    <motion.span 
+                      layoutId="activeNavLine"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full"
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4">
+          {/* Action Hub */}
+          <div className="flex items-center gap-2">
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 text-gray-300 hover:text-white transition-colors"
+              className="relative p-2.5 text-gray-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && (
                 <motion.span 
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute top-0 right-0 w-4 h-4 bg-primary text-[10px] font-bold text-white flex items-center justify-center rounded-full"
+                  className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-primary text-[9px] font-black text-white flex items-center justify-center px-1 rounded-full"
                 >
                   {cartCount}
                 </motion.span>
               )}
             </button>
 
-            {/* Mobile menu toggle */}
+            {/* Mobile Menu Action Toggle Button */}
             <button 
-              className="md:hidden p-2 text-gray-300 hover:text-white"
+              className="md:hidden p-2.5 text-gray-400 hover:text-white rounded-xl hover:bg-white/5"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -88,27 +100,29 @@ const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile Menu Dropdown */}
-      {isMobileMenuOpen && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="absolute top-full left-0 right-0 mt-2 px-4"
-        >
-          <div className="glass-panel bg-black/80 flex flex-col p-4 gap-4">
+      {/* Smooth Mobile Dropdown Drawer */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 w-full border-b border-white/10 bg-black/95 backdrop-blur-xl px-6 py-4 flex flex-col gap-2 md:hidden"
+          >
             {['Home', 'Shop', 'Custom Orders', 'Gallery'].map((item) => (
               <Link 
                 key={item} 
                 to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-gray-300 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5"
+                className="text-gray-300 hover:text-white text-sm font-medium transition-colors p-3 rounded-xl hover:bg-white/5"
               >
                 {item}
               </Link>
             ))}
-          </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 };

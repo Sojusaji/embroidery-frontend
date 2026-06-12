@@ -8,12 +8,14 @@ import StitchingOrder from './pages/StitchingOrder';
 import Gallery from './pages/Gallery';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
+import Login from './pages/Login';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from "./hook/useAuth";
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
+import UserDashboard from './pages/UserDashboard';
 
 const ProtectedAdminRoute = ({ children }) => {
   const { data: user, isLoading } = useAuth();
@@ -32,31 +34,60 @@ const ProtectedAdminRoute = ({ children }) => {
   return isAuthorized ? children : <Navigate to="/admin/login" replace />;
 };
 
+
+
+
+const StorefrontLayout = ({ children }) => {
+  return (
+    <div className="min-h-screen flex flex-col relative bg-background text-foreground selection:bg-primary selection:text-white">
+      <Navbar />
+      <CartDrawer />
+      {/* className="flex-grow pt-20 pb-16" */}
+      <main >
+        {children}
+      </main>
+    </div>
+  );
+};
+
+
+
 function App() {
+
+
   return (
     <ErrorBoundary>
       <CartProvider>
         <Router>
-          <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-white flex flex-col relative">
-            <Navbar />
+          {/* <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-white flex flex-col relative"> */}
+          {/* <Navbar />
             <CartDrawer />
-            <main className="flex-grow pt-20 pb-16">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/custom-orders" element={<StitchingOrder />} />
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin" element={
-                  <ProtectedAdminRoute>
-                    <ErrorBoundary>
-                      <AdminHeader />
-                      <AdminDashboard />
-                    </ErrorBoundary>
-                  </ProtectedAdminRoute>
-                } />
-              </Routes>
-            </main>
+            <main className="flex-grow pt-20 pb-16"> */}
+          <div className="w-full min-h-screen bg-black">
+            <Routes>
+              <Route path="/" element={<StorefrontLayout><Home /></StorefrontLayout>} />
+              <Route path="/shop" element={<StorefrontLayout><Shop /></StorefrontLayout>} />
+              <Route path="/gallery" element={<StorefrontLayout><Gallery /></StorefrontLayout>} />
+              <Route path="/custom-orders" element={<StorefrontLayout><StitchingOrder /></StorefrontLayout>} />
+              <Route path="/login" element={<StorefrontLayout><Login /></StorefrontLayout>} />
+
+              <Route path="/profile" element={
+                <div className="w-full h-screen overflow-hidden selection:bg-primary selection:text-white">
+                  <UserDashboard />
+                </div>
+              } />
+
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={
+                <ProtectedAdminRoute>
+                  <ErrorBoundary>
+                    <AdminHeader />
+                    <AdminDashboard />
+                  </ErrorBoundary>
+                </ProtectedAdminRoute>
+              } />
+            </Routes>
+            {/* </main> */}
             <Toaster
               position="top-right"
               reverseOrder={false}
@@ -74,9 +105,7 @@ function App() {
         </Router>
       </CartProvider>
     </ErrorBoundary>
-    // </AdminAuthProvider>
   );
 }
-
 
 export default App;
