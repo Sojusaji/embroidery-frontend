@@ -9,15 +9,27 @@ const steps = [
   { id: 'details', title: 'Your Details', icon: CheckCircle },
 ];
 
-const StitchingOrder = () => {
+const StitchingOrder = ({ initialMeasurements }) => {
   const [currentStep, setCurrentStep] = useState(0);
+
+  // Helper to safely parse numbers from custom size guide labels
+  const getMeasurementVal = (labelName) => {
+    if (!initialMeasurements || !Array.isArray(initialMeasurements)) return '';
+    const found = initialMeasurements.find(m => m.label.toLowerCase().includes(labelName.toLowerCase()));
+    if (found) {
+      const parsed = parseFloat(found.value);
+      return isNaN(parsed) ? '' : parsed;
+    }
+    return '';
+  };
+
   const [formData, setFormData] = useState({
     fabricType: '',
     style: '',
-    chest: '',
-    waist: '',
-    hips: '',
-    length: '',
+    chest: getMeasurementVal('chest'),
+    waist: getMeasurementVal('waist'),
+    hips: getMeasurementVal('hips'),
+    length: getMeasurementVal('length') || getMeasurementVal('sleeve'),
     name: '',
     email: '',
     address: ''
@@ -76,7 +88,7 @@ const StitchingOrder = () => {
               </div>
               <span className={cn(
                 "hidden sm:block text-xs font-semibold absolute -bottom-6 w-max",
-                isActive ? "text-primary" : "text-gray-500"
+                isActive ? "text-primary" : "text-gray-400"
               )}>
                 {step.title}
               </span>
@@ -86,7 +98,7 @@ const StitchingOrder = () => {
       </div>
 
       {/* Form Container */}
-      <div className="glass-panel p-6 md:p-10 relative overflow-hidden bg-surface/50 border-white/5">
+      <div className="glass-panel p-6 md:p-10 relative overflow-hidden bg-surface/50 border-white/10">
         <AnimatePresence mode="wait">
           <motion.form 
             key={currentStep}
