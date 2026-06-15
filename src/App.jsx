@@ -43,7 +43,7 @@ const StorefrontLayout = ({ children }) => {
       <Navbar />
       <CartDrawer />
       {/* className="flex-grow pt-20 pb-16" */}
-      <main >
+      <main className="flex-grow pt-15 [&:has(section,.login)]:pt-0 bg-transparent">
         {children}
       </main>
     </div>
@@ -63,7 +63,7 @@ function App() {
           {/* <Navbar />
             <CartDrawer />
             <main className="flex-grow pt-20 pb-16"> */}
-          <div className="w-full min-h-screen bg-black">
+          <div className="w-full min-h-screen">
             <Routes>
               <Route path="/" element={<StorefrontLayout><Home /></StorefrontLayout>} />
               <Route path="/shop" element={<StorefrontLayout><Shop /></StorefrontLayout>} />

@@ -4,14 +4,14 @@ import { Mail, Phone, ArrowRight, RefreshCw, Star, User } from 'lucide-react';
 
 export default function LoginPage() {
   // Navigation UI States: 'identifier', 'register', or 'otp'
-  const [step, setStep] = useState('identifier'); 
+  const [step, setStep] = useState('identifier');
   const [inputValue, setInputValue] = useState('');
   const [isEmail, setIsEmail] = useState(false);
-  
+
   // New Customer Signup States
   const [fullName, setFullName] = useState('');
-  const [isNewUser, setIsNewUser] = useState(false); // Controls context text
-  
+  const [isNewUser, setIsNewUser] = useState(false);
+
   // Verification States
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
@@ -30,70 +30,139 @@ export default function LoginPage() {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    /* 
-      Backend Logic Simulation:
-      const res = await axios.post('/api/auth/check-user', { identifier: inputValue });
-      if (res.data.exists === false) {
-         setIsNewUser(true);
-         setStep('register');
+    try {
+      /* 
+        MERN BACKEND INTEGRATION AXIOS TEMPLATE:
+        const { data } = await axios.post('/api/auth/check-user', { identifier: inputValue });
+        
+        if (!data.exists) {
+           setIsNewUser(true);
+           setStep('register');
+        } else {
+           // Existing user: Trigger API dispatch to send OTP immediately
+           await axios.post('/api/auth/send-otp', { identifier: inputValue });
+           setIsNewUser(false);
+           resetOtpTimer();
+           setStep('otp');
+        }
+      */
+
+      // DEVELOPMENT TESTING TOGGLE: Change this to test both logical directions
+      const mockUserExistsInDatabase = true;
+
+      if (!mockUserExistsInDatabase) {
+        setIsNewUser(true);
+        setStep('register');
       } else {
-         setIsNewUser(false);
-         setStep('otp');
+        setIsNewUser(false);
+        resetOtpTimer(); // Prep timer configurations before entry
+        setStep('otp');
       }
-    */
-
-    // SIMULATION FOR TESTING: Toggle this to see the registration UI vs direct login
-    const mockUserExistsInDatabase = false; 
-
-    if (!mockUserExistsInDatabase) {
-      setIsNewUser(true);
-      setStep('register'); // Send to collection forms first
-    } else {
-      setIsNewUser(false);
-      setStep('otp'); // Skip straight to entry verification code
+    } catch (error) {
+      console.error("Authentication handshake initialization failed:", error);
     }
   };
 
   // Step 2 Trigger: Handle Registration Details Submission
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!fullName.trim()) return;
 
-    // Backend Integration Hook: Trigger dynamic OTP generation for new user accounts
-    console.log(`Creating pending profile for ${fullName} with link ${inputValue}`);
-    setStep('otp');
+    try {
+      /*
+        MERN BACKEND INTEGRATION AXIOS TEMPLATE:
+        // Register intent details and trigger verification engine dispatch
+        await axios.post('/api/auth/register-intent', { name: fullName, identifier: inputValue });
+      */
+      console.log(`Creating pending profile for ${fullName} with link ${inputValue}`);
+      resetOtpTimer();
+      setStep('otp');
+    } catch (error) {
+      console.error("Registration intent submission failed:", error);
+    }
   };
 
-  // Grid mechanics for single digit inputs
+  // Single character matrix shift validation
   const handleOtpChange = (element, index) => {
-    if (isNaN(element.value)) return false;
+    const value = element.value;
+    if (isNaN(value)) return false;
 
     let newOtp = [...otp];
-    newOtp[index] = element.value;
+    newOtp[index] = value;
     setOtp(newOtp);
 
-    if (element.value !== '' && index < 5) {
+    // Dynamic Focus forward
+    if (value !== '' && index < 5) {
       otpRefs.current[index + 1].focus();
     }
   };
 
+  // Native mobile full token clipboard paste interception handler
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text').trim();
+
+    // Verify sequence profile is strictly 6 numerical digits
+    if (/^\d{6}$/.test(pasteData)) {
+      const digits = pasteData.split('');
+      setOtp(digits);
+      otpRefs.current[5].focus(); // Focus final slot
+    }
+  };
+
   const handleOtpKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpRefs.current[index - 1].focus();
+    if (e.key === 'Backspace') {
+      if (!otp[index] && index > 0) {
+        // Move focus back and clear that input slot cleanly
+        let newOtp = [...otp];
+        newOtp[index - 1] = '';
+        setOtp(newOtp);
+        otpRefs.current[index - 1].focus();
+      } else {
+        let newOtp = [...otp];
+        newOtp[index] = '';
+        setOtp(newOtp);
+      }
     }
   };
 
   // Final Step Trigger: Verify Active Token
-  const handleOtpSubmit = (e) => {
+  const handleOtpSubmit = async (e) => {
     e.preventDefault();
     const finalOtp = otp.join('');
     if (finalOtp.length < 6) return;
 
-    if (isNewUser) {
-      console.log(`Finalizing SIGNUP authentication: ${finalOtp} for ${fullName}`);
-    } else {
-      console.log(`Finalizing LOGIN authentication: ${finalOtp}`);
+    try {
+      /*
+        MERN BACKEND INTEGRATION AXIOS TEMPLATE:
+        const endpoint = isNewUser ? '/api/auth/verify-signup' : '/api/auth/verify-login';
+        const { data } = await axios.post(endpoint, { identifier: inputValue, token: finalOtp, name: fullName });
+        
+        // Save Redux/Context token configurations here
+        localStorage.setItem('authToken', data.token);
+        navigate('/dashboard');
+      */
+      if (isNewUser) {
+        console.log(`Finalizing SIGNUP verification: ${finalOtp} for ${fullName}`);
+      } else {
+        console.log(`Finalizing LOGIN verification: ${finalOtp}`);
+      }
+    } catch (error) {
+      console.error("Authentication challenge failed rejection:", error);
     }
+  };
+
+  // Helper utility method to normalize state profiles during back tracking
+  const resetOtpTimer = () => {
+    setOtp(['', '', '', '', '', '']);
+    setTimer(60);
+    setCanResend(false);
+  };
+
+  // Handle step backing navigation state updates safely
+  const handleBackNavigation = (targetStep) => {
+    resetOtpTimer();
+    setStep(targetStep);
   };
 
   // Visual Countdown Timer logic loop
@@ -111,15 +180,17 @@ export default function LoginPage() {
   }, [step, timer]);
 
   const handleResendOtp = () => {
-    setOtp(['', '', '', '', '', '']);
-    setTimer(60);
-    setCanResend(false);
+    /*
+      MERN BACKEND INTEGRATION AXIOS TEMPLATE:
+      await axios.post('/api/auth/send-otp', { identifier: inputValue });
+    */
+    resetOtpTimer();
     otpRefs.current[0]?.focus();
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black text-white px-4">
-      
+    <div className="login relative min-h-screen flex items-center justify-center overflow-hidden bg-black text-white px-4">
+
       {/* 🌌 Ambient Layer */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2" />
@@ -128,20 +199,20 @@ export default function LoginPage() {
       </div>
 
       {/* Main Structural Layout Wrapper */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 rounded-[32px] glass-panel border-white/10 bg-white/5 overflow-hidden relative z-10 min-h-[550px]"
+        className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden relative z-10 min-h-[550px]"
       >
-        
+
         {/* LEFT COMPONENT: Branding Frame */}
         <div className="hidden md:flex md:col-span-5 bg-white/[0.02] border-r border-white/5 p-10 flex-col justify-between relative overflow-hidden">
           <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-          
+
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center text-primary border border-primary/20">
-              <Star className="w-4 h-4 fill-currentColor" />
+              <Star className="w-4 h-4 fill-current" />
             </div>
             <span className="text-sm font-bold tracking-wider uppercase text-gray-200">Bespoke Hub</span>
           </div>
@@ -165,9 +236,9 @@ export default function LoginPage() {
 
         {/* RIGHT COMPONENT: Form Step Controller Container */}
         <div className="col-span-1 md:col-span-7 p-8 sm:p-12 flex flex-col justify-center relative">
-          
+
           <AnimatePresence mode="wait">
-            
+
             {/* STEP 1: IDENTIFIER VIEW */}
             {step === 'identifier' && (
               <motion.div
@@ -179,8 +250,8 @@ export default function LoginPage() {
                 className="space-y-6"
               >
                 <div>
-                  <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Get Started</h1>
-                  <p className="text-sm text-gray-300">Enter details to log in or map a new client destination file.</p>
+                  <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Welcome back</h1>
+                  <p className="text-sm text-gray-300">Enter your details to sign in or create a new account.</p>
                 </div>
 
                 <form onSubmit={handleIdentifierSubmit} className="space-y-5">
@@ -226,10 +297,10 @@ export default function LoginPage() {
                     className="w-full flex items-center gap-3 justify-center px-6 py-3 border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 text-sm font-semibold rounded-full transition-all cursor-pointer"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05"/>
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05" />
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                     </svg>
                     Continue with Google
                   </button>
@@ -249,10 +320,10 @@ export default function LoginPage() {
               >
                 <div>
                   <span className="text-xs px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-semibold tracking-wide">
-                    New Profile Setup
+                    New Account
                   </span>
-                  <h1 className="text-3xl font-extrabold text-white tracking-tight mt-3 mb-2">Create Account</h1>
-                  <p className="text-sm text-gray-300">We couldn't locate your profile link. Let's finish building it now.</p>
+                  <h1 className="text-3xl font-extrabold text-white tracking-tight mt-3 mb-2">Create your profile</h1>
+                  <p className="text-sm text-gray-300">It looks like you're new here. Tell us your name to get started.</p>
                 </div>
 
                 <form onSubmit={handleRegisterSubmit} className="space-y-5">
@@ -293,14 +364,14 @@ export default function LoginPage() {
                         type="submit"
                         className="w-full flex items-center gap-2 justify-center px-6 py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-semibold transition-all hover:scale-[1.02] cursor-pointer text-sm"
                       >
-                        Register & Request OTP
+                        Request verification code
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </motion.div>
 
                     <button
                       type="button"
-                      onClick={() => setStep('identifier')}
+                      onClick={() => handleBackNavigation('identifier')}
                       className="w-full text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer text-center"
                     >
                       Back to input correction
@@ -322,10 +393,10 @@ export default function LoginPage() {
               >
                 <div>
                   <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">
-                    {isNewUser ? 'Verify Registration' : 'Verify Identity'}
+                    {isNewUser ? 'Verify your account' : 'Security check'}
                   </h1>
                   <p className="text-sm text-gray-300">
-                    We shared a 6-digit access code sequence safely with <span className="text-primary font-semibold">{inputValue}</span>
+                    We've sent a 6-digit secure code to <span className="text-primary font-semibold">{inputValue}</span>
                   </p>
                 </div>
 
@@ -335,11 +406,14 @@ export default function LoginPage() {
                       <input
                         key={index}
                         type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         maxLength="1"
                         ref={(el) => (otpRefs.current[index] = el)}
                         value={data}
                         onChange={(e) => handleOtpChange(e.target, index)}
                         onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                        onPaste={handleOtpPaste}
                         className="w-11 h-14 bg-white/[0.04] border border-white/15 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl text-center text-xl font-bold text-primary outline-none transition-all"
                       />
                     ))}
@@ -352,13 +426,13 @@ export default function LoginPage() {
                         disabled={otp.includes('')}
                         className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 disabled:bg-white/5 text-white disabled:text-gray-500 font-semibold rounded-full flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed text-sm"
                       >
-                        {isNewUser ? 'Complete Secure Signup' : 'Authenticate Identity'}
+                        {isNewUser ? 'Complete registration' : 'Verify and sign in'}
                       </button>
                     </motion.div>
 
                     <button
                       type="button"
-                      onClick={() => setStep(isNewUser ? 'register' : 'identifier')}
+                      onClick={() => handleBackNavigation(isNewUser ? 'register' : 'identifier')}
                       className="w-full text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer text-center"
                     >
                       Back to info review
@@ -374,11 +448,11 @@ export default function LoginPage() {
                       className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors cursor-pointer"
                     >
                       <RefreshCw className="w-3 h-3" />
-                      Resend Code Sequence
+                     Resend code
                     </button>
                   ) : (
                     <p className="text-xs font-medium text-gray-400">
-                      Resend system dispatch ready in <span className="text-white font-mono font-bold">{timer}s</span>
+                     Didn't receive the code? Resend in <span className="text-white font-mono font-bold">{timer}s</span>
                     </p>
                   )}
                 </div>
