@@ -1,5 +1,6 @@
 import api from './axiosInstance';
 
+
 export const adminLogin = async ({email, password}) => {
     console.log('email && password:', email, password);
 
@@ -8,7 +9,7 @@ export const adminLogin = async ({email, password}) => {
     }
 
     try {
-        const { data } = await api.post('/api/admin/login', {
+        const { data } = await api.post('/api/v1/auth/admins/login', {
             email: email.toLowerCase(),
             password
         });
@@ -29,7 +30,7 @@ export const adminLogin = async ({email, password}) => {
 
 export const adminLogout = async () => {
     try {
-        const { data } = await api.post('/api/admin/logout');
+        const { data } = await api.post('/api/v1/auth/admins/logout');
         return data;
     } catch (error) {
         const errorMessage = error.response?.data?.message || "An unexpected error occurred during logout.";
