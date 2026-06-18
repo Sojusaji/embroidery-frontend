@@ -11,7 +11,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   // Simulated Auth State (Change to false to test the guest view!)
-  const isLoggedIn = true;
+  const isLoggedIn = false;
   const user = {
     name: 'soju saji',
     email: 'soju.saji@example.com'
