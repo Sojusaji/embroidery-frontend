@@ -1,9 +1,9 @@
 import React from 'react';
 import { LayoutDashboard, Package, Users, Settings, LogOut, ShoppingCart, Shield } from 'lucide-react';
-import { useAuth, useAdminLogout } from "../../hook/useAuth"
+import { useAdminAuth, useAdminLogout } from "../../hook/auth/useAdminAuth.js"
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {
-  const { data:admin, isLoading} = useAuth();
+  const { data:admin, isLoading} = useAdminAuth();
   const logoutMutation = useAdminLogout();
   
   const navItems = [

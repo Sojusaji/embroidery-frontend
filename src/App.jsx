@@ -12,13 +12,13 @@ import Login from './pages/Login';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from "./hook/useAuth";
+import { useAdminAuth } from "./hook/auth/useAdminAuth";
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import UserDashboard from './pages/UserDashboard';
 
 const ProtectedAdminRoute = ({ children }) => {
-  const { data: user, isLoading } = useAuth();
+  const { data: user, isLoading } = useAdminAuth();
   console.log('user && isLoading', user, isLoading);
   if (isLoading) {
     return (

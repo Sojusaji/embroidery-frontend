@@ -6,7 +6,6 @@ export default function LoginPage() {
   // Navigation UI States: 'identifier', 'register', or 'otp'
   const [step, setStep] = useState('identifier');
   const [inputValue, setInputValue] = useState('');
-  const [isEmail, setIsEmail] = useState(false);
 
   // New Customer Signup States
   const [fullName, setFullName] = useState('');
@@ -22,7 +21,6 @@ export default function LoginPage() {
   const handleIdentifierChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
-    setIsEmail(value.includes('@'));
   };
 
   // Step 1 Trigger: Check if user exists or needs registration
@@ -257,15 +255,15 @@ export default function LoginPage() {
                 <form onSubmit={handleIdentifierSubmit} className="space-y-5">
                   <div className="space-y-2">
                     <label className="text-xs font-semibold uppercase tracking-widest text-gray-300">
-                      Email or Mobile Number
+                      Email
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
-                        {isEmail ? <Mail className="w-5 h-5" /> : <Phone className="w-5 h-5" />}
+                        <Mail className="w-5 h-5" /> 
                       </div>
                       <input
                         type="text"
-                        placeholder="name@email.com or +91..."
+                        placeholder="name@email.com "
                         value={inputValue}
                         onChange={handleIdentifierChange}
                         className="w-full pl-12 pr-4 py-3.5 bg-white/[0.04] border border-white/15 rounded-2xl text-white placeholder-gray-500 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"

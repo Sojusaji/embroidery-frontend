@@ -4,14 +4,13 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Menu, X, Scissors, LogIn, User, Settings, LogOut, LayoutDashboard, UserPlus } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useCart } from '../../context/CartContext';
-// import { useAuth } from '../../context/AuthContext'; // Connect your real auth provider here
+
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Simulated Auth State (Change to false to test the guest view!)
-  const isLoggedIn = false;
+  const isLoggedIn = true;
   const user = {
     name: 'soju saji',
     email: 'soju.saji@example.com'

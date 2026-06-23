@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAdminLogin } from "../hook/useAdminLogin"
+import { useAdminLogin } from "../hook/auth/useAdminAuth"
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 const AdminLogin = () => {

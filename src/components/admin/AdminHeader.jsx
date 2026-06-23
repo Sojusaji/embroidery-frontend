@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Bell, User, LogOut, Settings, ChevronDown, Scissors, ShieldAlert, ShoppingBag, UserPlus } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { useAuth, useAdminLogout } from '../../hook/useAuth';
+import { useAdminAuth, useAdminLogout } from '../../hook/auth/useAdminAuth';
 
 const AdminHeader = () => {
 
   const location = useLocation();
-  const { data: admin } = useAuth();
+  const { data: admin } = useAdminAuth();
   const logoutMutation = useAdminLogout();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);

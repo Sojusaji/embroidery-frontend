@@ -18,14 +18,14 @@ import SettingsManager from '../components/admin/SettingsManager';
 import AdminManager from '../components/admin/AdminManager';
 import ProductInventoryTable from '../components/admin/ProductInventoryTable';
 import TrashBinManager from '../components/admin/TrashBinManager'; 
-import { useAuth } from "../hook/useAuth";
+import { useAdminAuth } from "../hook/auth/useAdminAuth.js";
 import { useUploadImage, useCreateProduct } from '../hook/useProducts';
 const AdminDashboard = () => {
   // 2. Add state for lightbox
   const [isOpen, setIsOpen] = useState(false);
 
 
-  const { data: admin } = useAuth();
+  const { data: admin } = useAdminAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
   const [productView, setProductView] = useState('catalog'); // 'catalog' or 'trash'
@@ -114,9 +114,10 @@ const AdminDashboard = () => {
     setPreview(null);
     setFile(null);
   }
+  
   return (
 
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pt-18">
       {/* for live preview  */}
 
       <Lightbox
