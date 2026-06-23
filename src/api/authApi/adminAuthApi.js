@@ -1,0 +1,54 @@
+import api from '../axiosInstance';
+
+
+export const adminAuthStatus = async () => {
+    try {
+        const {data} = await api.get('/api/v1/auth/admins/verify');
+        console.log('authStatus:',data);
+        return data;
+    } catch (error) {
+        const errorMessage = error?.response?.data?.message || "unexpected error occured";
+        console.error('auth error:',errorMessage);
+        throw new Error(errorMessage);
+    }
+}
+
+
+
+export const adminLogin = async ({email, password}) => {
+    console.log('email && password:', email, password);
+
+    if (!email || !password) {
+        throw new Error("Email and password are required.");
+    }
+
+    try {
+        const { data } = await api.post('/api/v1/auth/admins/login', {
+            email: email.toLowerCase(),
+            password
+        });
+        console.log("login response:", data);
+        if (process.env.NODE_ENV === 'development') {
+            console.log('Admin login successful');
+        }
+
+        return data;
+    } catch (error) {
+
+        const errorMessage = error.response?.data?.message || "An unexpected error occurred during login.";
+
+        console.error('Login Service Error:', errorMessage);
+        throw new Error(errorMessage);
+    }
+};
+
+export const adminLogout = async () => {
+    try {
+        const { data } = await api.post('/api/v1/auth/admins/logout');
+        return data;
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || "An unexpected error occurred during logout.";
+        console.error('Logout Service Error:', errorMessage);
+        throw new Error(errorMessage);
+    }
+};
