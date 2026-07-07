@@ -1,65 +1,112 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, ArrowRight, RefreshCw, Star, User } from 'lucide-react';
+import {
+  useUserLogin,
+  useUserRegistration,
+  useSendOtp,
+  useVerifyUser,
+} from "../hook/auth/userAuth";
+import { useNavigate, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+
 
 export default function LoginPage() {
-  // Navigation UI States: 'identifier', 'register', or 'otp'
-  const [step, setStep] = useState('identifier');
-  const [inputValue, setInputValue] = useState('');
 
-  // New Customer Signup States
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const params = new URLSearchParams(location.search)
+  const returnTo = params.get('returnTo') || '/';
+  const error = params.get('error');
+
+  const [step, setStep] = useState('identifier');
+  const [email, setEmail] = useState('');
+
+
   const [fullName, setFullName] = useState('');
   const [isNewUser, setIsNewUser] = useState(false);
 
-  // Verification States
+
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [isOtpResending, setIsOtpResending] = useState(false);
   const otpRefs = useRef([]);
 
-  // Smart input identifier check (Email vs Phone)
-  const handleIdentifierChange = (e) => {
-    const value = e.target.value;
-    setInputValue(value);
-  };
 
-  // Step 1 Trigger: Check if user exists or needs registration
+  const { mutateAsync: sendOtp, isPending: isOtpSendPending } = useSendOtp();
+
+  const { mutateAsync: verifyUser, isPending: isVerifyUserPending } = useVerifyUser();
+
+  const { mutateAsync: createUser, isPending: isCreateUserPending } = useUserRegistration();
+
+  const { mutateAsync: userLogin, isPending: isUserLoginPending } = useUserLogin();
+
+
+
+  useEffect(() => {
+    if(error){
+      toast.error(error,{id:"google-auth-error"})
+    }
+    if (error && !location.state?.replaced) {
+      navigate(`/login?error=${error}`, { replace: true, state: { replaced: true } });
+    }
+  }, [error, navigate, location.state]);
+
+
+
+
   const handleIdentifierSubmit = async (e) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+
+    if (!email.trim()) return;
+
 
     try {
-      /* 
-        MERN BACKEND INTEGRATION AXIOS TEMPLATE:
-        const { data } = await axios.post('/api/auth/check-user', { identifier: inputValue });
-        
-        if (!data.exists) {
-           setIsNewUser(true);
-           setStep('register');
-        } else {
-           // Existing user: Trigger API dispatch to send OTP immediately
-           await axios.post('/api/auth/send-otp', { identifier: inputValue });
-           setIsNewUser(false);
-           resetOtpTimer();
-           setStep('otp');
-        }
-      */
 
-      // DEVELOPMENT TESTING TOGGLE: Change this to test both logical directions
-      const mockUserExistsInDatabase = true;
+      console.log('emailToVerifying:', email);
+      const response = await verifyUser({ email });
+      console.log('response from verifyUser', response);
 
-      if (!mockUserExistsInDatabase) {
+
+      if (!response?.exists) {
         setIsNewUser(true);
         setStep('register');
       } else {
         setIsNewUser(false);
-        resetOtpTimer(); // Prep timer configurations before entry
+        console.log('ready to work otp sending hook:', email)
+        await sendOtp({ email });
+
+        resetOtpTimer();
         setStep('otp');
       }
+
     } catch (error) {
       console.error("Authentication handshake initialization failed:", error);
     }
   };
+
+
+
+  /* --- Framer Motion Loader Spinner --- */
+  const framerMotionSpinner = () => {
+    return (
+      <motion.div
+        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+        animate={{ rotate: 360 }}
+        transition={{
+          repeat: Infinity,
+          ease: "linear",
+          duration: 0.8
+        }}
+      />
+    )
+  }
+
+
 
   // Step 2 Trigger: Handle Registration Details Submission
   const handleRegisterSubmit = async (e) => {
@@ -67,14 +114,17 @@ export default function LoginPage() {
     if (!fullName.trim()) return;
 
     try {
-      /*
-        MERN BACKEND INTEGRATION AXIOS TEMPLATE:
-        // Register intent details and trigger verification engine dispatch
-        await axios.post('/api/auth/register-intent', { name: fullName, identifier: inputValue });
-      */
-      console.log(`Creating pending profile for ${fullName} with link ${inputValue}`);
-      resetOtpTimer();
-      setStep('otp');
+
+      let userData = { name: fullName, email };
+
+      const response = await createUser({ userData })
+
+      if (response?.success) {
+        await sendOtp({ email });
+        resetOtpTimer();
+        setStep('otp')
+      }
+
     } catch (error) {
       console.error("Registration intent submission failed:", error);
     }
@@ -89,29 +139,31 @@ export default function LoginPage() {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Dynamic Focus forward
+
     if (value !== '' && index < 5) {
       otpRefs.current[index + 1].focus();
     }
   };
+
 
   // Native mobile full token clipboard paste interception handler
   const handleOtpPaste = (e) => {
     e.preventDefault();
     const pasteData = e.clipboardData.getData('text').trim();
 
-    // Verify sequence profile is strictly 6 numerical digits
+
     if (/^\d{6}$/.test(pasteData)) {
       const digits = pasteData.split('');
       setOtp(digits);
-      otpRefs.current[5].focus(); // Focus final slot
+      otpRefs.current[5].focus();
     }
   };
 
   const handleOtpKeyDown = (e, index) => {
+    console.log('e:', e);
+    console.log('index:', index);
     if (e.key === 'Backspace') {
       if (!otp[index] && index > 0) {
-        // Move focus back and clear that input slot cleanly
         let newOtp = [...otp];
         newOtp[index - 1] = '';
         setOtp(newOtp);
@@ -131,26 +183,20 @@ export default function LoginPage() {
     if (finalOtp.length < 6) return;
 
     try {
-      /*
-        MERN BACKEND INTEGRATION AXIOS TEMPLATE:
-        const endpoint = isNewUser ? '/api/auth/verify-signup' : '/api/auth/verify-login';
-        const { data } = await axios.post(endpoint, { identifier: inputValue, token: finalOtp, name: fullName });
-        
-        // Save Redux/Context token configurations here
-        localStorage.setItem('authToken', data.token);
-        navigate('/dashboard');
-      */
-      if (isNewUser) {
-        console.log(`Finalizing SIGNUP verification: ${finalOtp} for ${fullName}`);
-      } else {
-        console.log(`Finalizing LOGIN verification: ${finalOtp}`);
+      let userData = {
+        email,
+        otp: finalOtp
       }
+      await userLogin({ userData });
+      resetOtpTimer();
+      navigate(returnTo, { replace: true })
+
     } catch (error) {
       console.error("Authentication challenge failed rejection:", error);
     }
   };
 
-  // Helper utility method to normalize state profiles during back tracking
+
   const resetOtpTimer = () => {
     setOtp(['', '', '', '', '', '']);
     setTimer(60);
@@ -163,28 +209,43 @@ export default function LoginPage() {
     setStep(targetStep);
   };
 
-  // Visual Countdown Timer logic loop
+
+
   useEffect(() => {
     let interval = null;
-    if (step === 'otp' && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (timer === 0) {
-      setCanResend(true);
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [step, timer]);
 
-  const handleResendOtp = () => {
-    /*
-      MERN BACKEND INTEGRATION AXIOS TEMPLATE:
-      await axios.post('/api/auth/send-otp', { identifier: inputValue });
-    */
+    if (step === 'otp') {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [step]);
+
+  const handleResendOtp = async () => {
+    await sendOtp({ email });
     resetOtpTimer();
     otpRefs.current[0]?.focus();
   };
+
+
+  const handleGoogleRedirect = () => {
+    window.location.href = `${API_BASE_URL}api/v1/auth/users/google?returnTo=${encodeURIComponent(returnTo)}`;
+  }
+
+
+
+
 
   return (
     <div className="login relative min-h-screen flex items-center justify-center overflow-hidden bg-black text-white px-4">
@@ -259,26 +320,35 @@ export default function LoginPage() {
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary transition-colors">
-                        <Mail className="w-5 h-5" /> 
+                        <Mail className="w-5 h-5" />
                       </div>
                       <input
                         type="text"
                         placeholder="name@email.com "
-                        value={inputValue}
-                        onChange={handleIdentifierChange}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="w-full pl-12 pr-4 py-3.5 bg-white/[0.04] border border-white/15 rounded-2xl text-white placeholder-gray-500 outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all text-sm"
                         required
                       />
                     </div>
                   </div>
 
-                  <motion.div whileTap={{ scale: 0.95 }}>
+                  <motion.div whileTap={!isVerifyUserPending ? { scale: 0.95 } : {}}>
                     <button
                       type="submit"
-                      className="w-full flex items-center gap-2 justify-center px-6 py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-semibold transition-all hover:scale-[1.02] cursor-pointer text-sm"
-                    >
-                      Continue
-                      <ArrowRight className="w-4 h-4" />
+                      disabled={isVerifyUserPending}
+                      className="w-full flex items-center gap-2 justify-center px-6 py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-semibold transition-all hover:scale-[1.02] cursor-pointer disabled:cursor-not-allowed text-sm min-h-[48px]"
+                    >{
+                        isVerifyUserPending ? (
+                          framerMotionSpinner()
+                        ) : (
+                          <>
+                            Continue
+                            < ArrowRight className="w-4 h-4" />
+                          </>
+                        )
+
+                      }
                     </button>
                   </motion.div>
                 </form>
@@ -292,6 +362,7 @@ export default function LoginPage() {
                 <motion.div whileTap={{ scale: 0.95 }} className="w-full">
                   <button
                     type="button"
+                    onClick={handleGoogleRedirect}
                     className="w-full flex items-center gap-3 justify-center px-6 py-3 border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 text-sm font-semibold rounded-full transition-all cursor-pointer"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -350,20 +421,27 @@ export default function LoginPage() {
                     </label>
                     <input
                       type="text"
-                      value={inputValue}
+                      value={email}
                       disabled
                       className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-gray-300 cursor-not-allowed text-sm"
                     />
                   </div>
 
                   <div className="space-y-3 pt-2">
-                    <motion.div whileTap={{ scale: 0.95 }}>
+                    <motion.div whileTap={isCreateUserPending ? { scale: 0.95 } : {}}>
                       <button
                         type="submit"
-                        className="w-full flex items-center gap-2 justify-center px-6 py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-semibold transition-all hover:scale-[1.02] cursor-pointer text-sm"
-                      >
-                        Request verification code
-                        <ArrowRight className="w-4 h-4" />
+                        disabled={isCreateUserPending}
+                        className="w-full flex items-center gap-2 justify-center px-6 py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-semibold transition-all hover:scale-[1.02] cursor-pointer disabled:cursor-not-allowed text-sm min-h-[48px]"
+                      >{
+                          isCreateUserPending ?
+                            framerMotionSpinner() :
+                            <>
+                              Request verification code
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                        }
+
                       </button>
                     </motion.div>
 
@@ -394,7 +472,7 @@ export default function LoginPage() {
                     {isNewUser ? 'Verify your account' : 'Security check'}
                   </h1>
                   <p className="text-sm text-gray-300">
-                    We've sent a 6-digit secure code to <span className="text-primary font-semibold">{inputValue}</span>
+                    We've sent a 6-digit secure code to <span className="text-primary font-semibold">{email}</span>
                   </p>
                 </div>
 
@@ -418,13 +496,17 @@ export default function LoginPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <motion.div whileTap={{ scale: 0.95 }}>
+                    <motion.div whileTap={!isUserLoginPending && !otp.includes('') ? { scale: 0.95 } : {}}>
                       <button
                         type="submit"
-                        disabled={otp.includes('')}
-                        className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 disabled:bg-white/5 text-white disabled:text-gray-500 font-semibold rounded-full flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed text-sm"
+                        disabled={otp.includes('') || isUserLoginPending}
+                        className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 disabled:bg-white/5 text-white disabled:text-gray-500 font-semibold rounded-full flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed text-sm min-h-[48px]"
                       >
-                        {isNewUser ? 'Complete registration' : 'Verify and sign in'}
+                        {isUserLoginPending ?
+                          framerMotionSpinner()
+                          : (
+                            isNewUser ? 'Complete registration' : 'Verify and sign in'
+                          )}
                       </button>
                     </motion.div>
 
@@ -445,12 +527,22 @@ export default function LoginPage() {
                       onClick={handleResendOtp}
                       className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors cursor-pointer"
                     >
-                      <RefreshCw className="w-3 h-3" />
-                     Resend code
+                      <motion.div
+                        animate={isOtpResending ? { rotate: 360 } : { rotate: 0 }}
+                        transition={{
+                          repeat: isOtpResending ? Infinity : 0,
+                          ease: "linear",
+                          duration: 1
+                        }}
+                        className="flex items-center justify-center"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                      </motion.div>
+                      Resend code
                     </button>
                   ) : (
                     <p className="text-xs font-medium text-gray-400">
-                     Didn't receive the code? Resend in <span className="text-white font-mono font-bold">{timer}s</span>
+                      Didn't receive the code? Resend in <span className="text-white font-mono font-bold">{timer}s</span>
                     </p>
                   )}
                 </div>

@@ -4,17 +4,19 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Menu, X, Scissors, LogIn, User, Settings, LogOut, LayoutDashboard, UserPlus } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useCart } from '../../context/CartContext';
-
+import { useUserAuth } from "../../hook/auth/useUserAuth";
+import { useUserLogout } from "../../hook/auth/userAuth";
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { mutateAsync: logout } = useUserLogout();
+  const { isUserAuthenticated: isLoggedIn, user, isLoading } = useUserAuth();
 
-  const isLoggedIn = true;
-  const user = {
-    name: 'soju saji',
-    email: 'soju.saji@example.com'
-  };
+  // const user = {
+  //   name: 'soju saji',
+  //   email: 'soju.saji@example.com'
+  // };
 
   const { cartCount, setIsCartOpen } = useCart();
   const [scrolled, setScrolled] = useState(false);
@@ -42,10 +44,15 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    // Add your auth logout logic here
-    setIsProfileMenuOpen(false);
-    setIsMobileMenuOpen(false);
-    navigate('/login');
+    try {
+      await logout();
+      setIsProfileMenuOpen(false);
+      setIsMobileMenuOpen(false);
+      navigate('/');
+    } catch (error) {
+      console.log('error', error);
+    }
+
   };
 
   // Hide entirely on admin or full profile routes

@@ -1,29 +1,15 @@
-import React from 'react';
 import Hero from '../components/layout/Hero';
 import ProductCard from '../components/shared/ProductCard';
 import Footer from '../components/layout/Footer';
-import heroImage from '../assets/images/hero.png';
-import galleryImage from '../assets/images/gallery.png';
-import jhumka from '../assets/images/jhumka.png';
-import studs from '../assets/images/studs.png';
-import dangles from '../assets/images/dangles.png';
-import hoops from '../assets/images/hoops.png';
+import { DUMMY_PRODUCTS } from '../utils/dummyData';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Scissors, Ruler, Truck, Star } from 'lucide-react';
 
-const DUMMY_PRODUCTS = [
-  { id: 1, name: 'Golden Leaf Velvet', price: 120, image: heroImage, category: 'Embroidery' },
-  { id: 2, name: 'Bespoke Tailored Suit', price: 350, image: galleryImage, category: 'Stitching' },
-  { id: 3, name: 'Real Rolled Gold Jhumka Earrings Pair', price: 65, image: jhumka, category: 'Ornaments' },
-  { id: 4, name: 'Premium Rolled Gold Stud Earrings Pair', price: 45, image: studs, category: 'Ornaments' },
-  { id: 5, name: 'Floral Cotton Dress', price: 95, image: galleryImage, category: 'Embroidery' },
-  { id: 6, name: 'Royal Crimson Sari', price: 210, image: heroImage, category: 'Stitching' },
-  { id: 7, name: 'Real Rolled Gold Dangle Earrings Pair', price: 55, image: dangles, category: 'Ornaments' },
-  { id: 8, name: 'Antique Rolled Gold Hoops Pair', price: 75, image: hoops, category: 'Ornaments' },
-];
-
 const Home = () => {
+
+
+
   return (
     <div>
       <Hero />

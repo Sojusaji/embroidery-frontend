@@ -3,25 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import ProductCard from '../components/shared/ProductCard';
 import Footer from '../components/layout/Footer';
-import heroImage from '../assets/images/hero.png';
-import galleryImage from '../assets/images/gallery.png';
-import jhumka from '../assets/images/jhumka.png';
-import studs from '../assets/images/studs.png';
-import dangles from '../assets/images/dangles.png';
-import hoops from '../assets/images/hoops.png';
-
-const DUMMY_PRODUCTS = [
-  { id: 1, name: 'Golden Leaf Velvet', price: 120, image: heroImage, category: 'Embroidery' },
-  { id: 2, name: 'Bespoke Tailored Suit', price: 350, image: galleryImage, category: 'Stitching' },
-  { id: 3, name: 'Real Rolled Gold Jhumka Earrings Pair', price: 65, image: jhumka, category: 'Ornaments' },
-  { id: 4, name: 'Premium Rolled Gold Stud Earrings Pair', price: 45, image: studs, category: 'Ornaments' },
-  { id: 5, name: 'Silver Thread Gown', price: 420, image: galleryImage, category: 'Stitching' },
-  { id: 6, name: 'Floral Cotton Dress', price: 95, image: galleryImage, category: 'Embroidery' },
-  { id: 7, name: 'Real Rolled Gold Dangle Earrings Pair', price: 55, image: dangles, category: 'Ornaments' },
-  { id: 8, name: 'Antique Rolled Gold Hoops Pair', price: 75, image: hoops, category: 'Ornaments' },
-  { id: 9, name: 'Emerald Crystal Earring Pair', price: 85, image: jhumka, category: 'Ornaments' },
-  { id: 10, name: 'Pearl Drop Rolled Gold Pair', price: 90, image: dangles, category: 'Ornaments' },
-];
+import { DUMMY_PRODUCTS } from '../utils/dummyData';
 
 const CATEGORIES = ['All', 'Embroidery', 'Stitching', 'Ornaments'];
 
