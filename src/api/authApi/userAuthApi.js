@@ -2,14 +2,36 @@ import api from "../axiosInstance";
 
 const handleApiError = (error) => {
     const errorMessage = error?.response?.data?.message || "An unexpected error occurred";
-    console.error("Auth API Error:", errorMessage);
+    // console.error("Auth API Error:", errorMessage);
     throw new Error(errorMessage);
 };
 
+
 export const userAuthStatus = async () => {
     try {
-
         const { data } = await api.get('/api/v1/auth/users/auth-status');
+       console.log('data from userAuthStatus:',data);
+        return data;
+    } catch (error) {
+        handleApiError(error);
+    }
+}
+
+
+export const apiGoogleLogin = async ({ token }) => {
+    try {
+        const { data } = await api.post('/api/v1/auth/users/google/callback', {token});
+        return data;
+    } catch (error) {
+        handleApiError(error);
+
+    }
+}
+
+export const verifyUser = async ({ email }) => {
+    try {
+        console.log('email taked form verifyUser api route:', email);
+        const { data } = await api.post('/api/v1/auth/users/verify-user', {email});
         console.log('data recieved from backend:', data);
         return data;
     } catch (error) {

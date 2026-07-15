@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import AdminHeader from './components/admin/AdminHeader';
 import Home from './pages/Home';
@@ -12,18 +12,21 @@ import Login from './pages/Login';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { Navigate } from 'react-router-dom';
-import { useAdminAuth } from "./hook/auth/useAdminAuth";
+// import { useAdminAuth } from "./hook/auth/useAdminAuth";
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import UserDashboard from './pages/UserDashboard';
 import ProductDetail from './pages/ProductDetail';
 import { UserAuthProvider, } from "./context/UserAuthContext";
 import { useUserAuth } from "./hook/auth/useUserAuth";
-
+import {
+  useGoogleLogin
+} from "../src/hook/auth/userAuth";
+import toast from 'react-hot-toast';
 
 const PublicRoute = ({ children }) => {
   const { isUserAuthenticated } = useUserAuth();
- console.log('isUserAuthenticated:',isUserAuthenticated);
+  console.log('isUserAuthenticated:', isUserAuthenticated);
   return !isUserAuthenticated ? children : <Navigate to='/' replace />
 }
 
@@ -43,8 +46,10 @@ const PrivateRoute = ({ children }) => {
 
 
 const ProtectedAdminRoute = ({ children }) => {
-  const { data: user, isLoading } = useAdminAuth();
-  console.log('user && isLoading', user, isLoading);
+
+  const { user, isLoading, isUserAuthenticated } = useUserAuth();
+
+  console.log('Admin route check - User:', user, 'Loading:', isLoading);
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
@@ -53,10 +58,16 @@ const ProtectedAdminRoute = ({ children }) => {
     );
   }
 
-  const isAuthorized = user?.status === "success" ||
-    (user?.role === 'admin' || user?.role === 'superAdmin');
+  if (!isUserAuthenticated) {
+    return <Navigate to="/admin/login" replace />;
+  }
 
-  return isAuthorized ? children : <Navigate to="/admin/login" replace />;
+  if (user?.role !== 'admin' && user?.role !== 'superAdmin') {
+    return <Navigate to="/" replace />;
+  }
+
+
+  return children;
 };
 
 
@@ -77,6 +88,36 @@ const StorefrontLayout = ({ children }) => {
 
 
 function App() {
+  const { mutateAsync: googleLogin } = useGoogleLogin()
+
+  useEffect(() => {
+    if (!window.__gisInitialized && window.google && window.google.accounts?.id) {
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+      });
+      window.google.accounts.id.prompt();
+      window.__gisInitialized = true; // prevent duplicate init
+    }
+  }, []);
+
+
+
+  const handleCredentialResponse = async (response) => {
+    console.log('handleCredentialResponse function called ');
+    try {
+      const res = await googleLogin({ token: response.credential, });
+
+      if (res.success) {
+        console.log('response from server:', res);
+      }
+    } catch (error) {
+      // If your server verification fails, handle it right here inside React!
+      const errorMsg = error.response?.data?.message || "Google login failed.";
+      toast.error('Google login failed. You can use another login method');
+    }
+  };
+
 
   return (
     <ErrorBoundary>

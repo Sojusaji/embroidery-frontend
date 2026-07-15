@@ -1,11 +1,12 @@
 import React from 'react';
 import { LayoutDashboard, Package, Users, Settings, LogOut, ShoppingCart, Shield } from 'lucide-react';
-import { useAdminAuth, useAdminLogout } from "../../hook/auth/useAdminAuth.js"
+import { useAdminLogout } from "../../hook/auth/useAdminAuth.js"
+import { useUserAuth } from '../../hook/auth/useUserAuth.js';
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {
-  const { data:admin, isLoading} = useAdminAuth();
+  const { user: admin } = useUserAuth;
   const logoutMutation = useAdminLogout();
-  
+
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
@@ -35,11 +36,10 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-3 px-4 py-2.5 lg:py-3 rounded-xl transition-all duration-300 ${
-                isActive 
-                  ? 'bg-primary/20 text-primary border border-primary/30' 
+              className={`flex items-center gap-3 px-4 py-2.5 lg:py-3 rounded-xl transition-all duration-300 ${isActive
+                  ? 'bg-primary/20 text-primary border border-primary/30'
                   : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
-              }`}
+                }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
               <span className="font-medium text-sm lg:text-base">{item.label}</span>
@@ -49,7 +49,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
       </nav>
 
       <div className="px-4 mt-auto hidden lg:block">
-        <button 
+        <button
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
           className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-xl transition-colors border border-transparent disabled:opacity-50"

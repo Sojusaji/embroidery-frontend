@@ -30,18 +30,26 @@ api.interceptors.response.use(
                     toast.error(serverMessage, { id: `error-400-${serverMessage.substring(0, 10)}` });
                     break;
 
-                case 401:
-                    toast.error(
-                        isAdminRoute ? 'Admin session expired. Please log in.' : 'Session expired. Please log in.',
-                        { id: 'auth-error' }
-                    );
-                    // Optionally, trigger a redirect to login here if absolutely necessary
+                case 401: {
+                    const wasLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                    const wasAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+
+                    if (wasAdminLoggedIn) {
+                        toast.error('Admin session expired. Please log in again.', { id: 'auth-error' });
+                        localStorage.removeItem('isAdminLoggedIn');
+                        window.location.href = '/admin/login';
+                    } else if (wasLoggedIn) {
+                        toast.error('Session expired. Please log in again.', { id: 'auth-error' });
+                        localStorage.removeItem('isLoggedIn');
+                    }
+
                     break;
+                }
 
                 case 403:
                     toast.error('Access Denied: You do not have permission to perform this action.', { id: 'access-denied' });
                     break;
-                
+
                 case 404:
                     toast.error('Requested resource was not found.', { id: 'not-found' });
                     break;

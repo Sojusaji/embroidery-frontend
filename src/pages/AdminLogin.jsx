@@ -8,11 +8,11 @@ const AdminLogin = () => {
 
 
 
-  const { mutate: loginAdmin, isLoading } = useAdminLogin();
+  const { mutateAsync: loginAdmin, isLoading } = useAdminLogin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    loginAdmin({ email: gmail, password });
+   await loginAdmin({ email: gmail, password });
 
   };
 
