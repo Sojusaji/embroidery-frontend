@@ -15,7 +15,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (product) {
-      document.title = `${product.name} | Bespoke Platform`;
+      document.title = `${product?.name} | Bespoke Platform`;
     } else {
       document.title = `Product Not Found | Bespoke Platform`;
     }
@@ -39,7 +39,7 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 container mx-auto px-4 md:px-6 py-12 max-w-7xl pt-24 md:pt-32">
+      <div className="flex-1 container mx-auto px-4 md:px-6 py-12 max-w-7xl pt-10 md:pt-10">
         {/* Breadcrumb */}
         <div className="mb-8">
           <Link to="/shop" className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors duration-200">
