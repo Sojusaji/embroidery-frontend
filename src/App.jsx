@@ -11,7 +11,7 @@ import AdminLogin from './pages/AdminLogin';
 import Login from './pages/Login';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 // import { useAdminAuth } from "./hook/auth/useAdminAuth";
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
@@ -25,9 +25,24 @@ import {
 import toast from 'react-hot-toast';
 
 const PublicRoute = ({ children }) => {
-  const { isUserAuthenticated } = useUserAuth();
+  const location = useLocation();
+  const { isUserAuthenticated, isLoading } = useUserAuth();
   console.log('isUserAuthenticated:', isUserAuthenticated);
-  return !isUserAuthenticated ? children : <Navigate to='/' replace />
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-20">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+  if (isUserAuthenticated) {
+    const isAdmin = user?.role === 'admin' || user?.role === 'superAdmin';
+    const destination = isAdmin ? '/admin' : (location.state?.from || '/');
+
+    return <Navigate to={destination} replace />;
+  }
+
+  return children;
 }
 
 const PrivateRoute = ({ children }) => {
@@ -46,7 +61,7 @@ const PrivateRoute = ({ children }) => {
 
 
 const ProtectedAdminRoute = ({ children }) => {
-
+  console.log('protected route called');
   const { user, isLoading, isUserAuthenticated } = useUserAuth();
 
   console.log('Admin route check - User:', user, 'Loading:', isLoading);
@@ -59,7 +74,7 @@ const ProtectedAdminRoute = ({ children }) => {
   }
 
   if (!isUserAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (user?.role !== 'admin' && user?.role !== 'superAdmin') {
@@ -73,12 +88,12 @@ const ProtectedAdminRoute = ({ children }) => {
 
 
 
-const StorefrontLayout = ({ children }) => {
+const StorefrontLayout = ({ children, noPadding = false }) => {
   return (
     <div className="min-h-screen flex flex-col relative bg-background text-foreground selection:bg-primary selection:text-white">
       <Navbar />
       <CartDrawer />
-      <main className="flex-grow pt-15 [&:has(section,.login)]:pt-0 bg-transparent">
+      <main className={`flex-grow bg-transparent ${noPadding ? '' : 'pt-15 [&:has(section,.login)]:pt-0'}`}>
         {children}
       </main>
     </div>
@@ -118,6 +133,24 @@ function App() {
     }
   };
 
+  const AdminLayout = ({ children }) => {
+    return (
+      // 1. Lock screen height and hide document-level overflow
+      <div className="min-h-screen lg:h-screen w-full bg-background flex flex-col overflow-y-auto lg:overflow-hidden relative">
+        <AdminHeader />
+
+        {/* 2. Push content down below floating glass header (pt-20) */}
+        {/* 3. min-h-0 forces child containers to observe height bounds instead of stretching */}
+        <main className="flex-1 min-h-0 flex flex-col pt-20 overflow-hidden">
+          {children}
+        </main>
+      </div>
+    );
+  };
+
+
+
+
 
   return (
     <ErrorBoundary>
@@ -138,22 +171,23 @@ function App() {
 
                 {/* Protected user route */}
                 <Route path="/profile" element={
-                  <PrivateRoute>
-                    <div className="w-full h-screen overflow-hidden selection:bg-primary selection:text-white">
-                      <UserDashboard />
-                    </div>
-                  </PrivateRoute>
+                  <StorefrontLayout noPadding>
+                    {/* <PrivateRoute> */}
+                    <UserDashboard />
+                    {/* </PrivateRoute> */}
+                  </StorefrontLayout>
                 } />
 
                 {/* Admin routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={
-                  <ProtectedAdminRoute>
-                    <ErrorBoundary>
-                      <AdminHeader />
+                  // <ProtectedAdminRoute>
+                  <ErrorBoundary>
+                    <AdminLayout>
                       <AdminDashboard />
-                    </ErrorBoundary>
-                  </ProtectedAdminRoute>
+                    </AdminLayout>
+                  </ErrorBoundary>
+                  // </ProtectedAdminRoute>
                 } />
               </Routes>
               {/* </main> */}

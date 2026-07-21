@@ -1,11 +1,11 @@
 import React from 'react';
 import { LayoutDashboard, Package, Users, Settings, LogOut, ShoppingCart, Shield } from 'lucide-react';
-import { useAdminLogout } from "../../hook/auth/useAdminAuth.js"
+import { useUserLogout } from "../../hook/auth/userAuth.js"
 import { useUserAuth } from '../../hook/auth/useUserAuth.js';
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {
   const { user: admin } = useUserAuth;
-  const logoutMutation = useAdminLogout();
+  const logoutMutation = useUserLogout();
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },

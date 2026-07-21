@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Bell, User, LogOut, Settings, ChevronDown, Scissors, ShieldAlert, ShoppingBag, UserPlus } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import {useAdminLogout } from '../../hook/auth/useAdminAuth';
+// import {useAdminLogout } from '../../hook/auth/useAdminAuth';
 import { useUserAuth } from '../../hook/auth/useUserAuth';
+import { useUserLogout } from "../../hook/auth/userAuth"
 
 const AdminHeader = () => {
 
   const location = useLocation();
   const { user: admin } = useUserAuth;
-  const logoutMutation = useAdminLogout();
+  const logoutMutation = useUserLogout();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -88,7 +89,7 @@ const AdminHeader = () => {
   const isAdminDashboardRoute = location.pathname.startsWith('/admin') && location.pathname !== '/admin/login';
 
   if (!isAdminDashboardRoute) return null;
-  
+
   const handleLogout = () => {
     logoutMutation.mutate();
   };

@@ -5,5 +5,6 @@ import { UserAuthContext } from "../../context/UserAuthContext";
 export const useUserAuth = () => {
 
   const context = useContext(UserAuthContext);
+  console.log('context :',context);
   return context;
 };

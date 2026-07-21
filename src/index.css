@@ -69,8 +69,55 @@
   animation-delay: 300ms;
 }
 
-/* Hide scrollbar for clean Apple-like aesthetic */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #000; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ==========================================================================
+   1. GLOBAL CROSS-BROWSER SCROLLBARS (Firefox, Chrome, Safari, Edge)
+   ========================================================================== */
+
+/* Firefox (Standard Properties) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* WebKit Browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 4px !important;  /* Vertical scrollbar width */
+  height: 4px !important; /* Horizontal scrollbar height */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Lets glassmorphism & dark backgrounds show through */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15); /* Subtle thumb on dark surfaces */
+  border-radius: 9999px; /* Smooth pill shape */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3); /* Brightens when hovered */
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.45); /* Brightens further while dragging */
+}
+
+/* ==========================================================================
+   2. TAILWIND UTILITIES
+   ========================================================================== */
+ @layer utilities { 
+  /* Completely hide scrollbars while preserving scroll functionality */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  } 
+   .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+     scrollbar-width: none;   /* Firefox*/
+  } 
+} 

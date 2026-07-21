@@ -6,6 +6,7 @@ import {
     refreshAccessToken as apiRefreshAccessToken,
     sendOtp as apiSendOtp,
     verifyUser,
+    verifyPIN,
     userAuthStatus,
     apiGoogleLogin
 } from "../../api/authApi/userAuthApi.js";
@@ -68,6 +69,25 @@ export const useUserLogin = () => {
         }
     });
 };
+
+
+export const useVerifyPIN = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['verifyPIN'],
+        mutationFn: verifyPIN,
+        onSuccess: (data) => {
+            if (data?.user) {
+                queryClient.setQueryData(['userProfile'], data.user);
+                queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+                localStorage.setItem('isLoggedIn', 'true');
+            }
+        },
+        onError: (error) => {
+            console.error("PIN verification mutation failed:", error.message);
+        }
+    });
+}
 
 export const useUserLogout = () => {
     const queryClient = useQueryClient();

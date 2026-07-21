@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 import { useUserProfile } from "../hook/auth/userAuth.js";
 
 export const UserAuthContext = createContext();

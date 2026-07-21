@@ -6,10 +6,72 @@ import {
   useUserRegistration,
   useSendOtp,
   useVerifyUser,
-  useGoogleLogin
+  useGoogleLogin,
+  useVerifyPIN
 } from "../hook/auth/userAuth";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, replace } from 'react-router-dom';
 
+
+
+function CodeInput({ value, onChange }) {
+  const refs = useRef([]);
+
+  const handleChange = (e, index) => {
+    const val = e.target.value;
+    if (isNaN(val)) return;
+
+    const newValue = [...value];
+    newValue[index] = val;
+    onChange(newValue);
+
+    if (val !== '' && index < 5) {
+      refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace') {
+      const newValue = [...value];
+      if (!value[index] && index > 0) {
+        newValue[index - 1] = '';
+        onChange(newValue);
+        refs.current[index - 1]?.focus();
+      } else {
+        newValue[index] = '';
+        onChange(newValue);
+      }
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text').trim();
+    if (/^\d{6}$/.test(pasteData)) {
+      onChange(pasteData.split(''));
+      refs.current[5]?.focus();
+    }
+  };
+
+  return (
+    <div className="flex justify-between gap-2 max-w-sm mx-auto py-2">
+      {value.map((digit, index) => (
+        <input
+          key={index}
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength="1"
+          ref={(el) => (refs.current[index] = el)}
+          value={digit}
+          onChange={(e) => handleChange(e, index)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          onPaste={handlePaste}
+          className="w-11 h-14 bg-white/[0.04] border border-white/15 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl text-center text-xl font-bold text-primary outline-none transition-all"
+        />
+      ))}
+    </div>
+  );
+}
 
 
 
@@ -29,7 +91,7 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState('');
   const [isNewUser, setIsNewUser] = useState(false);
 
-
+  const [pin, setPin] = useState(['', '', '', '', '', '']);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
@@ -47,6 +109,7 @@ export default function LoginPage() {
 
   const { mutateAsync: googleLogin, isPending: isGoogleLoginPending } = useGoogleLogin();
 
+  const { mutateAsync: verifyPIN, isPending: isPinVerifying } = useVerifyPIN();
 
 
   const handleIdentifierSubmit = async (e) => {
@@ -177,12 +240,38 @@ export default function LoginPage() {
         email,
         otp: finalOtp
       }
-      await userLogin({ userData });
-      resetOtpTimer();
-      navigate(returnTo, { replace: true })
+      const response = await userLogin({ userData });
+      if (response?.requiresPIN) {
+        setStep('pin');
+      } else {
+        resetOtpTimer();
+        navigate(returnTo, { replace: true })
+      }
 
     } catch (error) {
       console.error("Authentication challenge failed rejection:", error);
+    }
+  };
+
+
+  // PIN Verification Handler
+  const handlePinSubmit = async (e) => {
+    e.preventDefault();
+    const finalPin = pin.join('');
+    if (finalPin.length < 6) return;
+    try {
+      const response = await verifyPIN({ pin: finalPin });
+      console.log('pin response taked form backend:',response);
+      console.log('role:',response?.user?.role);
+      if (response?.user?.role === 'superAdmin' || response?.user?.role === 'admin') {
+        console.log('admin route called');
+        navigate('/admin', { replace: true });
+      } else {
+        console.log('returnto value called:',returnTo);
+        navigate(returnTo, { replace: true });
+      }
+    } catch (err) {
+      console.error(err.response?.data?.message || "PIN verification failed");
     }
   };
 
@@ -351,7 +440,7 @@ export default function LoginPage() {
                 </div>
 
                 <motion.div whileTap={{ scale: 0.95 }} className="w-full">
-                   <button
+                  <button
                     type="button"
                     disabled={isGoogleLoginPending}
                     className="w-full flex items-center gap-3 justify-center px-6 py-3 border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 text-sm font-semibold rounded-full transition-all cursor-pointer"
@@ -369,7 +458,7 @@ export default function LoginPage() {
                       </>)
                     }
 
-                  </button> 
+                  </button>
                 </motion.div>
               </motion.div>
             )}
@@ -474,6 +563,13 @@ export default function LoginPage() {
                 </div>
 
                 <form onSubmit={handleOtpSubmit} className="space-y-6">
+                  {/* FIX: Bind values seamlessly to the clean input component */}
+                  <CodeInput value={otp} onChange={setOtp} />
+                  <button type="submit" disabled={otp.includes('') || isUserLoginPending} className="w-full py-3.5 px-4 bg-primary text-white disabled:bg-white/5 disabled:text-gray-500 font-semibold rounded-full flex items-center justify-center gap-2 text-sm min-h-[48px]">
+                    {isUserLoginPending ? framerMotionSpinner() : (isNewUser ? 'Complete registration' : 'Verify and sign in')}
+                  </button>
+                </form>
+                {/* <form onSubmit={handleOtpSubmit} className="space-y-6">
                   <div className="flex justify-between gap-2 max-w-sm mx-auto py-2">
                     {otp.map((data, index) => (
                       <input
@@ -515,7 +611,7 @@ export default function LoginPage() {
                       Back to info review
                     </button>
                   </div>
-                </form>
+                </form> */}
 
                 <div className="text-center pt-4 border-t border-white/10">
                   {canResend ? (
@@ -543,6 +639,28 @@ export default function LoginPage() {
                     </p>
                   )}
                 </div>
+              </motion.div>
+            )}
+
+            {/* STEP 4: PIN VERIFICATION VIEW */}
+            {step === 'pin' && (
+              <motion.div key="pin-step" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                <div>
+                  {/* FIX: Corrected text context to reflect the Account Secure PIN stage */}
+                  <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Enter Secure PIN</h1>
+                  <p className="text-sm text-gray-300">Provide your 6-digit account PIN to gain administrative access.</p>
+                </div>
+                {/* FIX: Replaced copy-pasted handleOtpSubmit reference with handlePinSubmit hook */}
+                <form onSubmit={handlePinSubmit} className="space-y-6">
+                  {/* FIX: Mapped state hook targets completely over to 'pin' and 'setPin' array blocks */}
+                  <CodeInput value={pin} onChange={setPin} />
+                  <button type="submit" disabled={pin.includes('') || isPinVerifying} className="w-full py-3.5 px-4 bg-primary text-white disabled:bg-white/5 disabled:text-gray-500 font-semibold rounded-full flex items-center justify-center gap-2 text-sm min-h-[48px]">
+                    {isPinVerifying ? framerMotionSpinner() : 'Verify PIN'}
+                  </button>
+                  <button type="button" onClick={() => handleBackNavigation('identifier')} className="w-full text-xs font-medium text-gray-400 hover:text-white transition-colors text-center">
+                    Back to sign in
+                  </button>
+                </form>
               </motion.div>
             )}
           </AnimatePresence>

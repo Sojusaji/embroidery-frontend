@@ -237,9 +237,9 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
             transition={{ duration: 0.3, ease: [0.215, 0.61, 0.355, 1] }}
             style={{ willChange: 'transform' }}
             className="fixed inset-0 w-full h-full bg-[#030303]  z-[99] md:hidden flex flex-col justify-between overflow-y-auto"

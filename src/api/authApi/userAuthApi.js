@@ -51,6 +51,17 @@ export const userLogin = async ({ userData }) => {
     }
 };
 
+export const verifyPIN = async ({ pin }) => {
+    try {
+        console.log('pin taked form verifyPIN api route:', pin);
+        const { data } = await api.post('/api/v1/auth/users/verify-pin', {pin});
+        console.log('data recieved from backend:', data);
+        return data;
+    } catch (error) {
+        handleApiError(error);
+    }
+};
+
 export const userLogout = async () => {
     try {
         const { data } = await api.post('/api/v1/auth/users/logout');

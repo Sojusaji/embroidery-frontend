@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAdminLogin } from "../hook/auth/useAdminAuth"
+// import { useAdminLogin } from "../hook/auth/useAdminAuth"
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 const AdminLogin = () => {
@@ -8,11 +8,11 @@ const AdminLogin = () => {
 
 
 
-  const { mutateAsync: loginAdmin, isLoading } = useAdminLogin();
+  // const { mutateAsync: loginAdmin, isLoading } = useAdminLogin();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-   await loginAdmin({ email: gmail, password });
+  //  await loginAdmin({ email: gmail, password });
 
   };
 
