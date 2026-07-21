@@ -1,213 +1,1053 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { useNavigate, useSearchParams } from 'react-router-dom';
+// import {
+//   Compass, Shield, Sparkles, Clock, CheckCircle2,
+//   ArrowUpRight, Smartphone, Laptop, KeyRound, Ruler,
+//   Download, ShoppingCart, ShoppingBag, LogOut, ChevronRight,
+//   Menu, X, User
+// } from 'lucide-react';
+// import StitchingOrder from './StitchingOrder';
+// import { useCart } from '../context/CartContext';
+// import { useUserAuth } from '../hook/auth/useUserAuth';
+// import { useUserLogout } from '../hook/auth/userAuth';
+
+// // ─── Reusable Design Primitives ──────────────────────────────────────────────
+
+// const Badge = ({ color = 'amber', children }) => {
+//   const styles = {
+//     amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/5',
+//     green: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/5',
+//     blue: 'bg-sky-500/10 text-sky-400 border-sky-500/20 shadow-sky-500/5',
+//   };
+//   return (
+//     <span className={`inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full border shadow-sm backdrop-blur-sm ${styles[color] || styles.amber}`}>
+//       {children}
+//     </span>
+//   );
+// };
+
+// const SectionHeading = ({ icon: Icon, children }) => (
+//   <div className="flex items-center gap-2 mb-4">
+//     {Icon && <Icon className="w-4 h-4 text-amber-400" aria-hidden="true" />}
+//     <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400">{children}</h2>
+//   </div>
+// );
+
+// const Card = ({ children, className = '' }) => (
+//   <div className={`bg-neutral-900/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl transition-all duration-300 hover:border-white/20 ${className}`}>
+//     {children}
+//   </div>
+// );
+
+// const MetricCard = ({ label, value, sub }) => (
+//   <Card className="p-4 sm:p-5 flex flex-col justify-between group hover:bg-neutral-900/90 transition-colors">
+//     <p className="text-[11px] sm:text-xs text-neutral-400 font-semibold uppercase tracking-wider">{label}</p>
+//     <div className="my-2.5">
+//       <p className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight group-hover:text-amber-400 transition-colors">{value}</p>
+//     </div>
+//     {sub && <p className="text-[11px] text-neutral-500 border-t border-white/5 pt-2">{sub}</p>}
+//   </Card>
+// );
+
+// const TabPanel = ({ children }) => (
+//   <motion.div
+//     initial={{ opacity: 0, y: 12 }}
+//     animate={{ opacity: 1, y: 0 }}
+//     exit={{ opacity: 0, y: -12 }}
+//     transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+//     className="space-y-6"
+//   >
+//     {children}
+//   </motion.div>
+// );
+
+// // ─── Sub Views ─────────────────────────────────────────────────────────────────
+
+// const OverviewTab = ({ userProfile, goTo }) => {
+//   const activeOrder = userProfile.activeOrders[0];
+
+//   return (
+//     <TabPanel>
+//       <Card className="p-6 sm:p-8 relative overflow-hidden bg-gradient-to-br from-neutral-900/95 via-neutral-900/70 to-neutral-950 border-white/10">
+//         <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+//         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+//           <div className="space-y-1">
+//             <span className="text-[10px] sm:text-[11px] font-bold text-amber-400 uppercase tracking-widest">Dashboard Overview</span>
+//             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+//               Welcome back, <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">{userProfile.name}</span>
+//             </h1>
+//             <p className="text-xs sm:text-sm text-neutral-400">{userProfile.email}</p>
+//           </div>
+//           <div className="self-start sm:self-auto">
+//             <Badge color="amber">{userProfile.tier}</Badge>
+//           </div>
+//         </div>
+//       </Card>
+
+//       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+//         <MetricCard label="Active Orders" value={userProfile.activeOrders.length} sub="In production" />
+//         <MetricCard label="Past Orders" value={userProfile.pastOrders.length} sub="Delivered" />
+//         <MetricCard label="Saved Sizes" value={userProfile.measurements.length} sub="Profile ready" />
+//         <MetricCard label="Member Tier" value={userProfile.tier.split(' ')[0]} sub={`Since ${userProfile.memberSince}`} />
+//       </div>
+
+//       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+//         <div className="lg:col-span-3">
+//           <SectionHeading icon={Clock}>Active Order Tracker</SectionHeading>
+//           {activeOrder ? (
+//             <Card className="p-5 sm:p-6 space-y-6">
+//               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/5">
+//                 <div>
+//                   <Badge color="amber">{activeOrder.type}</Badge>
+//                   <h3 className="text-base font-bold text-white mt-2.5">{activeOrder.item}</h3>
+//                   <p className="text-xs text-neutral-400 mt-1">Order ID: <span className="font-mono text-neutral-300">{activeOrder.id}</span> &bull; Est. Delivery: {activeOrder.estimatedDelivery}</p>
+//                 </div>
+//                 <div className="self-start sm:self-auto">
+//                   <Badge color="blue">{activeOrder.status}</Badge>
+//                 </div>
+//               </div>
+
+//               <div className="space-y-2">
+//                 <div className="flex justify-between text-xs text-neutral-400 font-medium">
+//                   <span>Tailoring Progress</span>
+//                   <span className="text-white font-mono font-bold">{activeOrder.progress}%</span>
+//                 </div>
+//                 <div className="h-2 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+//                   <motion.div
+//                     initial={{ width: 0 }}
+//                     animate={{ width: `${activeOrder.progress}%` }}
+//                     transition={{ duration: 1, ease: 'easeOut' }}
+//                     className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full shadow-lg shadow-amber-500/20"
+//                   />
+//                 </div>
+//               </div>
+
+//               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+//                 {activeOrder.timeline.map((s, i) => (
+//                   <div key={i} className="flex flex-col gap-1.5 p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
+//                     <div className="flex items-center gap-1.5">
+//                       <CheckCircle2 className={`w-3.5 h-3.5 flex-shrink-0 ${s.done ? 'text-amber-400' : 'text-neutral-600'}`} />
+//                       <span className={`text-[10px] uppercase font-black ${s.done ? 'text-neutral-300' : 'text-neutral-500'}`}>
+//                         Step {i + 1}
+//                       </span>
+//                     </div>
+//                     <p className={`text-xs ${s.done ? 'text-neutral-300 font-medium' : 'text-neutral-500'}`}>{s.step}</p>
+//                   </div>
+//                 ))}
+//               </div>
+//             </Card>
+//           ) : (
+//             <Card className="p-8 text-center space-y-3">
+//               <p className="text-sm text-neutral-400">No active custom orders at the moment.</p>
+//               <button onClick={() => goTo('custom-order')} className="text-xs text-amber-400 font-bold hover:underline inline-flex items-center gap-1">
+//                 Start a new bespoke order &rarr;
+//               </button>
+//             </Card>
+//           )}
+//         </div>
+
+//         <div className="lg:col-span-2">
+//           <div className="flex items-center justify-between mb-4">
+//             <SectionHeading icon={Ruler}>Saved Sizes</SectionHeading>
+//             <button onClick={() => goTo('measurements')} className="text-xs text-amber-400 hover:underline flex items-center gap-1 font-semibold">
+//               Manage <ArrowUpRight className="w-3.5 h-3.5" />
+//             </button>
+//           </div>
+//           <Card className="divide-y divide-white/5 overflow-hidden">
+//             {userProfile.measurements.map((m, i) => (
+//               <div key={i} className="flex items-center justify-between p-4 text-xs sm:text-sm hover:bg-white/[0.02] transition-colors">
+//                 <span className="text-neutral-400 font-medium">{m.label}</span>
+//                 <span className="font-bold text-white font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">{m.value}</span>
+//               </div>
+//             ))}
+//           </Card>
+//         </div>
+//       </div>
+//     </TabPanel>
+//   );
+// };
+
+// const MeasurementsTab = ({ userProfile, goTo }) => (
+//   <TabPanel>
+//     <div>
+//       <h2 className="text-xl font-bold text-white tracking-tight">Fit Profile</h2>
+//       <p className="text-xs sm:text-sm text-neutral-400 mt-1">Your exact tailor measurements for custom garments.</p>
+//     </div>
+
+//     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+//       {userProfile.measurements.map((m, i) => (
+//         <MetricCard key={i} label={m.label} value={m.value} sub={`Updated ${m.updated}`} />
+//       ))}
+//     </div>
+
+//     <Card className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-neutral-900/90 to-amber-500/10">
+//       <div className="flex items-center gap-4">
+//         <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0 shadow-inner">
+//           <Ruler className="w-6 h-6" />
+//         </div>
+//         <div>
+//           <h3 className="text-sm font-bold text-white">Create new garment with saved sizes</h3>
+//           <p className="text-xs text-neutral-400 mt-0.5">Use this fit profile directly for instant custom stitching.</p>
+//         </div>
+//       </div>
+//       <button
+//         onClick={() => goTo('custom-order')}
+//         className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-black rounded-xl transition-all shadow-lg shadow-amber-500/20 flex-shrink-0 active:scale-[0.98]"
+//       >
+//         New Custom Order
+//       </button>
+//     </Card>
+//   </TabPanel>
+// );
+
+// const OrdersTab = ({ userProfile, goTo }) => {
+//   const [filter, setFilter] = useState('all');
+
+//   return (
+//     <TabPanel>
+//       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+//         <div>
+//           <h2 className="text-xl font-bold text-white tracking-tight">Orders & Stitching</h2>
+//           <p className="text-xs sm:text-sm text-neutral-400 mt-1">History of past and active garments.</p>
+//         </div>
+//         <div className="flex gap-1 p-1 bg-neutral-900/80 border border-white/10 rounded-xl self-start sm:self-auto backdrop-blur-md">
+//           {['all', 'active', 'completed'].map(f => (
+//             <button
+//               key={f}
+//               onClick={() => setFilter(f)}
+//               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+//                 filter === f ? 'bg-white/10 text-white shadow-sm' : 'text-neutral-400 hover:text-neutral-200'
+//               }`}
+//             >
+//               {f}
+//             </button>
+//           ))}
+//         </div>
+//       </div>
+
+//       <div className="space-y-3">
+//         {(filter === 'all' || filter === 'active') && userProfile.activeOrders.map(o => (
+//           <Card key={o.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/20">
+//             <div className="flex items-center gap-4">
+//               <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+//                 <Clock className="w-5 h-5" />
+//               </div>
+//               <div>
+//                 <div className="flex items-center gap-2.5 flex-wrap">
+//                   <span className="text-sm font-bold text-white">{o.item}</span>
+//                   <Badge color="amber">In Tailoring</Badge>
+//                 </div>
+//                 <p className="text-xs text-neutral-400 mt-1">ID: <span className="font-mono text-neutral-300">{o.id}</span> &bull; Estimated: {o.estimatedDelivery}</p>
+//               </div>
+//             </div>
+//             <button
+//               onClick={() => goTo('overview')}
+//               className="text-xs font-semibold bg-white/5 hover:bg-white/10 text-neutral-200 border border-white/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 self-start sm:self-auto active:scale-95"
+//             >
+//               Track Progress <ChevronRight className="w-3.5 h-3.5" />
+//             </button>
+//           </Card>
+//         ))}
+
+//         {(filter === 'all' || filter === 'completed') && userProfile.pastOrders.map(o => (
+//           <Card key={o.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-white/20">
+//             <div className="flex items-center gap-4">
+//               <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+//                 <CheckCircle2 className="w-5 h-5" />
+//               </div>
+//               <div>
+//                 <div className="flex items-center gap-2.5 flex-wrap">
+//                   <span className="text-sm font-bold text-white">{o.item}</span>
+//                   <Badge color="green">Delivered</Badge>
+//                 </div>
+//                 <p className="text-xs text-neutral-400 mt-1">ID: <span className="font-mono text-neutral-300">{o.id}</span> &bull; Delivered {o.date} &bull; <span className="text-white font-mono font-bold">{o.price}</span></p>
+//               </div>
+//             </div>
+//             <button className="text-xs font-semibold bg-white/5 hover:bg-white/10 text-neutral-300 border border-white/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 self-start sm:self-auto active:scale-95">
+//               <Download className="w-3.5 h-3.5" /> Invoice
+//             </button>
+//           </Card>
+//         ))}
+//       </div>
+//     </TabPanel>
+//   );
+// };
+
+// const SecurityTab = ({ userProfile }) => (
+//   <TabPanel>
+//     <div>
+//       <h2 className="text-xl font-bold text-white tracking-tight">Security & Access</h2>
+//       <p className="text-xs sm:text-sm text-neutral-400 mt-1">Manage active sessions and security settings.</p>
+//     </div>
+
+//     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//       <Card className="p-6 space-y-4">
+//         <SectionHeading icon={KeyRound}>Connected Identity</SectionHeading>
+//         <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl">
+//           <div className="flex items-center gap-3">
+//             <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-xs font-bold text-amber-400 border border-white/10">G</div>
+//             <div>
+//               <p className="text-xs font-bold text-white">Google SSO</p>
+//               <p className="text-[11px] text-neutral-400">{userProfile.email}</p>
+//             </div>
+//           </div>
+//           <Badge color="green">Connected</Badge>
+//         </div>
+//       </Card>
+
+//       <div className="space-y-4">
+//         <SectionHeading icon={Laptop}>Active Sessions</SectionHeading>
+//         {userProfile.sessions.map((s, i) => {
+//           const DeviceIcon = s.Icon;
+//           return (
+//             <Card key={i} className="p-4 flex items-center justify-between gap-3">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 flex-shrink-0">
+//                   <DeviceIcon className="w-4 h-4" />
+//                 </div>
+//                 <div>
+//                   <p className="text-xs font-bold text-white">{s.device}</p>
+//                   <p className="text-[11px] text-neutral-400">{s.location} &bull; <span className={s.current ? 'text-amber-400 font-semibold' : ''}>{s.status}</span></p>
+//                 </div>
+//               </div>
+//             </Card>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   </TabPanel>
+// );
+
+// // ─── Main Dashboard ─────────────────────────────────────────────────────────────
+
+// export default function UserDashboard() {
+//   const navigate = useNavigate();
+//   const [searchParams, setSearchParams] = useSearchParams();
+//   const activeTab = searchParams.get('tab') || 'overview';
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+//   const { cartCount, setIsCartOpen } = useCart();
+//   const { user } = useUserAuth();
+//   const { mutateAsync: logout } = useUserLogout();
+
+//   const handleTabChange = (tabId) => {
+//     setSearchParams({ tab: tabId });
+//     setMobileMenuOpen(false);
+//   };
+
+//   const handleLogout = async () => {
+//     try {
+//       await logout();
+//       navigate('/');
+//     } catch (error) {
+//       console.error('Logout failed:', error);
+//     }
+//   };
+
+//   const profileData = {
+//     name: user?.name || user?.email?.split('@')[0] || 'Member',
+//     email: user?.email || 'user@example.com',
+//     tier: user?.role === 'admin' ? 'Administrator' : 'Premium Member',
+//     memberSince: 'March 2026',
+//     measurements: [
+//       { label: 'Chest', value: '40.5 in', updated: '2 weeks ago' },
+//       { label: 'Shoulder Width', value: '18.2 in', updated: '2 weeks ago' },
+//       { label: 'Sleeve Length', value: '25.0 in', updated: '2 weeks ago' },
+//       { label: 'Waist', value: '34.0 in', updated: '2 weeks ago' },
+//     ],
+//     activeOrders: [
+//       {
+//         id: 'ORD-9982', item: 'Premium Charcoal Wool Blazer',
+//         type: 'Bespoke Tailoring', status: 'In Production', progress: 65,
+//         estimatedDelivery: 'June 28, 2026',
+//         timeline: [
+//           { step: 'Design Approved', done: true },
+//           { step: 'Fabric Laser Cutting', done: true },
+//           { step: 'Hand Stitching Assembly', done: true },
+//           { step: 'Final Fitting QC', done: false },
+//         ],
+//       },
+//     ],
+//     pastOrders: [
+//       { id: 'ORD-8812', item: 'Midnight Silk Sari Blouse', type: 'Traditional Custom', date: 'Apr 14, 2026', price: '₹4,500' },
+//       { id: 'ORD-7651', item: 'Egyptian Cotton White Shirt', type: 'Bespoke Tailoring', date: 'Mar 2, 2026', price: '₹3,200' },
+//     ],
+//     sessions: [
+//       { device: 'Windows 11 PC • Chrome', location: 'Kochi, India', status: 'Active Now', current: true, Icon: Laptop },
+//       { device: 'iPhone 15 Pro • Safari', location: 'Ernakulam, India', status: 'Logged in 2 days ago', current: false, Icon: Smartphone },
+//     ],
+//   };
+
+//   const primaryNavItems = [
+//     { id: 'overview', label: 'Overview', Icon: Compass },
+//     { id: 'custom-order', label: 'New Order', Icon: Sparkles },
+//     { id: 'orders', label: 'Orders', Icon: ShoppingBag },
+//     { id: 'measurements', label: 'Fit Profile', Icon: Ruler },
+//   ];
+
+//   const secondaryNavItems = [
+//     { id: 'cart-trigger', label: 'Cart', Icon: ShoppingCart, isCart: true },
+//     { id: 'security', label: 'Security', Icon: Shield },
+//   ];
+
+//   const allNavItems = [...primaryNavItems, ...secondaryNavItems];
+
+//   const handleNavClick = (item) => {
+//     if (item.isCart) {
+//       setIsCartOpen(true);
+//       setMobileMenuOpen(false);
+//     } else {
+//       handleTabChange(item.id);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen w-full bg-black text-neutral-100 flex flex-col lg:flex-row pt-20 sm:pt-24 pb-20 lg:pb-12">
+
+//       {/* ── Desktop Sidebar Navigation ──────────────────────────────────── */}
+//       <aside className="hidden lg:flex w-64 xl:w-72 bg-neutral-950/90 backdrop-blur-2xl border-r border-white/10 flex-col justify-between fixed left-0 top-20 h-[calc(100vh-5rem)] z-20 pb-6">
+//         <div className="p-6 space-y-6 overflow-y-auto">
+//           {/* User Profile Summary */}
+//           <div className="flex items-center gap-3 p-3.5 bg-neutral-900/80 border border-white/10 rounded-2xl shadow-md">
+//             <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center font-extrabold text-amber-400 text-sm flex-shrink-0 shadow-inner">
+//               {profileData.name.charAt(0).toUpperCase()}
+//             </div>
+//             <div className="min-w-0">
+//               <p className="text-sm font-bold text-white truncate">{profileData.name}</p>
+//               <p className="text-[11px] text-neutral-400 truncate">{profileData.email}</p>
+//             </div>
+//           </div>
+
+//           {/* Navigation Links */}
+//           <nav className="space-y-1.5" role="tablist">
+//             {allNavItems.map(item => {
+//               const isActive = !item.isCart && activeTab === item.id;
+//               return (
+//                 <button
+//                   key={item.id}
+//                   role="tab"
+//                   aria-selected={isActive}
+//                   onClick={() => handleNavClick(item)}
+//                   className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all ${
+//                     isActive
+//                       ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20'
+//                       : 'text-neutral-400 hover:text-white hover:bg-white/5'
+//                   }`}
+//                 >
+//                   <div className="flex items-center gap-3 z-10">
+//                     <item.Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-black' : 'text-neutral-400'}`} />
+//                     <span>{item.label}</span>
+//                   </div>
+//                   {item.isCart && cartCount > 0 && (
+//                     <span className="z-10 text-[10px] font-black bg-white text-black rounded-full px-2 py-0.5 min-w-[20px] text-center shadow-sm">
+//                       {cartCount}
+//                     </span>
+//                   )}
+//                 </button>
+//               );
+//             })}
+//           </nav>
+//         </div>
+
+//         {/* Logout */}
+//         <div className="px-6 pt-4 border-t border-white/10">
+//           <button
+//             onClick={handleLogout}
+//             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-neutral-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all active:scale-[0.98]"
+//           >
+//             <LogOut className="w-4 h-4" /> Sign Out
+//           </button>
+//         </div>
+//       </aside>
+
+//       {/* Desktop Sidebar Spacer */}
+//       <div className="hidden lg:block w-64 xl:w-72 flex-shrink-0" />
+
+//       {/* ── Main Dashboard Content Area ──────────────────────────────── */}
+//       <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-10 max-w-6xl mx-auto">
+//         <AnimatePresence mode="wait">
+//           {activeTab === 'overview' && <OverviewTab key="overview" userProfile={profileData} goTo={handleTabChange} />}
+//           {activeTab === 'measurements' && <MeasurementsTab key="measurements" userProfile={profileData} goTo={handleTabChange} />}
+//           {activeTab === 'custom-order' && (
+//             <motion.div key="custom-order" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
+//               <StitchingOrder initialMeasurements={profileData.measurements} />
+//             </motion.div>
+//           )}
+//           {activeTab === 'orders' && <OrdersTab key="orders" userProfile={profileData} goTo={handleTabChange} />}
+//           {activeTab === 'security' && <SecurityTab key="security" userProfile={profileData} />}
+//         </AnimatePresence>
+//       </main>
+
+//       {/* ── Mobile Native Bottom Bar Nav ─────────────────────────────── */}
+//       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-neutral-950/90 backdrop-blur-2xl border-t border-white/10 px-3 py-2">
+//         <div className="flex items-center justify-around">
+//           {primaryNavItems.map(item => {
+//             const isActive = activeTab === item.id;
+//             return (
+//               <button
+//                 key={item.id}
+//                 onClick={() => handleNavClick(item)}
+//                 className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
+//                   isActive ? 'text-amber-400' : 'text-neutral-400 hover:text-neutral-200'
+//                 }`}
+//               >
+//                 <item.Icon className="w-5 h-5" />
+//                 <span className="text-[10px] font-semibold">{item.label}</span>
+//               </button>
+//             );
+//           })}
+//           <button
+//             onClick={() => setMobileMenuOpen(true)}
+//             className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${
+//               mobileMenuOpen ? 'text-amber-400' : 'text-neutral-400 hover:text-neutral-200'
+//             }`}
+//           >
+//             <Menu className="w-5 h-5" />
+//             <span className="text-[10px] font-semibold">More</span>
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* ── Mobile Bottom Drawer Sheet ───────────────────────────────── */}
+//       <AnimatePresence>
+//         {mobileMenuOpen && (
+//           <>
+//             <motion.div
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               onClick={() => setMobileMenuOpen(false)}
+//               className="lg:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+//             />
+//             <motion.div
+//               initial={{ y: '100%' }}
+//               animate={{ y: 0 }}
+//               exit={{ y: '100%' }}
+//               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+//               className="lg:hidden fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-white/10 rounded-t-3xl p-6 z-50 space-y-4"
+//             >
+//               <div className="flex items-center justify-between border-b border-white/10 pb-4">
+//                 <div className="flex items-center gap-3">
+//                   <User className="w-5 h-5 text-amber-400" />
+//                   <span className="text-sm font-bold text-white">Menu Options</span>
+//                 </div>
+//                 <button
+//                   onClick={() => setMobileMenuOpen(false)}
+//                   className="p-1 rounded-full bg-white/5 text-neutral-400 hover:text-white"
+//                 >
+//                   <X className="w-5 h-5" />
+//                 </button>
+//               </div>
+
+//               <div className="space-y-2">
+//                 {secondaryNavItems.map(item => (
+//                   <button
+//                     key={item.id}
+//                     onClick={() => handleNavClick(item)}
+//                     className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 text-xs font-bold text-neutral-200 hover:bg-white/10 transition-colors"
+//                   >
+//                     <div className="flex items-center gap-3">
+//                       <item.Icon className="w-4 h-4 text-amber-400" />
+//                       <span>{item.label}</span>
+//                     </div>
+//                     {item.isCart && cartCount > 0 && (
+//                       <span className="bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full">
+//                         {cartCount}
+//                       </span>
+//                     )}
+//                   </button>
+//                 ))}
+
+//                 <button
+//                   onClick={handleLogout}
+//                   className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-bold text-red-400 mt-4"
+//                 >
+//                   <LogOut className="w-4 h-4" /> Sign Out
+//                 </button>
+//               </div>
+//             </motion.div>
+//           </>
+//         )}
+//       </AnimatePresence>
+//     </div>
+//   );
+// }
+
+
+
+
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  User, Scissors, ShoppingBag, Ruler, MapPin, LogOut, Bell, 
-  ChevronRight, Compass, Shield, Sparkles, Clock, CheckCircle2, 
-  ArrowUpRight, Eye, RefreshCw, Smartphone, Laptop, KeyRound, 
-  Download, Menu, X, ShoppingCart, ArrowLeft, Trash2, ArrowRight
+  Compass, Shield, Sparkles, Clock, CheckCircle2,
+  ArrowUpRight, Smartphone, Laptop, KeyRound, Ruler,
+  Download, ShoppingCart, ShoppingBag, LogOut, ChevronRight,
+  Menu, X, User, Copy, ExternalLink, RefreshCw, AlertCircle
 } from 'lucide-react';
-import StitchingOrder from './StitchingOrder'; 
+import StitchingOrder from './StitchingOrder';
+import { useCart } from '../context/CartContext';
+import { useUserAuth } from '../hook/auth/useUserAuth';
+import { useUserLogout } from '../hook/auth/userAuth';
 
-// ==========================================
-// 🌟 SUB-COMPONENTS FOR CLEAN REUSABILITY
-// ==========================================
+// ─── Constants & Static Config ────────────────────────────────────────────────
 
-const StatusBadge = ({ variant, children }) => {
+const PRIMARY_NAV_ITEMS = [
+  { id: 'overview', label: 'Overview', Icon: Compass },
+  { id: 'custom-order', label: 'New Order', Icon: Sparkles },
+  { id: 'orders', label: 'Orders', Icon: ShoppingBag },
+  { id: 'measurements', label: 'Fit Profile', Icon: Ruler },
+];
+
+const SECONDARY_NAV_ITEMS = [
+  { id: 'cart-trigger', label: 'Cart', Icon: ShoppingCart, isCart: true },
+  { id: 'security', label: 'Security', Icon: Shield },
+];
+
+const ALL_NAV_ITEMS = [...PRIMARY_NAV_ITEMS, ...SECONDARY_NAV_ITEMS];
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(amount);
+};
+
+// ─── Design Primitives ────────────────────────────────────────────────────────
+
+const Badge = ({ color = 'amber', children }) => {
   const styles = {
-    primary: "bg-primary/10 border-primary/20 text-primary animate-pulse",
-    emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+    amber: 'bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/10',
+    green: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/10',
+    blue: 'bg-sky-500/15 text-sky-300 border-sky-500/30 shadow-sky-500/10',
+    purple: 'bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/10',
   };
   return (
-    <span className={`text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full border ${styles[variant] || styles.primary}`}>
+    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full border backdrop-blur-md transition-colors ${styles[color] || styles.amber}`}>
       {children}
     </span>
   );
 };
 
-const MetricCard = ({ label, value, footer }) => (
-  <div className="p-5 rounded-2xl glass-panel bg-white/5 border-white/15 space-y-2">
-    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">{label}</span>
-    <span className="text-2xl font-extrabold text-primary font-mono block">{value}</span>
-    {footer && <span className="text-[10px] text-gray-400 block pt-2 border-t border-white/10">{footer}</span>}
+const SectionHeading = ({ icon: Icon, children, color = "text-amber-400" }) => (
+  <div className="flex items-center gap-2 mb-4">
+    {Icon && <Icon className={`w-4 h-4 ${color}`} aria-hidden="true" />}
+    <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-400">{children}</h2>
   </div>
 );
 
-const OrderItemRow = ({ order, isActiveType, onTrackClick }) => {
-  const Icon = isActiveType ? Clock : CheckCircle2;
+const Card = ({ children, className = '', hover = true }) => (
+  <div className={`bg-neutral-900/70 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl transition-all duration-300 ${hover ? 'hover:border-white/20 hover:shadow-2xl' : ''} ${className}`}>
+    {children}
+  </div>
+);
+
+const MetricCard = ({ label, value, sub, accentColor = "from-amber-500/10" }) => (
+  <Card className="p-3.5 sm:p-5 flex flex-col justify-between relative overflow-hidden group hover:bg-neutral-900/90">
+    <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${accentColor} to-transparent rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity`} />
+    <p className="text-[11px] sm:text-xs text-neutral-400 font-bold uppercase tracking-wider z-10">{label}</p>
+    <div className="my-2 z-10">
+      <p className="text-2xl sm:text-3xl font-black text-white font-sans tracking-tight group-hover:text-amber-400 transition-colors">{value}</p>
+    </div>
+    {sub && <p className="text-[11px] text-neutral-400 border-t border-white/5 pt-2 z-10">{sub}</p>}
+  </Card>
+);
+
+const TabPanel = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -8 }}
+    transition={{ duration: 0.18, ease: 'easeOut' }}
+    className="space-y-6"
+  >
+    {children}
+  </motion.div>
+);
+
+// ─── Sub Views ────────────────────────────────────────────────────────────────
+
+const OverviewTab = ({ userProfile, goTo }) => {
+  const activeOrder = userProfile?.activeOrders?.[0];
+
   return (
-    <div className={`p-5 rounded-2xl glass-panel border flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-      isActiveType ? 'bg-white/[0.02] border-white/15' : 'bg-white/[0.01] border-white/10'
-    }`}>
-      <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${
-          isActiveType ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-        }`}>
-          <Icon className="w-5 h-5" />
-        </div>
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h4 className="text-sm font-bold text-white">{order.item}</h4>
-            <StatusBadge variant={isActiveType ? 'primary' : 'emerald'}>
-              {isActiveType ? 'In Progress' : 'Delivered'}
-            </StatusBadge>
+    <TabPanel>
+      {/* Banner */}
+      <Card hover={false} className="p-6 sm:p-8 relative overflow-hidden bg-gradient-to-r from-neutral-900 via-neutral-900/90 to-amber-950/30 border-white/10">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="text-[10px] sm:text-[11px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" /> Premium Tailoring Studio
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Welcome back, <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200">{userProfile?.name || 'Member'}</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-neutral-400">{userProfile?.email}</p>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Order ID: {order.id} • {isActiveType ? `Est. Delivery: ${order.estimatedDelivery}` : `Completed on ${order.date}`}
-            {!isActiveType && <span className="font-mono text-gray-300 ml-1">• {order.price}</span>}
-          </p>
+          <div className="self-start sm:self-auto">
+            <Badge color="amber">{userProfile?.tier || 'Member'}</Badge>
+          </div>
+        </div>
+      </Card>
+
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        <MetricCard label="Active Orders" value={userProfile?.activeOrders?.length || 0} sub="Currently tailored" accentColor="from-amber-500/20" />
+        <MetricCard label="Past Orders" value={userProfile?.pastOrders?.length || 0} sub="Delivered to you" accentColor="from-emerald-500/20" />
+        <MetricCard label="Saved Sizes" value={userProfile?.measurements?.length || 0} sub="Fit profile active" accentColor="from-purple-500/20" />
+        <MetricCard label="Member Tier" value={(userProfile?.tier || 'Member').split(' ')[0]} sub={`Joined ${userProfile?.memberSince || ''}`} accentColor="from-sky-500/20" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Active Order Tracker */}
+        <div className="lg:col-span-3 space-y-4">
+          <SectionHeading icon={Clock}>Active Order Tracker</SectionHeading>
+          {activeOrder ? (
+            <Card className="p-5 sm:p-6 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Badge color="amber">{activeOrder.type}</Badge>
+                    <Badge color="blue">{activeOrder.status}</Badge>
+                  </div>
+                  <h3 className="text-base font-bold text-white mt-2.5">{activeOrder.item}</h3>
+                  <p className="text-xs text-neutral-400 mt-1">
+                    ID: <span className="font-mono text-neutral-200">{activeOrder.id}</span> &bull; Est. Delivery: <span className="text-amber-300 font-medium">{activeOrder.estimatedDelivery}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-neutral-400">Tailoring Progress</span>
+                  <span className="text-amber-400 font-mono">{activeOrder.progress}%</span>
+                </div>
+                <div className="h-2.5 bg-neutral-800 rounded-full overflow-hidden p-0.5 border border-white/5">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${activeOrder.progress}%` }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                    className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full shadow-lg shadow-amber-500/30"
+                  />
+                </div>
+              </div>
+
+              {/* Timeline Stepper */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 pt-2">
+                {activeOrder.timeline?.map((s, i) => (
+                  <div key={i} className={`p-3 rounded-xl border transition-colors ${s.done ? 'bg-amber-500/10 border-amber-500/30' : 'bg-neutral-900/50 border-white/5 opacity-60'}`}>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <CheckCircle2 className={`w-3.5 h-3.5 flex-shrink-0 ${s.done ? 'text-amber-400' : 'text-neutral-600'}`} />
+                      <span className={`text-[10px] uppercase font-black tracking-wider ${s.done ? 'text-amber-300' : 'text-neutral-500'}`}>
+                        Step 0{i + 1}
+                      </span>
+                    </div>
+                    <p className={`text-xs ${s.done ? 'text-neutral-200 font-semibold' : 'text-neutral-500'}`}>{s.step}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ) : (
+            <Card className="p-8 text-center space-y-3">
+              <p className="text-sm text-neutral-400">No active custom orders at the moment.</p>
+              <button onClick={() => goTo('custom-order')} className="text-xs text-amber-400 font-bold hover:underline inline-flex items-center gap-1">
+                Start a new bespoke order &rarr;
+              </button>
+            </Card>
+          )}
+        </div>
+
+        {/* Quick Sizes */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <SectionHeading icon={Ruler}>Saved Sizes</SectionHeading>
+            <button onClick={() => goTo('measurements')} className="text-xs text-amber-400 hover:underline flex items-center gap-1 font-semibold">
+              Manage <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <Card className="divide-y divide-white/5 overflow-hidden">
+            {userProfile?.measurements?.map((m, i) => (
+              <div key={i} className="flex items-center justify-between p-4 text-xs sm:text-sm hover:bg-white/[0.02] transition-colors">
+                <span className="text-neutral-400 font-medium">{m.label}</span>
+                <span className="font-bold text-amber-300 font-mono bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
+                  {m.value}
+                </span>
+              </div>
+            ))}
+          </Card>
         </div>
       </div>
-      
-      {isActiveType ? (
-        <button onClick={onTrackClick} className="text-xs font-semibold bg-white/5 text-gray-300 px-4 py-2 rounded-xl hover:bg-white/10 transition-all border border-white/10 flex items-center gap-1 self-start md:self-auto cursor-pointer">
-          Track Progress <ChevronRight className="w-3 h-3" />
-        </button>
-      ) : (
-        <button className="text-xs font-semibold bg-white/[0.02] text-gray-400 px-4 py-2 rounded-xl hover:bg-white/5 hover:text-white transition-all border border-white/10 flex items-center gap-2 self-start md:self-auto cursor-pointer">
-          <Download className="w-3 h-3" /> Invoice
-        </button>
-      )}
-    </div>
+    </TabPanel>
   );
 };
 
-// ==========================================
-// 🎛️ MAIN EXPORT INTERFACE COMPONENT
-// ==========================================
+const MeasurementsTab = ({ userProfile, goTo }) => (
+  <TabPanel>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 className="text-xl font-bold text-white tracking-tight">Fit Profile</h2>
+        <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">Your bespoke tailor measurement standards.</p>
+      </div>
+      <button
+        onClick={() => goTo('custom-order')}
+        className="px-4 py-2 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-black rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center gap-1.5 self-start sm:self-auto active:scale-95"
+      >
+        <Sparkles className="w-3.5 h-3.5" /> Order With This Fit Profile
+      </button>
+    </div>
+
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      {userProfile?.measurements?.map((m, i) => (
+        <MetricCard key={i} label={m.label} value={m.value} sub={`Updated ${m.updated}`} accentColor="from-purple-500/10" />
+      ))}
+    </div>
+  </TabPanel>
+);
+
+const OrdersTab = ({ userProfile, goTo }) => {
+  const [filter, setFilter] = useState('all');
+
+  const activeOrders = userProfile?.activeOrders || [];
+  const pastOrders = userProfile?.pastOrders || [];
+
+  const showActive = filter === 'all' || filter === 'active';
+  const showCompleted = filter === 'all' || filter === 'completed';
+
+  const hasOrders = (showActive && activeOrders.length > 0) || (showCompleted && pastOrders.length > 0);
+
+  return (
+    <TabPanel>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-tight">Orders & Stitching</h2>
+          <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">History of past and active bespoke items.</p>
+        </div>
+        <div className="flex gap-1 p-1 bg-neutral-900 border border-white/10 rounded-xl self-start sm:self-auto">
+          {['all', 'active', 'completed'].map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${filter === f ? 'bg-amber-500 text-black shadow-md font-bold' : 'text-neutral-400 hover:text-white'
+                }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {showActive && activeOrders.map(o => (
+          <Card key={o.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-amber-500">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+                <Clock className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold text-white">{o.item}</span>
+                  <Badge color="amber">In Production</Badge>
+                </div>
+                <p className="text-xs text-neutral-400 mt-1">ID: <span className="font-mono text-neutral-200">{o.id}</span> &bull; Est: {o.estimatedDelivery}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => goTo('overview')}
+              className="text-xs font-semibold bg-white/5 hover:bg-white/10 text-amber-300 border border-amber-500/20 px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 self-start sm:self-auto active:scale-95"
+            >
+              Track Order <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </Card>
+        ))}
+
+        {showCompleted && pastOrders.map(o => (
+          <Card key={o.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-emerald-500">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold text-white">{o.item}</span>
+                  <Badge color="green">Delivered</Badge>
+                </div>
+                <p className="text-xs text-neutral-400 mt-1">
+                  ID: <span className="font-mono text-neutral-200">{o.id}</span> &bull; Delivered {o.date} &bull; <span className="text-amber-300 font-mono font-bold">{typeof o.price === 'number' ? formatCurrency(o.price) : o.price}</span>
+                </p>
+              </div>
+            </div>
+            <button className="text-xs font-semibold bg-white/5 hover:bg-white/10 text-neutral-300 border border-white/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 self-start sm:self-auto active:scale-95">
+              <Download className="w-3.5 h-3.5 text-neutral-400" /> Invoice
+            </button>
+          </Card>
+        ))}
+
+        {!hasOrders && (
+          <Card className="p-8 text-center space-y-2">
+            <AlertCircle className="w-8 h-8 text-neutral-500 mx-auto" />
+            <p className="text-sm font-semibold text-neutral-300">No orders found</p>
+            <p className="text-xs text-neutral-500">There are no orders matching your selected status filter.</p>
+          </Card>
+        )}
+      </div>
+    </TabPanel>
+  );
+};
+
+const SecurityTab = ({ userProfile }) => (
+  <TabPanel>
+    <div>
+      <h2 className="text-xl font-bold text-white tracking-tight">Security & Sessions</h2>
+      <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">Manage authenticated devices and identity details.</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <Card className="p-6 space-y-4">
+        <SectionHeading icon={KeyRound}>Connected Identity</SectionHeading>
+        <div className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xs font-extrabold text-amber-400 border border-white/10">G</div>
+            <div>
+              <p className="text-xs font-bold text-white">Google SSO Account</p>
+              <p className="text-[11px] text-neutral-400">{userProfile?.email}</p>
+            </div>
+          </div>
+          <Badge color="green">Active</Badge>
+        </div>
+      </Card>
+
+      <div className="space-y-4">
+        <SectionHeading icon={Laptop}>Active Devices</SectionHeading>
+        {userProfile?.sessions?.map((s, i) => {
+          const DeviceIcon = s.Icon;
+          return (
+            <Card key={i} className="p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 flex-shrink-0">
+                  <DeviceIcon className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">{s.device}</p>
+                  <p className="text-[11px] text-neutral-400">{s.location} &bull; <span className={s.current ? 'text-amber-400 font-semibold' : ''}>{s.status}</span></p>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  </TabPanel>
+);
+
+// ─── Main Component ────────────────────────────────────────────────────────────
+
 export default function UserDashboard() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [orderFilter, setOrderFilter] = useState('all');
-  const [twoFactor, setTwoFactor] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'overview';
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // 🛒 Production Mock Cart Data State
-  const [cartItems, setCartItems] = useState([
-    { id: 'cart-1', name: 'Premium Merino Silk Scarf', variant: 'Midnight Onyx', price: 4200, qty: 1, img: '🧣' },
-    { id: 'cart-2', name: 'Bespoke Mother of Pearl Buttons', variant: 'Set of 12 / Handcrafted', price: 1800, qty: 1, img: '🔘' }
-  ]);
+  const { cartCount, setIsCartOpen } = useCart();
+  const { user } = useUserAuth();
+  const { mutateAsync: logout } = useUserLogout();
 
-  const userProfile = {
-    name: "Alex Mathew",
-    memberSince: "March 2026",
+  const handleTabChange = (tabId) => {
+    setSearchParams({ tab: tabId });
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const profileData = useMemo(() => ({
+    name: user?.name || user?.email?.split('@')[0] || 'Member',
+    email: user?.email || 'user@example.com',
+    tier: user?.role === 'admin' ? 'Administrator' : 'Premium Member',
+    memberSince: 'March 2026',
     measurements: [
-      { label: "Chest", value: "40.5 in", updated: "2 weeks ago" },
-      { label: "Shoulder width", value: "18.2 in", updated: "2 weeks ago" },
-      { label: "Sleeve Length", value: "25.0 in", updated: "2 weeks ago" },
-      { label: "Waist", value: "34.0 in", updated: "2 weeks ago" },
+      { label: 'Chest', value: '40.5 in', updated: '2 weeks ago' },
+      { label: 'Shoulder Width', value: '18.2 in', updated: '2 weeks ago' },
+      { label: 'Sleeve Length', value: '25.0 in', updated: '2 weeks ago' },
+      { label: 'Waist', value: '34.0 in', updated: '2 weeks ago' },
     ],
     activeOrders: [
       {
-        id: "ORD-9982",
-        item: "Premium Charcoal Wool Blazer",
-        type: "Bespoke Tailoring",
-        status: "In Production",
-        progress: 65,
-        estimatedDelivery: "June 28, 2026",
+        id: 'ORD-9982', item: 'Premium Charcoal Wool Blazer',
+        type: 'Bespoke Tailoring', status: 'In Production', progress: 65,
+        estimatedDelivery: 'June 28, 2026',
         timeline: [
-          { step: "Design Approved", done: true },
-          { step: "Fabric Laser Cutting", done: true },
-          { step: "Hand Stitching Assembly", done: true },
-          { step: "Final Fitting QC", done: false }
-        ]
-      }
+          { step: 'Design Approved', done: true },
+          { step: 'Fabric Laser Cutting', done: true },
+          { step: 'Hand Stitching Assembly', done: true },
+          { step: 'Final Fitting QC', done: false },
+        ],
+      },
     ],
     pastOrders: [
-      { id: "ORD-8812", item: "Midnight Silk Sari Blouse", type: "Traditional Custom", status: "Completed", date: "April 14, 2026", price: "₹4,500" },
-      { id: "ORD-7651", item: "Egyptian Cotton Crisp White Shirt", type: "Bespoke Tailoring", status: "Completed", date: "March 02, 2026", price: "₹3,200" }
+      { id: 'ORD-8812', item: 'Midnight Silk Sari Blouse', type: 'Traditional Custom', date: 'Apr 14, 2026', price: 4500 },
+      { id: 'ORD-7651', item: 'Egyptian Cotton White Shirt', type: 'Bespoke Tailoring', date: 'Mar 2, 2026', price: 3200 },
     ],
     sessions: [
-      { device: "Windows 11 PC • Chrome", location: "Kochi, India", status: "Active Now", current: true, icon: Laptop },
-      { device: "iPhone 15 Pro • Safari", location: "Ernakulam, India", status: "Logged in 2 days ago", current: false, icon: Smartphone }
-    ]
-  };
+      { device: 'Windows 11 PC • Chrome', location: 'Kochi, India', status: 'Active Now', current: true, Icon: Laptop },
+      { device: 'iPhone 15 Pro • Safari', location: 'Ernakulam, India', status: 'Logged in 2 days ago', current: false, Icon: Smartphone },
+    ],
+  }), [user]);
 
-  // 📝 Navigation layout structured list (Cart added natively here)
-  const sidebarLinks = [
-    { id: 'overview', label: 'Overview Dashboard', icon: Compass },
-    { id: 'measurements', label: 'My Saved Sizes', icon: Scissors },
-    { id: 'custom-order', label: 'New Custom Order', icon: Sparkles },
-    { id: 'orders', label: 'Order History', icon: ShoppingBag },
-    { id: 'cart-trigger', label: 'Cart Checkout', icon: ShoppingCart, isCartLink: true },
-    { id: 'security', label: 'Account Security', icon: Shield },
-  ];
-
-  // Cart Calculations Logic
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
-  const estimatedTax = Math.round(subtotal * 0.12); // 12% Luxury GST rule mock
-  const totalAmount = subtotal + estimatedTax;
-
-  const handleRemoveCartItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+  const handleNavClick = (item) => {
+    if (item.isCart) {
+      setIsCartOpen(true);
+      setMobileMenuOpen(false);
+    } else {
+      handleTabChange(item.id);
+    }
   };
 
   return (
-    <div className="relative h-screen w-screen bg-black text-white flex overflow-hidden">
-      
-      {/* 🌌 Background Light Ambience Blooms */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[130px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-dark/5 rounded-full blur-[120px]" />
-        <div className="absolute inset-0 bg-[url('/assets/noise.svg')] opacity-[0.03] mix-blend-overlay" />
-      </div>
-
-      {/* 🎛️ RESPONSIVE SIDEBAR */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-50 w-72 bg-black/95 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0 lg:bg-white/[0.01]
-        ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="space-y-8">
-          <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg shadow-primary/20">
-                <Sparkles className="w-4 h-4 text-white fill-white/20" />
-              </div>
-              <span className="text-base font-bold uppercase tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">
-                Bespoke Studio
-              </span>
+    <div className="min-h-screen w-full bg-neutral-950 text-neutral-100 flex flex-col lg:flex-row pt-20 sm:pt-24 pb-20 lg:pb-12">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 xl:w-72 bg-neutral-950/90 backdrop-blur-2xl border-r border-white/10 flex-col justify-between fixed left-0 top-20 h-[calc(100vh-5rem)] z-20 pb-6">
+        <div className="p-6 space-y-6 overflow-y-auto">
+          <div className="flex items-center gap-3 p-3.5 bg-neutral-900/80 border border-white/10 rounded-2xl shadow-md">
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center font-extrabold text-amber-400 text-sm flex-shrink-0">
+              {profileData.name.charAt(0).toUpperCase()}
             </div>
-            <button onClick={() => setIsMobileSidebarOpen(false)} className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center font-bold text-primary">
-              {userProfile.name.split(' ').map(n => n[0]).join('')}
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-white tracking-wide truncate max-w-[150px]">{userProfile.name}</h4>
-              <p className="text-xs text-gray-400">Premium Client</p>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-white truncate">{profileData.name}</p>
+              <p className="text-[11px] text-neutral-400 truncate">{profileData.email}</p>
             </div>
           </div>
 
-          <nav className="space-y-1">
-            {sidebarLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = activeTab === link.id;
+          <nav className="space-y-1.5" role="tablist">
+            {ALL_NAV_ITEMS.map(item => {
+              const isActive = !item.isCart && activeTab === item.id;
               return (
                 <button
-                  key={link.id}
-                  onClick={() => { 
-                    if(link.isCartLink) {
-                      setIsCartOpen(true);
-                    } else {
-                      setActiveTab(link.id); 
-                    }
-                    setIsMobileSidebarOpen(false); 
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-                    isActive ? 'bg-primary text-white font-semibold shadow-lg shadow-primary/10' : 'text-gray-400 hover:text-white hover:bg-white/[0.08]'
-                  }`}
+                  key={item.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => handleNavClick(item)}
+                  className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all ${isActive
+                    ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20 font-bold'
+                    : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                    }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-400'}`} />
-                    {link.label}
+                  <div className="flex items-center gap-3 z-10">
+                    <item.Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-black' : 'text-neutral-400'}`} />
+                    <span>{item.label}</span>
                   </div>
-                  {link.isCartLink && cartItems.length > 0 && (
-                    <span className="bg-white/10 text-white font-mono text-[10px] px-2 py-0.5 rounded-md font-bold border border-white/10">
-                      {cartItems.length}
+                  {item.isCart && cartCount > 0 && (
+                    <span className="z-10 text-[10px] font-black bg-amber-400 text-black rounded-full px-2 py-0.5 min-w-[20px] text-center shadow-sm">
+                      {cartCount}
                     </span>
                   )}
                 </button>
@@ -216,383 +1056,125 @@ export default function UserDashboard() {
           </nav>
         </div>
 
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/5 hover:text-red-300 transition-all cursor-pointer">
-          <LogOut className="w-4 h-4" /> Sign Out
-        </button>
+        <div className="px-6 pt-4 border-t border-white/10">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-neutral-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all active:scale-[0.98]"
+          >
+            <LogOut className="w-4 h-4" /> Sign Out
+          </button>
+        </div>
       </aside>
 
-      <AnimatePresence>
-        {isMobileSidebarOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileSidebarOpen(false)} className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden" />
-        )}
-      </AnimatePresence>
+      {/* Sidebar Spacer for Layout Stability */}
+      <div className="hidden lg:block w-64 xl:w-72 flex-shrink-0" />
 
-      {/* 💻 MAIN VIEWPORT */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative z-10 h-screen">
-        
-        {/* Unified App Header Bar with Back-Links & Cart Metric Action Blocks */}
-        <header className="h-20 py-4 border-b border-white/10 px-4 sm:px-6 lg:px-10 flex items-center justify-between bg-black/20 backdrop-blur-md sticky top-0 z-20 w-full">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsMobileSidebarOpen(true)} className="p-2 -ml-2 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors lg:hidden" aria-label="Open Sidebar Menu">
-              <Menu className="w-5 h-5" />
-            </button>
-            
-            {/* Context Navigation Hierarchy (Resolves User Exit Pathing) */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm">
-              <a href="/" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 font-medium">
-                <ArrowLeft className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Back to Shop</span>
-              </a>
-              <span className="text-white/20">/</span>
-              <span className="text-gray-200 font-semibold capitalize">
-                {activeTab === 'overview' ? 'Overview' : activeTab.replace('-', ' ')}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* E-Commerce Global Cart Icon Trigger Button */}
-            <button 
-              onClick={() => setIsCartOpen(true)} 
-              className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors relative cursor-pointer" 
-              aria-label="View Shopping Cart"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 rounded-full bg-primary text-[10px] font-bold text-white flex items-center justify-center ring-4 ring-black">
-                  {cartItems.length}
-                </span>
-              )}
-            </button>
-
-            <button className="w-10 h-10 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors relative cursor-pointer">
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary ring-4 ring-black" />
-            </button>
-          </div>
-        </header>
-
-        {/* Dynamic Inner Active Panel Workspace */}
-        <div className="p-4 sm:p-6 lg:p-10 max-w-5xl w-full mx-auto flex-1 pb-24">
-          <AnimatePresence mode="wait">
-
-            {/* TAB: OVERVIEW VIEW */}
-            {activeTab === 'overview' && (
-              <motion.div key="overview" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="space-y-8">
-                <div className="relative rounded-3xl overflow-hidden glass-panel bg-gradient-to-br from-white/5 to-white/[0.01] border-white/15 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                  <div className="space-y-2">
-                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                      Welcome Back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dark">{userProfile.name.split(' ')[0]}</span>
-                    </h1>
-                    <p className="text-sm text-gray-300">Your measurements and active custom orders are up to date.</p>
-                  </div>
-                  <div className="text-xs text-gray-400 font-medium px-4 py-2 bg-white/[0.03] border border-white/10 rounded-full">
-                    Client Tier: Premium Member
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="md:col-span-2 space-y-6">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> Active Stitching Order</h3>
-                    {userProfile.activeOrders.map((order) => (
-                      <div key={order.id} className="rounded-2xl glass-panel bg-white/5 border-white/15 p-6 space-y-6">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <span className="text-xs font-semibold text-primary px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">{order.type}</span>
-                            <h4 className="text-lg font-bold mt-2 text-white">{order.item}</h4>
-                            <p className="text-xs text-gray-400 mt-1">Order ID: {order.id} • Est. Delivery: {order.estimatedDelivery}</p>
-                          </div>
-                          <StatusBadge variant="primary">{order.status}</StatusBadge>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-xs font-medium text-gray-400">
-                            <span>Order Progress</span>
-                            <span className="font-mono text-white">{order.progress}%</span>
-                          </div>
-                          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden p-[1px] border border-white/10">
-                            <motion.div initial={{ width: 0 }} animate={{ width: `${order.progress}%` }} transition={{ duration: 1, ease: "easeOut" }} className="h-full bg-gradient-to-r from-primary to-primary-dark rounded-full" />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
-                          {order.timeline.map((step, idx) => (
-                            <div key={idx} className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <CheckCircle2 className={`w-4 h-4 ${step.done ? 'text-primary' : 'text-gray-500'}`} />
-                                <span className={`text-xs font-semibold ${step.done ? 'text-gray-200' : 'text-gray-400'}`}>Stage 0{idx + 1}</span>
-                              </div>
-                              <p className={`text-[11px] font-medium leading-tight ${step.done ? 'text-gray-400' : 'text-gray-500'}`}>{step.step}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2"><Ruler className="w-4 h-4 text-primary" /> Current Fit Profile</h3>
-                    <div className="rounded-2xl glass-panel bg-white/[0.02] border-white/10 p-6 space-y-4 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-3 opacity-10"><Scissors className="w-24 h-24 text-white" /></div>
-                      <div className="flex justify-between items-center pb-2 border-b border-white/10">
-                        <span className="text-xs font-bold text-gray-400">Master Size Guide</span>
-                        <button onClick={() => setActiveTab('measurements')} className="text-xs font-semibold text-primary flex items-center gap-1 hover:underline cursor-pointer">
-                          View All <ArrowUpRight className="w-3 h-3" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 gap-3">
-                        {userProfile.measurements.slice(0, 3).map((item, index) => (
-                          <div key={index} className="flex justify-between items-center py-2 px-3 rounded-xl bg-white/[0.02] border border-white/10">
-                            <span className="text-xs text-gray-400 font-medium">{item.label}</span>
-                            <span className="text-sm font-bold text-white font-mono">{item.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <p className="text-[10px] text-gray-400 text-center pt-2">Last verified during your fitting session.</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* TAB: MEASUREMENTS */}
-            {activeTab === 'measurements' && (
-              <motion.div key="measurements" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">Your Custom Measurement Profile</h2>
-                  <p className="text-sm text-gray-300 mt-1">These are your saved sizes. We use these exact numbers to cut and stitch your garments for a perfect fit.</p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                  {userProfile.measurements.map((item, index) => (
-                    <MetricCard key={index} label={item.label} value={item.value} footer={`Updated ${item.updated}`} />
-                  ))}
-                </div>
-                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 flex gap-4 items-start">
-                  <Ruler className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="space-y-3 flex-1">
-                    <div>
-                      <h4 className="text-sm font-bold text-white">Ready to design something new?</h4>
-                      <p className="text-xs text-gray-300 leading-relaxed">Use your saved measurements to request a new premium garment handcrafted by our master designers.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      <button onClick={() => setActiveTab('custom-order')} className="text-xs font-semibold bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/10 cursor-pointer">Start New Custom Order</button>
-                      <button className="text-xs font-semibold bg-white/[0.03] text-gray-300 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/[0.08] transition-colors cursor-pointer">Message Designer</button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* TAB: NEW CUSTOM ORDER FORM CONTAINER */}
-            {activeTab === 'custom-order' && (
-              <motion.div key="custom-order" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }}>
-                <StitchingOrder initialMeasurements={userProfile.measurements} />
-              </motion.div>
-            )}
-
-            {/* TAB: ORDER HISTORY */}
-            {activeTab === 'orders' && (
-              <motion.div key="orders" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <h2 className="text-2xl font-bold text-white tracking-tight">Your Collections</h2>
-                    <p className="text-sm text-gray-400 mt-1">Review your past orders and active bespoke creations.</p>
-                  </div>
-                  <div className="flex gap-1 p-1 bg-white/[0.02] border border-white/5 rounded-xl">
-                    {['all', 'active', 'completed'].map((filter) => (
-                      <button key={filter} onClick={() => setOrderFilter(filter)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer ${orderFilter === filter ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}>
-                        {filter}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {(orderFilter === 'all' || orderFilter === 'active') &&
-                    userProfile.activeOrders.map((order) => (
-                      <OrderItemRow key={order.id} order={order} isActiveType={true} onTrackClick={() => setActiveTab('overview')} />
-                    ))}
-                  {(orderFilter === 'all' || orderFilter === 'completed') &&
-                    userProfile.pastOrders.map((order) => (
-                      <OrderItemRow key={order.id} order={order} isActiveType={false} />
-                    ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* TAB: ACCOUNT SECURITY */}
-            {activeTab === 'security' && (
-              <motion.div key="security" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">Security Settings</h2>
-                  <p className="text-sm text-gray-400 mt-1">Manage your secure sign-in status, logged-in devices, and security layers.</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-6">
-                    <div className="p-6 rounded-2xl glass-panel bg-white/[0.02] border-white/10 space-y-4">
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-gray-300 flex items-center gap-2"><KeyRound className="w-4 h-4 text-primary" /> Identity Verification</h3>
-                      <p className="text-xs text-gray-400 leading-relaxed">Your account is linked securely via your master sign-in provider. A traditional system password is not required.</p>
-                      <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center font-bold text-xs text-primary">G</div>
-                          <div>
-                            <h4 className="text-xs font-bold text-white">Google Account</h4>
-                            <p className="text-[10px] text-gray-500 mt-0.5">Primary login email linked safely</p>
-                          </div>
-                        </div>
-                        <StatusBadge variant="emerald">Connected</StatusBadge>
-                      </div>
-                    </div>
-
-                    <div className="p-6 rounded-2xl glass-panel bg-white/[0.02] border-white/10 flex items-center justify-between gap-4">
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-bold text-white flex items-center gap-2"><Smartphone className="w-4 h-4 text-primary" /> Two-Factor Authentication (2FA)</h4>
-                        <p className="text-xs text-gray-400 leading-relaxed">Require a mobile confirmation step to update your addresses or design orders.</p>
-                      </div>
-                      <button onClick={() => setTwoFactor(!twoFactor)} className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 focus:outline-none cursor-pointer flex-shrink-0 ${twoFactor ? 'bg-primary' : 'bg-white/10'}`}>
-                        <div className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${twoFactor ? 'translate-x-6' : 'translate-x-0'}`} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2 px-1"><Laptop className="w-4 h-4 text-primary" /> Where You're Logged In</h3>
-                    <div className="space-y-3">
-                      {userProfile.sessions.map((session, index) => {
-                        const DeviceIcon = session.icon;
-                        return (
-                          <div key={index} className="p-4 rounded-2xl bg-white/[0.01] border border-white/10 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-gray-400"><DeviceIcon className="w-4 h-4" /></div>
-                              <div>
-                                <h4 className="text-xs font-bold text-white">{session.device}</h4>
-                                <p className="text-[11px] text-gray-400 mt-0.5">{session.location} • <span className={session.current ? 'text-primary font-medium' : ''}>{session.status}</span></p>
-                              </div>
-                            </div>
-                            {!session.current && <button className="text-[10px] font-bold text-red-400 hover:underline cursor-pointer">Log Out</button>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-          </AnimatePresence>
-        </div>
+      {/* Main Container */}
+      <main className="flex-1 min-w-0 w-full px-2.5 sm:px-6 lg:px-10 max-w-6xl mx-auto pb-28 sm:pb-32 lg:pb-12">
+        <AnimatePresence mode="wait">
+          {activeTab === 'overview' && <OverviewTab key="overview" userProfile={profileData} goTo={handleTabChange} />}
+          {activeTab === 'measurements' && <MeasurementsTab key="measurements" userProfile={profileData} goTo={handleTabChange} />}
+          {activeTab === 'custom-order' && (
+            <motion.div key="custom-order" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18 }}>
+              <StitchingOrder initialMeasurements={profileData.measurements} />
+            </motion.div>
+          )}
+          {activeTab === 'orders' && <OrdersTab key="orders" userProfile={profileData} goTo={handleTabChange} />}
+          {activeTab === 'security' && <SecurityTab key="security" userProfile={profileData} />}
+        </AnimatePresence>
       </main>
 
-      {/* ==========================================
-          🛒 SLIDE-OUT BESPOKE CART DRAWER
-          ========================================== */}
+      {/* Mobile Navigation Dock */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-neutral-950/90 backdrop-blur-2xl border-t border-white/10 px-3 py-2 pb-safe"> 
+        <div className="flex items-center justify-around">
+          {PRIMARY_NAV_ITEMS.map(item => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item)}
+                className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${isActive ? 'text-amber-400 font-bold' : 'text-neutral-400 hover:text-neutral-200'
+                  }`}
+              >
+                <item.Icon className="w-5 h-5" />
+                <span className="text-[10px]">{item.label}</span>
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className={`flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all ${mobileMenuOpen ? 'text-amber-400' : 'text-neutral-400 hover:text-neutral-200'
+              }`}
+          >
+            <Menu className="w-5 h-5" />
+            <span className="text-[10px] font-semibold">More</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Drawer Overlay */}
       <AnimatePresence>
-        {isCartOpen && (
+        {mobileMenuOpen && (
           <>
-            {/* Dark Backdrop Shadow Layer */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsCartOpen(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100]"
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
             />
-
-            {/* Main Cart Sliding Panel Canvas */}
             <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 right-0 w-full sm:w-[440px] bg-black/95 border-l border-white/10 z-[101] flex flex-col justify-between shadow-2xl backdrop-blur-2xl"
+              role="dialog"
+              aria-modal="true"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="lg:hidden fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-white/10 rounded-t-3xl p-6 z-50 space-y-4 pb-8 max-h-[80vh] overflow-y-auto"
             >
-              {/* Header Context Action Line */}
-              <div className="h-20 px-6 border-b border-white/10 flex items-center justify-between bg-white/[0.01]">
-                <div className="flex items-center gap-2.5">
-                  <ShoppingCart className="w-4 h-4 text-primary" />
-                  <h3 className="text-base font-bold tracking-tight text-white">Your Atelier Cart</h3>
-                  <span className="font-mono text-xs text-gray-400 px-2 py-0.5 rounded bg-white/5 border border-white/10">
-                    {cartItems.length}
-                  </span>
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-3">
+                  <User className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm font-bold text-white">Menu Options</span>
                 </div>
-                <button 
-                  onClick={() => setIsCartOpen(false)}
-                  className="p-2 -mr-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1 rounded-full bg-white/5 text-neutral-400 hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Dynamic Items Workspace Area */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {cartItems.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center space-y-3 pb-12">
-                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-gray-500">
-                      <ShoppingCart className="w-5 h-5" />
+              <div className="space-y-2">
+                {SECONDARY_NAV_ITEMS.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item)}
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 text-xs font-bold text-neutral-200 hover:bg-white/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.Icon className="w-4 h-4 text-amber-400" />
+                      <span>{item.label}</span>
                     </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-white">Your cart is empty</h4>
-                      <p className="text-xs text-gray-400 mt-1 max-w-[240px]">Explore the boutique catalog to add custom fits or bespoke accessories.</p>
-                    </div>
-                  </div>
-                ) : (
-                  cartItems.map((item) => (
-                    <div key={item.id} className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex gap-4 items-center justify-between">
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xl">
-                          {item.img}
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-white truncate">{item.name}</h4>
-                          <p className="text-[10px] text-gray-400 mt-0.5 font-medium">{item.variant}</p>
-                          <p className="font-mono text-xs text-primary font-bold mt-1">₹{item.price.toLocaleString('en-IN')}</p>
-                        </div>
-                      </div>
-                      
-                      <button 
-                        onClick={() => handleRemoveCartItem(item.id)}
-                        className="p-2 text-gray-500 hover:text-red-400 rounded-lg hover:bg-red-500/5 transition-all cursor-pointer flex-shrink-0"
-                        aria-label="Remove Item"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Sticky Checkout Billing Calculator Block */}
-              {cartItems.length > 0 && (
-                <div className="p-6 border-t border-white/10 bg-white/[0.01] space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-gray-400 font-medium">
-                      <span>Subtotal</span>
-                      <span className="font-mono text-white">₹{subtotal.toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-400 font-medium">
-                      <span>Luxury Goods GST (12%)</span>
-                      <span className="font-mono text-white">₹{estimatedTax.toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="h-px bg-white/5 my-1" />
-                    <div className="flex justify-between text-sm">
-                      <span className="font-bold text-white">Estimated Order Total</span>
-                      <span className="font-mono font-extrabold text-primary">₹{totalAmount.toLocaleString('en-IN')}</span>
-                    </div>
-                  </div>
-
-                  <button className="w-full bg-primary text-white text-xs font-bold py-3.5 rounded-xl hover:bg-primary-dark transition-all flex items-center justify-center gap-2 shadow-xl shadow-primary/20 cursor-pointer group">
-                    Proceed to Handcrafted Checkout
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    {item.isCart && cartCount > 0 && (
+                      <span className="bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full">
+                        {cartCount}
+                      </span>
+                    )}
                   </button>
-                  <p className="text-[10px] text-gray-500 text-center leading-normal">
-                    By checking out, you authorize Bespoke Studio to map these selections directly into your active measurement fit matrix.
-                  </p>
-                </div>
-              )}
+                ))}
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-bold text-red-400 mt-4"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
+              </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-
     </div>
   );
 }
