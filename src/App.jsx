@@ -28,13 +28,13 @@ const PublicRoute = ({ children }) => {
   const location = useLocation();
   const { isUserAuthenticated, isLoading } = useUserAuth();
   console.log('isUserAuthenticated:', isUserAuthenticated);
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center pt-20">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center pt-20">
+  //       <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  //     </div>
+  //   );
+  // }
   if (isUserAuthenticated) {
     const isAdmin = user?.role === 'admin' || user?.role === 'superAdmin';
     const destination = isAdmin ? '/admin' : (location.state?.from || '/');

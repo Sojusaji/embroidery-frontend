@@ -1,5 +1,5 @@
 import api from './axiosInstance';
-
+import { logError } from "../utils/logger";
 
 export const fetchProducts = async () => {
   const { data } = await api.get('/api/v1/products');
@@ -47,4 +47,19 @@ export const deleteProduct = async (productId) => {
   return data;
 }
 
+export const updateProduct = async ({ productId, productData }) => {
+  console.log('recieved detals for update product in frontend',{productId,productData});
+  const { data } = await api.patch(`/api/v1/products/product-update/${productId}`, productData);
+  return data;
+};
 
+export const updateProductImage = async (data) => {
+ 
+  const { data: response } = await api.patch('/api/v1/products/image-update', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  logError('response via updateProductImage route:', response);
+  return response;
+};

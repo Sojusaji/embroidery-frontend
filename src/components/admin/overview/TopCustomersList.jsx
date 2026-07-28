@@ -8,7 +8,7 @@ const mockCustomers = [
   { id: '5', name: 'Nina Zenik', email: 'nina@example.com', orders: 1, totalSpent: 45, type: 'Small Orders' },
 ];
 
-const TopCustomersList = () => {
+const TopCustomersList = ({setActiveTab}) => {
   return (
     <div className="glass-panel bg-black/30 border-white/5 overflow-hidden">
       <div className="p-6 border-b border-white/5 flex justify-between items-center">
@@ -16,7 +16,7 @@ const TopCustomersList = () => {
           <h3 className="text-xl font-bold text-white">Customer Insights</h3>
           <p className="text-sm text-gray-400 mt-1">Overview of customer spending behavior.</p>
         </div>
-        <button className="text-primary text-sm hover:text-primary-light font-medium">View All</button>
+        <button onClick={()=>setActiveTab("customers")} className="text-primary text-sm hover:text-primary-light font-medium cursor-pointer">View All</button>
       </div>
       
       <div className="overflow-x-auto">

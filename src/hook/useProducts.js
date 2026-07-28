@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProducts, fetchTrashedProducts, uploadProductImage,purgeProduct, restoreProduct, createProduct, deleteProduct } from '../api/productApi';
+import { fetchProducts, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage } from '../api/productApi';
 
 export const useGetProducts = () => {
   return useQuery({
@@ -57,19 +57,22 @@ export const usePurgeProduct = () => {
 
 
 
-
-
-
-
-
 export const useUploadImage = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ file, category }) => {
       const data = new FormData();
-      data.append("category", category);
       data.append('image', file);
+      if (category) data.append("category", category);
       return uploadProductImage(data)
-    }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+
+    onError: (error) => {
+      console.error('Image upload failed:', error.response?.data?.message || error.message);
+    },
   });
 };
 
@@ -84,12 +87,68 @@ export const useCreateProduct = () => {
   });
 };
 
-// export const useDeleteAProduct = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: deleteProduct,
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['products'] });
-//     }
-//   })
-// }
+
+
+export const useUpdateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateProduct,
+
+    onMutate: async ({ productId, productData }) => {
+      await queryClient.cancelQueries({ queryKey: ['products'] });
+
+      const previousProducts = queryClient.getQueryData(['products']);
+
+      queryClient.setQueryData(['products'], (old) => {
+        if (!old) return [];
+        if (Array.isArray(old)) {
+          return old.map((product) =>
+            product._id === productId
+              ? { ...product, ...productData }
+              : product
+          );
+        }
+        return old;
+      });
+      return { previousProducts };
+    },
+
+    onError: (err, newProduct, context) => {
+      if (context?.previousProducts) {
+        queryClient.setQueryData(['products'], context.previousProducts);
+      }
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+};
+
+
+
+export const useUpdateProductImage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ file, filePath, sha }) => {
+      console.log('file,filePath and sha', file,filePath,sha);
+      
+      const data = new FormData();
+      data.append('image', file);
+      if (filePath) data.append('filePath', filePath);
+      if (sha) data.append('sha', sha);
+
+      return await updateProductImage(data);
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+
+    onError: (error) => {
+      console.error('Image update failed:', error.response?.data?.message || error.message);
+    },
+  });
+};
