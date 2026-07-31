@@ -10,6 +10,7 @@ import {
   useVerifyPIN
 } from "../hook/auth/userAuth";
 import { useNavigate, useLocation, replace } from 'react-router-dom';
+import { logError } from '../utils/logger';
 
 
 
@@ -138,7 +139,7 @@ export default function LoginPage() {
       }
 
     } catch (error) {
-      console.error("Authentication handshake initialization failed:", error);
+      logError("Authentication handshake initialization failed:", error);
     }
   };
 
@@ -179,55 +180,10 @@ export default function LoginPage() {
       }
 
     } catch (error) {
-      console.error("Registration intent submission failed:", error);
+     logError("Registration intent submission failed:", error);
     }
   };
 
-  // Single character matrix shift validation
-  const handleOtpChange = (element, index) => {
-    const value = element.value;
-    if (isNaN(value)) return false;
-
-    let newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-
-    if (value !== '' && index < 5) {
-      otpRefs.current[index + 1].focus();
-    }
-  };
-
-
-  // Native mobile full token clipboard paste interception handler
-  const handleOtpPaste = (e) => {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData('text').trim();
-
-
-    if (/^\d{6}$/.test(pasteData)) {
-      const digits = pasteData.split('');
-      setOtp(digits);
-      otpRefs.current[5].focus();
-    }
-  };
-
-  const handleOtpKeyDown = (e, index) => {
-    console.log('e:', e);
-    console.log('index:', index);
-    if (e.key === 'Backspace') {
-      if (!otp[index] && index > 0) {
-        let newOtp = [...otp];
-        newOtp[index - 1] = '';
-        setOtp(newOtp);
-        otpRefs.current[index - 1].focus();
-      } else {
-        let newOtp = [...otp];
-        newOtp[index] = '';
-        setOtp(newOtp);
-      }
-    }
-  };
 
   // Final Step Trigger: Verify Active Token
   const handleOtpSubmit = async (e) => {
@@ -249,7 +205,7 @@ export default function LoginPage() {
       }
 
     } catch (error) {
-      console.error("Authentication challenge failed rejection:", error);
+     logError("Authentication challenge failed rejection:", error);
     }
   };
 
@@ -271,7 +227,7 @@ export default function LoginPage() {
         navigate(returnTo, { replace: true });
       }
     } catch (err) {
-      console.error(err.response?.data?.message || "PIN verification failed");
+      logError(err.response?.data?.message || "PIN verification failed");
     }
   };
 
@@ -317,15 +273,7 @@ export default function LoginPage() {
     otpRefs.current[0]?.focus();
   };
 
-
-  // const handleGoogleRedirect = () => {
-  //   window.location.href = `${API_BASE_URL}api/v1/auth/users/google?returnTo=${encodeURIComponent(returnTo)}`;
-  // }
-
-
-
-
-
+  
   return (
     <div className="login relative min-h-screen flex items-center justify-center overflow-hidden bg-black text-white px-4">
       {/* Hidden hook node for native fallback activation */}
@@ -569,50 +517,7 @@ export default function LoginPage() {
                     {isUserLoginPending ? framerMotionSpinner() : (isNewUser ? 'Complete registration' : 'Verify and sign in')}
                   </button>
                 </form>
-                {/* <form onSubmit={handleOtpSubmit} className="space-y-6">
-                  <div className="flex justify-between gap-2 max-w-sm mx-auto py-2">
-                    {otp.map((data, index) => (
-                      <input
-                        key={index}
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength="1"
-                        ref={(el) => (otpRefs.current[index] = el)}
-                        value={data}
-                        onChange={(e) => handleOtpChange(e.target, index)}
-                        onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                        onPaste={handleOtpPaste}
-                        className="w-11 h-14 bg-white/[0.04] border border-white/15 focus:border-primary focus:ring-1 focus:ring-primary/30 rounded-xl text-center text-xl font-bold text-primary outline-none transition-all"
-                      />
-                    ))}
-                  </div>
-
-                  <div className="space-y-3">
-                    <motion.div whileTap={!isUserLoginPending && !otp.includes('') ? { scale: 0.95 } : {}}>
-                      <button
-                        type="submit"
-                        disabled={otp.includes('') || isUserLoginPending}
-                        className="w-full py-3.5 px-4 bg-primary hover:bg-primary/90 disabled:bg-white/5 text-white disabled:text-gray-500 font-semibold rounded-full flex items-center justify-center gap-2 transition-all disabled:cursor-not-allowed text-sm min-h-[48px]"
-                      >
-                        {isUserLoginPending ?
-                          framerMotionSpinner()
-                          : (
-                            isNewUser ? 'Complete registration' : 'Verify and sign in'
-                          )}
-                      </button>
-                    </motion.div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleBackNavigation(isNewUser ? 'register' : 'identifier')}
-                      className="w-full text-xs font-medium text-gray-400 hover:text-white transition-colors cursor-pointer text-center"
-                    >
-                      Back to info review
-                    </button>
-                  </div>
-                </form> */}
-
+              
                 <div className="text-center pt-4 border-t border-white/10">
                   {canResend ? (
                     <button
