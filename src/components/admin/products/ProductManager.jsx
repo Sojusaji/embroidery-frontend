@@ -167,8 +167,6 @@ export const ProductManager = () => {
       clearFileInput();
     } catch (err) {
       logError('AdminDashboard_ProductUpload_error:', err);
-      const serverMessage = err?.response?.data?.message || err?.message || 'Failed to save product.';
-      toast.error(serverMessage);
     }
   };
 
@@ -259,7 +257,6 @@ export const ProductManager = () => {
       closeEditModal();
     } catch (err) {
       logError('ProductUpdate_error', err);
-      toast.error(err?.response?.data?.message || err?.message || 'Failed to update product.');
     }
   };
 

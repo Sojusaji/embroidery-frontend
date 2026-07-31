@@ -35,7 +35,7 @@ const ProductInventoryTable = ({ onViewTrash, onEditProduct }) => {
       closeDeleteModal();
     } catch (error) {
       logError('ProductInventoryTable_Delete', error);
-      toast.error('Failed to move product to trash.');
+      closeDeleteModal();
     }
   };
 

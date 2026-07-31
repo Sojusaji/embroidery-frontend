@@ -45,7 +45,6 @@ const TrashBinManager = ({ onBackToInventory }) => {
       toast.success(`"${product.name}" restored to live catalog! 🚀`);
     } catch (error) {
       logError('TrashBinManager_Restore', error);
-      toast.error('Failed to restore product.');
     }
   };
 
@@ -61,7 +60,7 @@ const TrashBinManager = ({ onBackToInventory }) => {
       closePurgeModal();
     } catch (error) {
       logError('TrashBinManager_Purge', error);
-      toast.error('Fatal error during deletion process.');
+      closePurgeModal();
     }
   };
 
@@ -87,13 +86,13 @@ const TrashBinManager = ({ onBackToInventory }) => {
   if (isError) {
     return (
       <div className='grid grid-row-2 gap-2'>
-         <button
-            type="button"
-            onClick={onBackToInventory}
-            className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors w-fit"
-          >
-            <ArrowLeft size={14} /> Back to Live Inventory
-          </button>
+        <button
+          type="button"
+          onClick={onBackToInventory}
+          className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors w-fit"
+        >
+          <ArrowLeft size={14} /> Back to Live Inventory
+        </button>
         <div className="glass-panel bg-red-950/20 border border-red-500/10 rounded-2xl p-8 text-center text-red-400">
           <p>Could not access the trash repository. Please check connection logs.</p>
         </div>
