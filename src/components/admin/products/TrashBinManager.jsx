@@ -111,10 +111,14 @@ const TrashBinManager = ({ onBackToInventory }) => {
           >
             <ArrowLeft size={14} /> Back to Live Inventory
           </button>
-          <div className="flex items-center gap-2 mt-1">
-            <Trash2 className="text-amber-500 w-5 h-5" />
-            <h2 className="text-xl font-bold text-white">Archived Trash Bin</h2>
-            <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-medium ml-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+            <div className="flex items-center gap-2">
+              <Trash2 className="text-amber-500 w-5 h-5 shrink-0" />
+              <h2 className="text-lg sm:text-xl font-bold text-white">
+                Archived Trash Bin
+              </h2>
+            </div>
+            <span className="self-start sm:self-auto text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-medium">
               {totalTrashedCount} Items Pending Purge
             </span>
           </div>
