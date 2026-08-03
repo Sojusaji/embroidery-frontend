@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchProducts, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage } from '../api/productApi';
+import { logError } from '../utils/logger';
 
 export const useGetProducts = () => {
   return useQuery({
@@ -71,7 +72,7 @@ export const useUploadImage = () => {
     },
 
     onError: (error) => {
-      console.error('Image upload failed:', error.response?.data?.message || error.message);
+      logError('Image upload failed:', error);
     },
   });
 };
@@ -98,57 +99,51 @@ export const useUpdateProduct = () => {
     onMutate: async ({ productId, productData }) => {
       await queryClient.cancelQueries({ queryKey: ['products'] });
 
-      const previousProducts = queryClient.getQueryData(['products']);
+      const previousLiveProducts = queryClient.getQueryData(['products', 'live']);
 
-      queryClient.setQueryData(['products'], (old) => {
-        if (!old) return [];
-        if (Array.isArray(old)) {
-          return old.map((product) =>
-            product._id === productId
-              ? { ...product, ...productData }
-              : product
-          );
-        }
-        return old;
+      queryClient.setQueryData(['products', 'live'], (old) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.map((product) =>
+          (product._id === productId || product.id === productId)
+            ? { ...product, ...productData, updatedAt: new Date().toISOString() }
+            : product
+        );
       });
-      return { previousProducts };
+      return { previousLiveProducts };
     },
 
     onError: (err, newProduct, context) => {
-      if (context?.previousProducts) {
-        queryClient.setQueryData(['products'], context.previousProducts);
+      if (context?.previousLiveProducts) {
+        queryClient.setQueryData(['products', 'live'], context.previousLiveProducts);
       }
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['products', 'live'] });
     },
   });
 };
-
-
 
 export const useUpdateProductImage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ file, filePath, sha }) => {
-      console.log('file,filePath and sha', file,filePath,sha);
-      
+    mutationFn: async ({ file, filePath, sha, folder }) => {
       const data = new FormData();
       data.append('image', file);
       if (filePath) data.append('filePath', filePath);
       if (sha) data.append('sha', sha);
+      if (folder) data.append('folder', folder);
 
       return await updateProductImage(data);
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+    onSuccess: (response, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['products', 'live'] });
     },
 
     onError: (error) => {
-      console.error('Image update failed:', error.response?.data?.message || error.message);
+      logError('Image update failed:', error);
     },
   });
 };

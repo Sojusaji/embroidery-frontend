@@ -4,9 +4,11 @@ import { ShoppingCart, Plus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { cn } from '../../utils/cn';
 import { Link } from 'react-router-dom';
+import { getProductImageUrl } from '../../utils/productUtils';
+
 const ProductCard = ({ product, index }) => {
   const { addToCart } = useCart();
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -19,16 +21,16 @@ const ProductCard = ({ product, index }) => {
         {/* Image Container */}
         <div className="relative aspect-[4/5] overflow-hidden rounded-3xl glass-panel p-2 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/20 bg-white/5 border-white/5">
           <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black/20">
-            <img 
-              src={product.image} 
+            <img
+              src={getProductImageUrl(product)}
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
             {/* Subtle overlay for image protection/focus */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
+
             {/* Quick Add Corner Button (Always visible on mobile, hover on desktop) */}
-            <motion.button 
+            <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={(e) => {
                 e.preventDefault();
@@ -46,7 +48,7 @@ const ProductCard = ({ product, index }) => {
             </motion.button>
           </div>
         </div>
-        
+
         {/* Product Details - Always Visible */}
         <div className="mt-4 px-2 flex flex-col">
           <div className="flex justify-between items-start mb-1">
@@ -57,14 +59,14 @@ const ProductCard = ({ product, index }) => {
               {product.category}
             </span>
           </div>
-          
+
           <div className="flex justify-between items-center mt-auto">
             <p className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">
               ${product.price}
             </p>
-            
+
             {/* Mobile-visible text button */}
-            <button 
+            <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

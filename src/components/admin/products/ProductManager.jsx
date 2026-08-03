@@ -231,12 +231,15 @@ export const ProductManager = () => {
           file: editFile,
           filePath: editingProduct?.imageInfo?.filePath,
           sha: editingProduct?.imageInfo?.sha,
+          folder: editingProduct?.category,
+          productId: editingProduct?._id || editingProduct?.id,
         });
-     console.log('updateResult of image:',uploadResult);
-        finalImageUrl = uploadResult?.data?.imageUrl || finalImageUrl;
+        console.log('updateResult of image:', uploadResult);
+        const imgData = uploadResult?.data || uploadResult?.response?.data;
+        finalImageUrl = imgData?.imageUrl || finalImageUrl;
         finalImageInfo = {
-          filePath: uploadResult?.data?.filePath || editingProduct?.imageInfo?.filePath,
-          sha: uploadResult?.data?.sha || editingProduct?.imageInfo?.sha,
+          filePath: imgData?.filePath || editingProduct?.imageInfo?.filePath,
+          sha: imgData?.sha || editingProduct?.imageInfo?.sha,
         };
       }
 
@@ -245,14 +248,12 @@ export const ProductManager = () => {
         image: finalImageUrl,
         imageInfo: finalImageInfo,
       };
-   console.log('edited tags:',updatedProductData.tags);
       const productId = editingProduct._id || editingProduct.id;
 
-      await updateProductMutation.mutateAsync({
+      const productUpdate = await updateProductMutation.mutateAsync({
         productId,
         productData: updatedProductData,
       });
-
       toast.success('Product updated successfully! ✨');
       closeEditModal();
     } catch (err) {

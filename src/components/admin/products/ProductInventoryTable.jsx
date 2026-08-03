@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Trash2, Edit2, Package, AlertTriangle, Loader2 } from 'lucide-react';
 import { useGetProducts, useGetTrashedProducts, useDeleteAProduct } from '../../../hook/useProducts';
 import { logError } from '../../../utils/logger';
-import { getCategoryLabel } from '../../../utils/productUtils';
+import { getCategoryLabel, getProductImageUrl } from '../../../utils/productUtils';
 import { toast } from 'react-hot-toast';
 
 const ProductInventoryTable = ({ onViewTrash, onEditProduct }) => {
@@ -104,7 +104,7 @@ const ProductInventoryTable = ({ onViewTrash, onEditProduct }) => {
                   <td className="py-4 px-5 flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
                       {product.image ? (
-                        <img src={product.image} alt="" className="w-full h-full object-cover" />
+                        <img src={getProductImageUrl(product)} alt={product?.name || ''} className="w-full h-full object-cover" />
                       ) : (
                         <Package className="w-5 h-5 text-gray-500" />
                       )}

@@ -12,6 +12,22 @@ export const getCategoryLabel = (category) => {
   return CATEGORY_LABELS[category] || category.replace('-', ' ');
 };
 
+export const getProductImageUrl = (product) => {
+  if (!product) return '';
+  const imageUrl = typeof product === 'string' ? product : product?.image;
+  if (!imageUrl) return '';
+
+  const version = typeof product === 'object'
+    ? (product.imageInfo?.sha || (product.updatedAt ? new Date(product.updatedAt).getTime() : null) || product._id || product.id)
+    : null;
+
+  if (version) {
+    const separator = imageUrl.includes('?') ? '&' : '?';
+    return `${imageUrl}${separator}v=${version}`;
+  }
+  return imageUrl;
+};
+
 export const validateProductImage = (file) => {
   if (!file) return false;
 
@@ -57,7 +73,7 @@ export const validateProductForm = (formData, isEdit = false) => {
       ? formData.tags
       : String(formData.tags).split(',').map((tag) => tag.trim()).filter(Boolean))
     : [];
- 
+
   return {
     name: formData.name?.trim() || '',
     description: formData.description?.trim() || '',
