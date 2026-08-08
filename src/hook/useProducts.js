@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProducts, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage } from '../api/productApi';
+import { fetchProducts, fetchOneProduct, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage, fetchHomeFeed } from '../api/productApi';
 import { logError } from '../utils/logger';
 
 export const useGetProducts = () => {
@@ -9,6 +9,26 @@ export const useGetProducts = () => {
   });
 };
 
+
+
+export const useGetOneProduct = () => {
+  return useQuery({
+    queryKey: ['products', 'live'],
+    queryFn: fetchOneProduct,
+    staleTime:5*60*1000,
+    gcTime:10*60*1000,
+    
+  });
+}
+
+export const useGetHomeFeed = () => {
+  return useQuery({
+    queryKey: ['products', 'home-feed'],
+    queryFn: fetchHomeFeed,
+    staleTime:5*60*1009,
+    gcTime:10*60*1000
+  })
+}
 
 // 2. Fetch all items currently sitting inside the trash bin repository
 export const useGetTrashedProducts = () => {

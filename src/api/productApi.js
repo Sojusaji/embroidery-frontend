@@ -5,6 +5,18 @@ export const fetchProducts = async () => {
   return data;
 };
 
+export const fetchHomeFeed = async () => {
+  const { data } = await api.get('/api/v1/products/home-feed');
+  console.log('fetched Home page data:', data);
+  return data;
+}
+
+export const fetchOneProduct = async (productId) => {
+  const { data } = await api.get(`/api/v1/products/${productId}`);
+  console.log('fetched One Product:', data);
+  return data;
+}
+
 export const fetchTrashedProducts = async () => {
   const { data } = await api.get('/api/v1/products/product-trash');
   return data;
