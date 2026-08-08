@@ -17,12 +17,25 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import UserDashboard from './pages/UserDashboard';
 import ProductDetail from './pages/ProductDetail';
+import ScrollToTopButton from "./components/layout/ScrollToTopButton"
 import { UserAuthProvider, } from "./context/UserAuthContext";
 import { useUserAuth } from "./hook/auth/useUserAuth";
 import {
   useGoogleLogin
 } from "../src/hook/auth/userAuth";
 import toast from 'react-hot-toast';
+
+
+
+const ScrollToTopOnNavigate = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const PublicRoute = ({ children }) => {
   const location = useLocation();
@@ -157,6 +170,7 @@ function App() {
       <UserAuthProvider>
         <CartProvider>
           <Router>
+            <ScrollToTopOnNavigate />
             <div className="w-full min-h-screen">
               <Routes>
                 {/* Public routes */}
@@ -191,6 +205,7 @@ function App() {
                 } />
               </Routes>
               {/* </main> */}
+              <ScrollToTopButton />
               <Toaster
                 position="top-right"
                 reverseOrder={false}
