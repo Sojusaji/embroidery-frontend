@@ -3,8 +3,8 @@ import ProductCard from '../components/shared/ProductCard';
 import Footer from '../components/layout/Footer';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Scissors, Ruler, Truck, Star, ShieldCheck, Sparkles, ChevronDown, HelpCircle } from 'lucide-react';
-import { useGetHomeFeed } from "../../src/hook/useProducts";
+import { Scissors, Ruler,Loader2, Truck, Star, ShieldCheck, Sparkles, ChevronDown, HelpCircle } from 'lucide-react';
+import { useGetFeaturedProducts, useGetLatestProducts } from "../../src/hook/useProducts";
 import ProductCardSkeleton from '../utils/productCartSkelton';
 import { useState } from 'react';
 
@@ -48,12 +48,47 @@ const FAQ_ITEMS = [
 ];
 
 const Home = () => {
-  const { data: homeProduct, isLoading: isloadingHomeProduct, isError } = useGetHomeFeed();
 
-  // State for FAQ accordion expansion
+  const [featuredLimit, setFeaturedLimit] = useState(10);
+  const [latestLimit, setLatestLimit] = useState(10);
+
+  const { data: featuredData, isFetching: fetchingFeatured } = useGetFeaturedProducts(featuredLimit);
+  const { data: latestData, isFetching: fetchingLatest } = useGetLatestProducts(latestLimit);
+
+  const featuredProducts = featuredData?.products || [];
+  const featuredTotal = featuredData?.totalCount || 0;
+
+  const latestProducts = latestData?.latestProducts || [];
+  const latestTotal = latestData?.totalCount || 0;
+
+
   const [openFaq, setOpenFaq] = useState(null);
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
+  };
+
+
+  const LoadMoreButton = ({ onClick, isFetching, hasMore, label }) => {
+    if (!hasMore) return null;
+
+    return (
+      <div className="flex justify-center mt-12">
+        <button
+          onClick={onClick}
+          disabled={isFetching}
+          className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-white/5 hover:bg-primary/20 text-white font-medium transition-all duration-300 border border-white/10 hover:border-primary/50 shadow-lg hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+        >
+          {isFetching ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span>Loading...</span>
+            </>
+          ) : (
+            <span>{label}</span>
+          )}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -116,7 +151,7 @@ const Home = () => {
       </section>
 
       {/* FEATURED PRODUCTS */}
-      {(isloadingHomeProduct || (homeProduct && homeProduct?.featured?.length > 0)) && (
+      {(fetchingFeatured || (featuredProducts && featuredProducts.length > 0)) && (
         <section className="py-20 relative z-10 bg-surface">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <motion.div
@@ -137,11 +172,18 @@ const Home = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {isloadingHomeProduct
+              {fetchingFeatured
                 ? [1, 2, 3, 4].map((_, idx) => <ProductCardSkeleton key={idx} index={idx} />)
-                : homeProduct?.featured?.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
+                : featuredProducts.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
             </div>
           </div>
+
+          <LoadMoreButton
+            onClick={() => setFeaturedLimit(prev => prev + 10)}
+            isFetching={fetchingFeatured}
+            hasMore={featuredProducts.length < featuredTotal}
+            label="Show More Featured"
+          />
         </section>
       )}
 
@@ -186,7 +228,7 @@ const Home = () => {
             </p>
             <Link
               to="/custom-orders"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary hover:bg-primary-dark text-white font-semibold transition-all hover:scale-105 shadow-lg shadow-primary/25"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary hover:bg-primary-dark text-white font-semibold transition-all hover:scale-105 shadow-lg "
             >
               <Scissors className="w-5 h-5" />
               <span>Start Your Custom Order</span>
@@ -196,7 +238,7 @@ const Home = () => {
       </section>
 
       {/* LATEST PRODUCTS */}
-      {(isloadingHomeProduct || (homeProduct && homeProduct?.latest?.length > 0)) && (
+      {(fetchingLatest || (latestProducts && latestProducts.length > 0)) && (
         <section className="py-24 relative z-10 bg-surface">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <motion.div
@@ -217,11 +259,19 @@ const Home = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {isloadingHomeProduct
+              {fetchingLatest
                 ? [1, 2, 3, 4].map((_, idx) => <ProductCardSkeleton key={idx} index={idx} />)
-                : homeProduct?.latest?.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
+                : latestProducts.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
             </div>
           </div>
+
+          {/* Latest Show More Button */}
+          <LoadMoreButton
+            onClick={() => setLatestLimit(prev => prev + 8)}
+            isFetching={fetchingLatest}
+            hasMore={latestProducts.length < latestTotal}
+            label="Show More Latest"
+          />
         </section>
       )}
 
@@ -276,8 +326,8 @@ const Home = () => {
 
           <div className="space-y-4">
             {FAQ_ITEMS.map((faq, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="rounded-2xl glass-panel bg-white/5 border border-white/5 overflow-hidden transition-all shadow-sm"
               >
                 <button

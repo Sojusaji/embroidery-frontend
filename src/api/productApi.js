@@ -5,17 +5,26 @@ export const fetchProducts = async () => {
   return data;
 };
 
-export const fetchHomeFeed = async () => {
-  const { data } = await api.get('/api/v1/products/home-feed');
-  console.log('fetched Home page data:', data);
+export const fetchFeaturedProduct = async (limit) => {
+  const { data } = await api.get(`/api/v1/products/featured?limit=${limit}`);
+  console.log('fetched featuredProduct data:', data);
   return data;
 }
 
-export const fetchOneProduct = async (productId) => {
-  const { data } = await api.get(`/api/v1/products/${productId}`);
-  console.log('fetched One Product:', data);
+export const fetchLatestProduct = async (limit) => {
+  const { data } = await api.get(`/api/v1/products/latest?limit=${limit}`);
+  console.log('fetched latestProduct data:', data);
   return data;
 }
+
+
+export const fetchOneProduct = async (productId) => {
+  console.log('fetchedOeProduct called and retried the product id:', productId);
+  const { data } = await api.get(`/api/v1/products/${productId}`);
+  console.log('fetched One Product from backend:', data);
+  return data?.product;
+}
+
 
 export const fetchTrashedProducts = async () => {
   const { data } = await api.get('/api/v1/products/product-trash');

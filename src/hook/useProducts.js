@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProducts, fetchOneProduct, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage, fetchHomeFeed } from '../api/productApi';
+import { fetchProducts, fetchOneProduct,fetchFeaturedProduct, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage, fetchLatestProduct } from '../api/productApi';
 import { logError } from '../utils/logger';
 
 export const useGetProducts = () => {
@@ -11,24 +11,33 @@ export const useGetProducts = () => {
 
 
 
-export const useGetOneProduct = () => {
+export const useGetOneProduct = (id) => {
+  console.log('useGetOneProduct hook called:',id);
   return useQuery({
-    queryKey: ['products', 'live'],
-    queryFn: fetchOneProduct,
-    staleTime:5*60*1000,
-    gcTime:10*60*1000,
-    
+    queryKey: ['products', 'live', id],
+    queryFn: () => fetchOneProduct(id),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    enabled: !!id,
   });
 }
 
-export const useGetHomeFeed = () => {
+
+export const useGetFeaturedProducts = (limit) => {
   return useQuery({
-    queryKey: ['products', 'home-feed'],
-    queryFn: fetchHomeFeed,
-    staleTime:5*60*1009,
-    gcTime:10*60*1000
-  })
-}
+    queryKey: ['products', 'featured', { limit }],
+    queryFn: async () => fetchFeaturedProduct(limit),
+    keepPreviousData: true,
+  });
+};
+
+export const useGetLatestProducts = (limit) => {
+  return useQuery({
+    queryKey: ['products', 'latest', { limit }],
+    queryFn: async () => fetchLatestProduct(limit),
+    keepPreviousData: true,
+  });
+};
 
 // 2. Fetch all items currently sitting inside the trash bin repository
 export const useGetTrashedProducts = () => {
