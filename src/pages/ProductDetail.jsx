@@ -1,17 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, ShoppingBag, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { DUMMY_PRODUCTS } from '../utils/dummyData';
 import { useCart } from '../context/CartContext';
+import { useGetOneProduct } from "../hook/useProducts";
 import Footer from '../components/layout/Footer';
 import toast from 'react-hot-toast';
+import { ProductDetailsPageSkeleton } from '../utils/productDetailsPageSkelton';
 
 const ProductDetail = () => {
+
   const { id } = useParams();
   const { addToCart } = useCart();
-  
-  const product = DUMMY_PRODUCTS.find(p => p.id === parseInt(id));
+
+  const { data: product, isLoading, isError } = useGetOneProduct(id);
+  // const product = DUMMY_PRODUCTS.find(p => p.id === parseInt(id));
+
+  const [imageLoading, setImageLoading] = useState(true);
 
   useEffect(() => {
     if (product) {
@@ -21,7 +27,7 @@ const ProductDetail = () => {
     }
   }, [product]);
 
-  if (!product) {
+  if (isError || !product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <h1 className="text-3xl font-bold text-white mb-4">Product Not Found</h1>
@@ -30,6 +36,10 @@ const ProductDetail = () => {
         </Link>
       </div>
     );
+  }
+
+  if (isLoading) {
+    return <ProductDetailsPageSkeleton />;
   }
 
   const handleBuyNow = () => {
@@ -49,9 +59,9 @@ const ProductDetail = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          
+
           {/* Left Column - Image gallery/display */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
@@ -59,10 +69,12 @@ const ProductDetail = () => {
           >
             <div className="relative aspect-[4/5] lg:aspect-square w-full rounded-[2rem] overflow-hidden glass-panel p-2">
               <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-black/20">
-                <img 
-                  src={product.image} 
+                <img
+                  src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  onLoad={() => setImageLoading(false)}
+                  className={`w-full h-full object-cover transition-opacity duration-700 ease-in-out ${imageLoading ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
+                    }`}
                 />
               </div>
             </div>
@@ -70,7 +82,7 @@ const ProductDetail = () => {
           </motion.div>
 
           {/* Right Column - Product details */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -79,7 +91,7 @@ const ProductDetail = () => {
             <div className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold tracking-wider uppercase text-primary w-fit mb-4">
               {product.category}
             </div>
-            
+
             <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">
               {product.name}
             </h1>
@@ -104,14 +116,14 @@ const ProductDetail = () => {
               </p>
             </div>
 
-            {product.features && product.features.length > 0 && (
+            {product.tags && product.tags.length > 0 && (
               <div className="mb-10">
                 <h3 className="text-lg font-bold text-white mb-4">Key Features</h3>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {product.features.map((feature, idx) => (
+                  {product.tags.map((tag, idx) => (
                     <li key={idx} className="flex items-start text-gray-300">
                       <span className="text-primary mr-2">•</span>
-                      {feature}
+                      {tag}
                     </li>
                   ))}
                 </ul>
@@ -120,15 +132,15 @@ const ProductDetail = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mt-auto border-t border-white/5 pt-8">
-              <button 
+              <button
                 onClick={() => addToCart(product)}
                 className="flex-1 py-4 px-6 rounded-2xl glass-panel bg-white/5 text-white font-bold text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-2 border border-white/10"
               >
                 <ShoppingBag className="w-5 h-5" />
                 Add to Cart
               </button>
-              
-              <button 
+
+              <button
                 onClick={handleBuyNow}
                 className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-primary to-orange-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(var(--color-primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--color-primary),0.5)] transition-all flex items-center justify-center gap-2"
               >
