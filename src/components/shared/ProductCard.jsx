@@ -8,7 +8,6 @@ import { getProductImageUrl } from '../../utils/productUtils';
 
 const ProductCard = ({ product, index }) => {
   const { addToCart } = useCart();
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -17,7 +16,7 @@ const ProductCard = ({ product, index }) => {
       transition={{ duration: 0.6, delay: index * 0.1 }}
       className="group relative flex flex-col h-full"
     >
-      <Link to={`/product/${product.id}`} className="flex flex-col h-full">
+      <Link to={`/product/${product._id || product.id}`} className="flex flex-col h-full">
         {/* Image Container */}
         <div className="relative aspect-[4/5] overflow-hidden rounded-3xl glass-panel p-2 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/20 bg-white/5 border-white/5">
           <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black/20">
@@ -38,13 +37,13 @@ const ProductCard = ({ product, index }) => {
                 addToCart(product);
               }}
               className={cn(
-                "absolute bottom-4 right-4 w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg",
+                // "absolute bottom-4 right-4 w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg",
                 "md:opacity-0 md:translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300",
                 "active:bg-primary-dark"
               )}
               title="Add to Cart"
             >
-              <Plus className="w-6 h-6" />
+              <Plus className=" w-6 h-6" />
             </motion.button>
           </div>
         </div>
