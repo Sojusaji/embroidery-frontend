@@ -1,16 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #000000;;
-  /* #000000; */
+  /* Centralized Color Tokens - Tailwind Utility Mapping */
+  --color-background: #000000;
+  --color-background-deep: #030303;
+  --color-background-card: #0A0A0A;
+  --color-background-alt: #0B0C10;
   --color-foreground: #ffffff;
   
   --color-primary: #F59E0B;
   --color-primary-dark: #D97706;
+  --color-primary-light: #FBBF24;
   
   --color-surface: #111111;
+  --color-surface-elevated: #12131C;
   --color-subtle: #333333;
   --color-glass: rgba(255, 255, 255, 0.05);
+
+  --color-status-success: #10B981;
+  --color-status-warning: #F59E0B;
+  --color-status-danger: #EF4444;
+  --color-status-info: #3B82F6;
+  --color-status-purple: #8B5CF6;
 
   
   --font-sans: "Inter", system-ui, sans-serif;

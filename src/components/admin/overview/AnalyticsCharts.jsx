@@ -3,6 +3,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, BarChart, Bar
 } from 'recharts';
+import { COLORS } from '../../../constants/colors';
 
 // --- MOCK DATABASE ---
 const mockOrders = [
@@ -57,7 +58,7 @@ const salesData = [
   { month: 'Jun', sales: 8390, profit: 6800 },
 ];
 
-const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6']; // Emerald, Amber, Rose, Blue, Purple
+const CHART_COLORS = COLORS.charts.series;
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -87,13 +88,13 @@ const AnalyticsCharts = () => {
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={areaData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff0a" vertical={false} />
-              <XAxis dataKey="place" stroke="#9ca3af" tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <YAxis stroke="#9ca3af" tick={{ fill: '#9ca3af', fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.charts.grid} vertical={false} />
+              <XAxis dataKey="place" stroke={COLORS.charts.axisTick} tick={{ fill: COLORS.charts.axisTick, fontSize: 12 }} />
+              <YAxis stroke={COLORS.charts.axisTick} tick={{ fill: COLORS.charts.axisTick, fontSize: 12 }} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.02)' }} />
-              <Bar dataKey="largeProductCount" fill="#10b981" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="largeProductCount" fill={COLORS.status.success} radius={[4, 4, 0, 0]}>
                 {areaData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                 ))}
               </Bar>
             </BarChart>
@@ -110,13 +111,13 @@ const AnalyticsCharts = () => {
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={specificProductData} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff0a" horizontal={false} />
-              <XAxis type="number" stroke="#9ca3af" tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <YAxis dataKey="name" type="category" stroke="#9ca3af" tick={{ fill: '#9ca3af', fontSize: 11 }} width={80} />
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.charts.grid} horizontal={false} />
+              <XAxis type="number" stroke={COLORS.charts.axisTick} tick={{ fill: COLORS.charts.axisTick, fontSize: 12 }} />
+              <YAxis dataKey="name" type="category" stroke={COLORS.charts.axisTick} tick={{ fill: COLORS.charts.axisTick, fontSize: 11 }} width={80} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255, 255, 255, 0.02)' }} />
-              <Bar dataKey="count" fill="#f59e0b" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="count" fill={COLORS.primary.DEFAULT} radius={[0, 4, 4, 0]}>
                 {specificProductData.map((entry, index) => (
-                   <Cell key={`cell-${index}`} fill={entry.category === 'Embroidery' ? '#f59e0b' : entry.category === 'Earrings' ? '#10b981' : '#3b82f6'} />
+                   <Cell key={`cell-${index}`} fill={entry.category === 'Embroidery' ? COLORS.primary.DEFAULT : entry.category === 'Earrings' ? COLORS.status.success : COLORS.status.info} />
                 ))}
               </Bar>
             </BarChart>
@@ -132,23 +133,23 @@ const AnalyticsCharts = () => {
             <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                  <stop offset="5%" stopColor={COLORS.primary.DEFAULT} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={COLORS.primary.DEFAULT} stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  <stop offset="5%" stopColor={COLORS.status.success} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={COLORS.status.success} stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-              <XAxis dataKey="month" stroke="#9ca3af" tick={{ fill: '#9ca3af' }} />
-              <YAxis stroke="#9ca3af" tick={{ fill: '#9ca3af' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.charts.grid} vertical={false} />
+              <XAxis dataKey="month" stroke={COLORS.charts.axisTick} tick={{ fill: COLORS.charts.axisTick }} />
+              <YAxis stroke={COLORS.charts.axisTick} tick={{ fill: COLORS.charts.axisTick }} />
               <Tooltip 
-                contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', borderRadius: '8px', color: '#fff' }}
-                itemStyle={{ color: '#fff' }}
+                contentStyle={{ backgroundColor: COLORS.charts.tooltipBg, borderColor: COLORS.charts.tooltipBorder, borderRadius: '8px', color: COLORS.text.primary }}
+                itemStyle={{ color: COLORS.text.primary }}
               />
-              <Area type="monotone" dataKey="sales" stroke="#f59e0b" fillOpacity={1} fill="url(#colorSales)" />
-              <Area type="monotone" dataKey="profit" stroke="#10b981" fillOpacity={1} fill="url(#colorProfit)" />
+              <Area type="monotone" dataKey="sales" stroke={COLORS.primary.DEFAULT} fillOpacity={1} fill="url(#colorSales)" />
+              <Area type="monotone" dataKey="profit" stroke={COLORS.status.success} fillOpacity={1} fill="url(#colorProfit)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
