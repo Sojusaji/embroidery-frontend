@@ -7,11 +7,11 @@
   --color-background-card: #0A0A0A;
   --color-background-alt: #0B0C10;
   --color-foreground: #ffffff;
-  
+
   --color-primary: #F59E0B;
   --color-primary-dark: #D97706;
   --color-primary-light: #FBBF24;
-  
+
   --color-surface: #111111;
   --color-surface-elevated: #12131C;
   --color-subtle: #333333;
@@ -23,7 +23,7 @@
   --color-status-info: #3B82F6;
   --color-status-purple: #8B5CF6;
 
-  
+
   --font-sans: "Inter", system-ui, sans-serif;
 
   --animate-fade-in: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -31,16 +31,35 @@
   --animate-slide-up: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
   @keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
   }
+
   @keyframes fadeUp {
-    0% { opacity: 0; transform: translateY(30px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes slideUp {
-    0% { transform: translateY(100%); }
-    100% { transform: translateY(0); }
+    0% {
+      transform: translateY(100%);
+    }
+
+    100% {
+      transform: translateY(0);
+    }
   }
 }
 
@@ -98,37 +117,48 @@
 
 /* WebKit Browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 4px !important;  /* Vertical scrollbar width */
-  height: 4px !important; /* Horizontal scrollbar height */
+  width: 4px !important;
+  /* Vertical scrollbar width */
+  height: 4px !important;
+  /* Horizontal scrollbar height */
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent; /* Lets glassmorphism & dark backgrounds show through */
+  background: transparent;
+  /* Lets glassmorphism & dark backgrounds show through */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15); /* Subtle thumb on dark surfaces */
-  border-radius: 9999px; /* Smooth pill shape */
+  background: rgba(255, 255, 255, 0.15);
+  /* Subtle thumb on dark surfaces */
+  border-radius: 9999px;
+  /* Smooth pill shape */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3); /* Brightens when hovered */
+  background: rgba(255, 255, 255, 0.3);
+  /* Brightens when hovered */
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: rgba(255, 255, 255, 0.45); /* Brightens further while dragging */
+  background: rgba(255, 255, 255, 0.45);
+  /* Brightens further while dragging */
 }
 
 /* ==========================================================================
    2. TAILWIND UTILITIES
    ========================================================================== */
- @layer utilities { 
+@layer utilities {
+
   /* Completely hide scrollbars while preserving scroll functionality */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-  } 
-   .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-     scrollbar-width: none;   /* Firefox*/
-  } 
-} 
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox*/
+  }
+}
