@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProducts, fetchOneProduct,fetchFeaturedProduct, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage, fetchLatestProduct } from '../api/productApi';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchProducts, fetchOneProduct, fetchFeaturedProducts, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage, fetchLatestProducts } from '../api/productApi';
 import { logError } from '../utils/logger';
 
 export const useGetProducts = () => {
@@ -12,7 +12,7 @@ export const useGetProducts = () => {
 
 
 export const useGetOneProduct = (id) => {
-  console.log('useGetOneProduct hook called:',id);
+  console.log('useGetOneProduct hook called:', id);
   return useQuery({
     queryKey: ['products', 'live', id],
     queryFn: () => fetchOneProduct(id),
@@ -23,19 +23,34 @@ export const useGetOneProduct = (id) => {
 }
 
 
-export const useGetFeaturedProducts = (limit) => {
-  return useQuery({
+export const useGetFeaturedProducts = (limit = 10) => {
+
+  return useInfiniteQuery({
     queryKey: ['products', 'featured', { limit }],
-    queryFn: async () => fetchFeaturedProduct(limit),
-    keepPreviousData: true,
-  });
+    queryFn: ({ pageParam }) => fetchFeaturedProducts({ pageParam, limit }),
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => {
+      console.log('lastpage:',lastPage);
+      if (!lastPage?.pagination?.hasNextPage) {
+        return undefined;
+      }
+      return lastPage?.pagination?.nextCursor ?? undefined
+    }
+  })
 };
 
-export const useGetLatestProducts = (limit) => {
-  return useQuery({
+export const useGetLatestProducts = (limit = 10) => {
+  return useInfiniteQuery({
     queryKey: ['products', 'latest', { limit }],
-    queryFn: async () => fetchLatestProduct(limit),
-    keepPreviousData: true,
+    queryFn: ({ pageParam }) => fetchLatestProducts({ pageParam, limit }),
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage?.pagination?.hasNextPage) {
+        return undefined;
+      }
+      return lastPage?.pagination?.nextCursor ?? undefined
+    }
+
   });
 };
 

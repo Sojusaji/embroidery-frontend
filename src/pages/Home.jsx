@@ -3,7 +3,7 @@ import ProductCard from '../components/shared/ProductCard';
 import Footer from '../components/layout/Footer';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Scissors, Ruler,Loader2, Truck, Star, ShieldCheck, Sparkles, ChevronDown, HelpCircle } from 'lucide-react';
+import { Scissors, Ruler, Loader2, Truck, Star, ShieldCheck, Sparkles, ChevronDown, HelpCircle } from 'lucide-react';
 import { useGetFeaturedProducts, useGetLatestProducts } from "../../src/hook/useProducts";
 import ProductCardSkeleton from '../utils/productCartSkelton';
 import { useState } from 'react';
@@ -47,48 +47,58 @@ const FAQ_ITEMS = [
   }
 ];
 
+// Helper Load More Button Component
+const LoadMoreButton = ({ onClick, isFetching, hasMore, label }) => {
+  if (!hasMore) return null;
+
+  return (
+    <div className="flex justify-center mt-12">
+      <button
+        onClick={onClick}
+        disabled={isFetching}
+        className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-white/5 hover:bg-primary/20 text-white font-medium transition-all duration-300 border border-white/10 hover:border-primary/50 shadow-lg hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 cursor-pointer"
+      >
+        {isFetching ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            <span>Loading...</span>
+          </>
+        ) : (
+          <span>{label}</span>
+        )}
+      </button>
+    </div>
+  );
+};
+
 const Home = () => {
+  const limit = 10;
 
-  const [featuredLimit, setFeaturedLimit] = useState(10);
-  const [latestLimit, setLatestLimit] = useState(10);
+  // Featured Products Query
+  const {
+    data: featuredData,
+    fetchNextPage: fetchNextFeaturedPage,
+    isFetchingNextPage: isFetchingNextFeaturedPage,
+    hasNextPage: hasNextFeaturedPage,
+    status: featuredStatus,
+  } = useGetFeaturedProducts(limit);
 
-  const { data: featuredData, isFetching: fetchingFeatured } = useGetFeaturedProducts(featuredLimit);
-  const { data: latestData, isFetching: fetchingLatest } = useGetLatestProducts(latestLimit);
+  // Latest Products Query
+  const {
+    data: latestData,
+    fetchNextPage: fetchNextLatestPage,
+    isFetchingNextPage: isFetchingNextLatestPage,
+    hasNextPage: hasNextLatestPage,
+    status: latestStatus,
+  } = useGetLatestProducts(limit);
 
-  const featuredProducts = featuredData?.products || [];
-  const featuredTotal = featuredData?.totalCount || 0;
-
-  const latestProducts = latestData?.latestProducts || [];
-  const latestTotal = latestData?.totalCount || 0;
-
+  // Safe Array Flattening with Fallbacks
+  const allFeaturedProducts = featuredData?.pages?.flatMap((page) => page.products) ?? [];
+  const allLatestProducts = latestData?.pages?.flatMap((page) => page.products) ?? [];
 
   const [openFaq, setOpenFaq] = useState(null);
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
-  };
-
-
-  const LoadMoreButton = ({ onClick, isFetching, hasMore, label }) => {
-    if (!hasMore) return null;
-
-    return (
-      <div className="flex justify-center mt-12">
-        <button
-          onClick={onClick}
-          disabled={isFetching}
-          className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-white/5 hover:bg-primary/20 text-white font-medium transition-all duration-300 border border-white/10 hover:border-primary/50 shadow-lg hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-        >
-          {isFetching ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <span>Loading...</span>
-            </>
-          ) : (
-            <span>{label}</span>
-          )}
-        </button>
-      </div>
-    );
   };
 
   return (
@@ -151,7 +161,7 @@ const Home = () => {
       </section>
 
       {/* FEATURED PRODUCTS */}
-      {(fetchingFeatured || (featuredProducts && featuredProducts.length > 0)) && (
+      {(featuredStatus === 'pending' || allFeaturedProducts.length > 0) && (
         <section className="py-20 relative z-10 bg-surface">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <motion.div
@@ -172,16 +182,16 @@ const Home = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {fetchingFeatured
-                ? [1, 2, 3, 4].map((_, idx) => <ProductCardSkeleton key={idx} index={idx} />)
-                : featuredProducts.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
+              {featuredStatus === 'pending'
+                ? [1, 2, 3, 4].map((_, idx) => <ProductCardSkeleton key={`skeleton-featured-${idx}`} index={idx} />)
+                : allFeaturedProducts.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
             </div>
           </div>
 
           <LoadMoreButton
-            onClick={() => setFeaturedLimit(prev => prev + 10)}
-            isFetching={fetchingFeatured}
-            hasMore={featuredProducts.length < featuredTotal}
+            onClick={() => fetchNextFeaturedPage()}
+            isFetching={isFetchingNextFeaturedPage}
+            hasMore={hasNextFeaturedPage}
             label="Show More Featured"
           />
         </section>
@@ -228,7 +238,7 @@ const Home = () => {
             </p>
             <Link
               to="/custom-orders"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary hover:bg-primary-dark text-white font-semibold transition-all hover:scale-105 shadow-lg "
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary hover:bg-primary-dark text-white font-semibold transition-all hover:scale-105 shadow-lg"
             >
               <Scissors className="w-5 h-5" />
               <span>Start Your Custom Order</span>
@@ -238,7 +248,7 @@ const Home = () => {
       </section>
 
       {/* LATEST PRODUCTS */}
-      {(fetchingLatest || (latestProducts && latestProducts.length > 0)) && (
+      {(latestStatus === 'pending' || allLatestProducts.length > 0) && (
         <section className="py-24 relative z-10 bg-surface">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <motion.div
@@ -259,17 +269,17 @@ const Home = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {fetchingLatest
-                ? [1, 2, 3, 4].map((_, idx) => <ProductCardSkeleton key={idx} index={idx} />)
-                : latestProducts.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
+              {latestStatus === 'pending'
+                ? [1, 2, 3, 4].map((_, idx) => <ProductCardSkeleton key={`skeleton-latest-${idx}`} index={idx} />)
+                : allLatestProducts.map((product, idx) => <ProductCard key={product.id} product={product} index={idx} />)}
             </div>
           </div>
 
           {/* Latest Show More Button */}
           <LoadMoreButton
-            onClick={() => setLatestLimit(prev => prev + 8)}
-            isFetching={fetchingLatest}
-            hasMore={latestProducts.length < latestTotal}
+            onClick={() => fetchNextLatestPage()}
+            isFetching={isFetchingNextLatestPage}
+            hasMore={hasNextLatestPage}
             label="Show More Latest"
           />
         </section>
@@ -282,28 +292,30 @@ const Home = () => {
         </div>
 
         <div className="flex gap-6 overflow-hidden max-w-[100vw] relative">
-          {/* Fading Edges */}
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none" />
           <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none" />
 
-          {/* Animated Track */}
           <motion.div
             animate={{ x: [0, -1500] }}
             transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
             className="flex gap-6 min-w-max px-4"
           >
-            {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((item, idx) => (
+            {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((_, idx) => (
               <div key={idx} className="w-[350px] glass-panel bg-white/5 p-6 rounded-3xl shrink-0 border border-white/5 shadow-md">
                 <div className="flex text-primary mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} fill="currentColor" className="w-4 h-4" />
                   ))}
                 </div>
-                <p className="text-gray-300 text-sm italic mb-6 leading-relaxed">"Absolutely stunning craftsmanship. The embroidery detail is unmatched and the bespoke suit fit me perfectly on the first try!"</p>
+                <p className="text-gray-300 text-sm italic mb-6 leading-relaxed">
+                  "Absolutely stunning craftsmanship. The embroidery detail is unmatched and the bespoke suit fit me perfectly on the first try!"
+                </p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center text-primary font-bold shadow-inner">{idx + 1}</div>
+                  <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center text-primary font-bold shadow-inner">
+                    {(idx % 5) + 1}
+                  </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">Client Name</h4>
+                    <h4 className="text-sm font-bold text-white">Verified Client</h4>
                     <p className="text-xs text-gray-500">Verified Buyer</p>
                   </div>
                 </div>
@@ -332,7 +344,7 @@ const Home = () => {
               >
                 <button
                   onClick={() => toggleFaq(idx)}
-                  className="w-full flex items-center justify-between p-6 text-left font-semibold text-white hover:text-primary transition-colors"
+                  className="w-full flex items-center justify-between p-6 text-left font-semibold text-white hover:text-primary transition-colors cursor-pointer"
                 >
                   <span className="text-sm md:text-base">{faq.q}</span>
                   <ChevronDown className={`w-5 h-5 shrink-0 transition-transform duration-300 ${openFaq === idx ? 'rotate-180 text-primary' : 'text-gray-400'}`} />

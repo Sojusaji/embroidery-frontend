@@ -5,17 +5,22 @@ export const fetchProducts = async () => {
   return data;
 };
 
-export const fetchFeaturedProduct = async (limit) => {
-  const { data } = await api.get(`/api/v1/products/featured?limit=${limit}`);
-  console.log('fetched featuredProduct data:', data);
+const fetchProductsByEndpoint = async (endpoint, { pageParam = null, limit = 10 } = {}) => {
+  console.log('cursor and limit value from fetchProductsByEndpoint:',pageParam,limit);
+  const { data } = await api.get(`/api/v1/products/${endpoint}`, {
+    params: {
+      limit,
+      ...(pageParam && { cursor: pageParam })
+    }
+  });
+  console.log('data from fetchProductByEndpoint:', data);
   return data;
 }
 
-export const fetchLatestProduct = async (limit) => {
-  const { data } = await api.get(`/api/v1/products/latest?limit=${limit}`);
-  console.log('fetched latestProduct data:', data);
-  return data;
-}
+export const fetchFeaturedProducts = (params) => fetchProductsByEndpoint('featured', params);
+
+export const fetchLatestProducts = (params) => fetchProductsByEndpoint('latest', params);
+
 
 
 export const fetchOneProduct = async (productId) => {
