@@ -1,14 +1,13 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, ShoppingBag, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
-import { DUMMY_PRODUCTS } from '../utils/dummyData';
 import { useCart } from '../context/CartContext';
 import { useGetOneProduct } from "../hook/useProducts";
 import Footer from '../components/layout/Footer';
 import toast from 'react-hot-toast';
 import { ProductDetailsPageSkeleton } from '../utils/productDetailsPageSkelton';
-
+import CheckoutModal from "../components/checkout/CheckoutModal";
 const ProductDetail = () => {
 
   const { id } = useParams();
@@ -18,6 +17,7 @@ const ProductDetail = () => {
   // const product = DUMMY_PRODUCTS.find(p => p.id === parseInt(id));
 
   const [imageLoading, setImageLoading] = useState(true);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -42,10 +42,10 @@ const ProductDetail = () => {
     return <ProductDetailsPageSkeleton />;
   }
 
-  const handleBuyNow = () => {
-    addToCart(product);
-    toast.success('Added to cart! Proceed to checkout in your cart.');
-  };
+  // const handleBuyNow = () => {
+  //   addToCart(product);
+  //   toast.success('Added to cart! Proceed to checkout in your cart.');
+  // };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -141,7 +141,7 @@ const ProductDetail = () => {
               </button>
 
               <button
-                onClick={handleBuyNow}
+                onClick={() => setIsCheckoutOpen(true)}
                 className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-primary to-orange-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(var(--color-primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--color-primary),0.5)] transition-all flex items-center justify-center gap-2"
               >
                 Buy Now
@@ -167,6 +167,13 @@ const ProductDetail = () => {
           </motion.div>
         </div>
       </div>
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        totalAmount={product.price}
+        product={product}
+      />
       <Footer />
     </div>
   );
