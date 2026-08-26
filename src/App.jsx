@@ -13,7 +13,7 @@ import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { Navigate, useLocation } from 'react-router-dom';
 // import { useAdminAuth } from "./hook/auth/useAdminAuth";
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './components/shared/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import UserDashboard from './pages/UserDashboard';
 import ProductDetail from './pages/ProductDetail';
