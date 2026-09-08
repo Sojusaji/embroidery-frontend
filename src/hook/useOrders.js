@@ -7,7 +7,7 @@ import {createOrder} from '../api/orderApi'
 export const useCreateOrder = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: createOrder(orderPayload),
+        mutationFn:(orderPayload)=>createOrder(orderPayload),
         onSuccess:(data)=>{
           queryClient.invalidateQueries({queryKey:['cart']});
           queryClient.invalidateQueries({queryKey:['products']})

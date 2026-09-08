@@ -90,8 +90,8 @@ export default function CheckoutModal({
         items: cartList,
         paymentMethod,
         deliveryAddress: address,
-        couponCode: discount > 0 ? couponCode : null,
-        totalAmount: finalAmount,
+        couponCode: discount > 0 ? couponCode : undefined,
+        // totalAmount: finalAmount,
 
       }
       if (paymentMethod === 'cod') {
@@ -111,7 +111,7 @@ export default function CheckoutModal({
 
         // 2. Configure Razorpay options matching your branding
         const options = {
-          key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your test Key ID
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
           amount: amount.toString(),
           currency: currency,
           name: 'Stitch&Art',
