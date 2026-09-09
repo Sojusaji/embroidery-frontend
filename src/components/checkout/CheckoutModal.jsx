@@ -155,96 +155,100 @@ export default function CheckoutModal({
         </p>
 
         {/* STEP 1: ADDRESS & CONTACT DETAILS */}
-        {step === 1 && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">Full Name</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  required
-                  value={address.fullName}
-                  onChange={handleAddressChange}
-                  placeholder="John Doe"
-                  className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
-                />
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          setStep(2)
+        }}>
+          {step === 1 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Full Name</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    required
+                    value={address.fullName}
+                    onChange={handleAddressChange}
+                    placeholder="John Doe"
+                    className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    value={address.phone}
+                    onChange={handleAddressChange}
+                    placeholder="+91 98765 43210"
+                    className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  value={address.phone}
-                  onChange={handleAddressChange}
-                  placeholder="+91 98765 43210"
-                  className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
-                />
-              </div>
-            </div>
 
-            <div>
-              <label className="text-xs text-gray-400 mb-1 block">Street Address</label>
-              <input
-                type="text"
-                name="addressLine"
-                required
-                value={address.addressLine}
-                onChange={handleAddressChange}
-                placeholder="House/Flat no., Street, Landmark"
-                className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
-              />
-            </div>
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Street Address</label>
+                <input
+                  type="text"
+                  name="addressLine"
+                  required
+                  value={address.addressLine}
+                  onChange={handleAddressChange}
+                  placeholder="House/Flat no., Street, Landmark"
+                  className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
+                />
+              </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  required
-                  value={address.city}
-                  onChange={handleAddressChange}
-                  placeholder="City"
-                  className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
-                />
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    required
+                    value={address.city}
+                    onChange={handleAddressChange}
+                    placeholder="City"
+                    className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">State</label>
+                  <input
+                    type="text"
+                    name="state"
+                    required
+                    value={address.state}
+                    onChange={handleAddressChange}
+                    placeholder="State"
+                    className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Postal Code</label>
+                  <input
+                    type="text"
+                    name="postalCode"
+                    required
+                    value={address.postalCode}
+                    onChange={handleAddressChange}
+                    placeholder="PIN Code"
+                    className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">State</label>
-                <input
-                  type="text"
-                  name="state"
-                  required
-                  value={address.state}
-                  onChange={handleAddressChange}
-                  placeholder="State"
-                  className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 mb-1 block">Postal Code</label>
-                <input
-                  type="text"
-                  name="postalCode"
-                  required
-                  value={address.postalCode}
-                  onChange={handleAddressChange}
-                  placeholder="PIN Code"
-                  className="w-full bg-[var(--color-surface)] border border-white/10 rounded-xl p-3 text-sm text-[var(--color-foreground)] focus:border-[var(--color-primary)] outline-none"
-                />
-              </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={() => setStep(2)}
-              className="w-full mt-4 py-3.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-black font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 hover:opacity-90 cursor-pointer"
-            >
-              Proceed to Payment
-            </button>
-          </div>
-        )}
+              <button
+                type="submit"
+                className="w-full mt-4 py-3.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-black font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 hover:opacity-90 cursor-pointer"
+              >
+                Proceed to Payment
+              </button>
+            </div>
+          )}
+        </form>
 
         {/* STEP 2: SUMMARY, COUPON, PAYMENT METHOD */}
         {step === 2 && (
