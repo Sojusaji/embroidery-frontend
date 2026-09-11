@@ -5,8 +5,9 @@ import {
   Compass, Shield, Sparkles, Clock, CheckCircle2,
   ArrowUpRight, Smartphone, Laptop, KeyRound, Ruler,
   Download, ShoppingCart, ShoppingBag, LogOut, ChevronRight,
-  Menu, X, User, Copy, ExternalLink, RefreshCw, AlertCircle
+  Menu, X, User, AlertCircle
 } from 'lucide-react';
+import  Orders  from "../components/user/orders/Orders";
 import StitchingOrder from './StitchingOrder';
 import { useCart } from '../context/CartContext';
 import { useUserAuth } from '../hook/auth/useUserAuth';
@@ -500,7 +501,8 @@ export default function UserDashboard() {
               <StitchingOrder initialMeasurements={profileData.measurements} />
             </motion.div>
           )}
-          {activeTab === 'orders' && <OrdersTab key="orders" userProfile={profileData} goTo={handleTabChange} />}
+          {/* {activeTab === 'orders' && <OrdersTab key="orders" userProfile={profileData} goTo={handleTabChange} />} */}
+          {activeTab === 'orders' && <Orders key="orders" userProfile={profileData}  />}
           {activeTab === 'security' && <SecurityTab key="security" userProfile={profileData} />}
         </AnimatePresence>
       </main>

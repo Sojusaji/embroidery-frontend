@@ -1,7 +1,15 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { logError } from "../utils/logger";
-import {createOrder} from '../api/orderApi'
+import {createOrder ,fetchOrders} from '../api/orderApi'
 
+
+export const useFetchOrders =()=>{
+   return useQuery({
+       queryKey:['orders'],
+       queryFn: fetchOrders,
+
+   })
+}
 
 
 export const useCreateOrder = () => {
