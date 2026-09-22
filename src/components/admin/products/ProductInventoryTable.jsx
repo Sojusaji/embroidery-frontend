@@ -3,7 +3,7 @@ import { Trash2, Edit2, Package, AlertTriangle, Loader2 } from 'lucide-react';
 import { useGetProducts, useGetTrashedProducts, useDeleteAProduct } from '../../../hook/useProducts';
 import { logError } from '../../../utils/logger';
 import { getCategoryLabel } from '../../../utils/productUtils';
-import { renderProductThumbnail, renderStockBadge } from '../../../utils/productCardShared';
+import { renderProductThumbnail, renderStockBadge } from '../../../utils/ProductCardShared';
 import SwipeableItem from "../../../utils/SwipeableItem";
 import { toast } from 'react-hot-toast';
 

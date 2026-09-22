@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -7,7 +7,8 @@ import {
   ShoppingBag, Compass, Paintbrush, Settings, HelpCircle
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
-import { useCart } from '../../context/CartContext';
+import { CartContext } from '../../context/CartContext';
+import { useFetchCart } from '../../hook/useCart'
 import { useUserAuth } from "../../hook/auth/useUserAuth";
 import { useUserLogout } from "../../hook/auth/userAuth";
 
@@ -16,8 +17,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { mutateAsync: logout } = useUserLogout();
   const { isUserAuthenticated: isLoggedIn, user } = useUserAuth();
-
-  const { cartCount, setIsCartOpen } = useCart();
+  const { data: cartData, isLoading, isError } = useFetchCart();
+  const { isCartOpen, setIsCartOpen } = useContext(CartContext);
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -134,13 +135,13 @@ const Navbar = () => {
                 className="relative p-2.5 text-gray-400 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
               >
                 <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
+                {cartData?.totalQuantity > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-primary text-[9px] font-black text-white flex items-center justify-center px-1 rounded-full"
                   >
-                    {cartCount}
+                    {cartData?.totalQuantity}
                   </motion.span>
                 )}
               </button>

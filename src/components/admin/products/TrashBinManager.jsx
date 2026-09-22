@@ -3,7 +3,7 @@ import { RotateCcw, Trash2, AlertTriangle, Package, Loader2, ArrowLeft, Search }
 import { useGetTrashedProducts, useRestoreProduct, usePurgeProduct } from '../../../hook/useProducts';
 import { logError } from '../../../utils/logger';
 import { getCategoryLabel } from '../../../utils/productUtils';
-import { renderProductThumbnail } from '../../../utils/productCardShared';
+import { renderProductThumbnail } from '../../../utils/ProductCardShared';
 import SwipeableItem from "../../../utils/SwipeableItem";
 import { toast } from 'react-hot-toast';
 
@@ -14,11 +14,11 @@ const TrashBinManager = ({ onBackToInventory }) => {
   const purgeMutation = usePurgeProduct();
 
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Modal state for bulk actions
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [purgeTarget, setPurgeTarget] = useState(null);
-  
+
   // Granular loading & confirmation states
   const [confirmingPurgeId, setConfirmingPurgeId] = useState(null);
   const [activeActionId, setActiveActionId] = useState(null); // Tracks exact item being restored/purged

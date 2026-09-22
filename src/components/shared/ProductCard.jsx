@@ -1,13 +1,26 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Plus } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+// import { useCart } from '../../context/CartContext';
 import { cn } from '../../utils/cn';
 import { Link } from 'react-router-dom';
 import { getProductImageUrl } from '../../utils/productUtils';
+import { useAddToCart } from "../../hook/useCart";
 
 const ProductCard = ({ product, index }) => {
-  const { addToCart } = useCart();
+
+  const { mutate: addToCart, isPending: isCartAdding } = useAddToCart();
+  const handleAddtoCart = (product) => {
+    const cartPayload = {
+      items: [
+        {
+          productId: product.id || product._id,
+          quantity: 1,
+        }
+      ]
+    }
+    addToCart(cartPayload);
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -69,7 +82,7 @@ const ProductCard = ({ product, index }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                addToCart(product);
+                handleAddtoCart(product);
               }}
               className="md:hidden flex items-center gap-2 text-primary font-bold text-sm tracking-wide uppercase hover:text-white transition-colors"
             >

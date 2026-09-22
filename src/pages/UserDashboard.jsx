@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import  Orders  from "../components/user/orders/Orders";
 import StitchingOrder from './StitchingOrder';
-import { useCart } from '../context/CartContext';
+// import { useCart } from '../context/CartContext';
 import { useUserAuth } from '../hook/auth/useUserAuth';
 import { useUserLogout } from '../hook/auth/userAuth';
 

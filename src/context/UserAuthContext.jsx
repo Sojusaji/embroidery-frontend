@@ -5,7 +5,6 @@ export const UserAuthContext = createContext();
 
 export const UserAuthProvider = ({ children }) => {
   const { data: user, isLoading } = useUserProfile();
-  console.log('data from useUserProfile route:', user);
 
   const isUserAuthenticated = !!user;
   return (

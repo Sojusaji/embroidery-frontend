@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Scissors, Ruler, Loader2, Truck, Star, ShieldCheck, Sparkles, ChevronDown, HelpCircle } from 'lucide-react';
 import { useGetFeaturedProducts, useGetLatestProducts } from "../../src/hook/useProducts";
-import ProductCardSkeleton from '../utils/productCartSkelton';
+import ProductCardSkeleton from '../utils/ProductCartSkelton';
 import { useState } from 'react';
 
 // Static Configuration Data (Optimized outside component scope)
