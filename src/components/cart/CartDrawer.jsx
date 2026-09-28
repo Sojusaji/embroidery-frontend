@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { useFetchCart } from "../../hook/useCart";
+import { useFetchCart, useUpdateCartItemQuantity, useRemoveCartItem } from "../../hook/useCart";
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { CartContext } from '../../context/CartContext';
@@ -7,7 +7,20 @@ import CartPageSkelton from "../../utils/CartPageSkelton";
 
 const CartDrawer = () => {
   const { isCartOpen, setIsCartOpen } = useContext(CartContext);
-  const { data: cartData, isLoading: isCartLoading, isError } = useFetchCart();
+  const { data: cartData, isLoading: isCartLoading, isError: isCartLoadingError } = useFetchCart();
+  const { mutate: updateQuantity, isError: isQuantityUpdatingError, isPending: isUpdatingQuantityPending } = useUpdateCartItemQuantity();
+  const { mutate: removeItem, isError: isItemRemovingError, isPending: isItemRemovingPending } = useRemoveCartItem();
+
+  const handleItemQuantity = async (productId, change) => {
+    console.log('updatecart-item-quantity data:',productId,change)
+    updateQuantity({ productId, change });
+  }
+
+  const handleRemoveItem = (productId) => {
+    removeItem({ productId })
+  }
+
+
 
   return (
     <AnimatePresence>
@@ -79,7 +92,8 @@ const CartDrawer = () => {
                         <div className="flex justify-between items-start">
                           <h3 className="font-semibold text-gray-200 line-clamp-1">{item.name}</h3>
                           <button
-                            // onClick={() => removeFromCart(item.id)}
+                            disabled={isItemRemovingPending}
+                            onClick={() => handleRemoveItem(item._id)}
                             className="text-gray-500 hover:text-red-400 p-1"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -92,14 +106,16 @@ const CartDrawer = () => {
                           {/* Quantity Controls */}
                           <div className="flex items-center gap-3 bg-black/40 rounded-full px-2 py-1">
                             <button
-                              // onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              disabled={isUpdatingQuantityPending}
+                              onClick={() => handleItemQuantity(item._id, -1)}
                               className="text-gray-400 hover:text-white p-1"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
                             <button
-                              // onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              disabled={isUpdatingQuantityPending}
+                              onClick={() => handleItemQuantity(item._id, 1)}
                               className="text-gray-400 hover:text-white p-1"
                             >
                               <Plus className="w-3 h-3" />

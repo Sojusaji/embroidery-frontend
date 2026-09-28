@@ -11,12 +11,14 @@ export const fetchCartData = async () => {
     return data;
 }
 
-export const updateCartItemQuantity = async () => {
-    const { data } = await api.patch('/api/v1/cart');
+export const updateCartItemQuantity = async (cartData) => {
+    console.log('cartData recieved on api are:',cartData);
+    const { data } = await api.patch('/api/v1/cart',cartData);
     return data;
 }
 
-export const removeCartItem = async () => {
-    const { data } = await api.delete('/api/v1/cart');
+export const removeCartItem = async (cartData) => {
+    console.log('cartData recieved for deleting cart on api are:',cartData.productId);
+    const { data } = await api.delete(`/api/v1/cart/${cartData.productId}`);
     return data;
 }

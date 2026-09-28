@@ -27,6 +27,7 @@ const ProductDetail = () => {
         {
           productId: product.id || product._id,
           quantity: 1
+
         }
       ]
     }

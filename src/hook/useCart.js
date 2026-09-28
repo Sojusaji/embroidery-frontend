@@ -1,9 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCart, fetchCartData, updateCartItemQuantity, removeCartItem } from "../api/cartApi";
 import { logError } from "../utils/logger";
-import toast from "react-hot-toast";
-import { cartSchema } from "../../../server/src/utils/authValidator";
-
 
 export const useFetchCart = () => {
     return useQuery({
@@ -27,22 +24,29 @@ export const useAddToCart = () => {
     })
 }
 
+const roundToTwoDecimals = (num) => {
+    return Math.round((num + Number.EPSILON) * 100) / 100;
+};
+
 export const useUpdateCartItemQuantity = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (cartPayload) => updateCartItemQuantity(cartPayload),
 
         onMutate: async ({ productId, change }) => {
+            console.log('data recieved on useHook:', productId, change);
             await queryClient.cancelQueries({ queryKey: ['cart'] });
             const previousCart = queryClient.getQueryData(['cart']);
+            console.log("previousCart:", previousCart);
 
             queryClient.setQueryData(['cart'], (oldData) => {
+                console.log('oldData snapshot:', JSON.stringify(oldData, null, 2));
                 if (!oldData) return oldData;
                 const cartContainer = oldData.cart || oldData;
-                const cartItems = cartContainer.items || [];
+                const items = cartContainer.cartItems || [];
 
-                const updatedCartItems = cartItems.map((item) => {
-                    const currentId = item.productId?._id?.toString() || item.productId?.toString();
+                const updatedCartItems = items.map((item) => {
+                    const currentId = item?._id?.toString() || item.productId?.toString();
                     if (currentId === productId.toString()) {
                         return {
                             ...item, quantity: item.quantity + change
@@ -50,10 +54,19 @@ export const useUpdateCartItemQuantity = () => {
                     }
                     return item;
                 }).filter((item) => item.quantity > 0);
+                let newTotalPrice = 0;
+                let newTotalItems = 0;
+                updatedCartItems.forEach(item => {
+                    const itemPrice = item.price * item.quantity;
+                    newTotalPrice += itemPrice;
+                    newTotalItems += item.quantity;
 
+                });
                 const newCartData = {
                     ...cartContainer,
-                    items: updatedCartItems
+                    cartItems: updatedCartItems,
+                    totalQuantity: newTotalItems,
+                    grandTotal: roundToTwoDecimals(newTotalPrice)
                 }
                 return oldData.cart ? {
                     ...oldData, cart: newCartData
@@ -89,14 +102,24 @@ export const useRemoveCartItem = () => {
                 if (!oldData) return oldData;
 
                 const cartContainer = oldData.cart || oldData;
-                const cartItems = cartContainer.items || [];
-                const updatedCartItems = cartItems.filter((item) => {
-                    const currentId = item.productId?._id?.toString() || item.productId?.toString();
+                const items = cartContainer.cartItems || [];
+                const updatedCartItems = items.filter((item) => {
+                    const currentId = item?._id?.toString() || item.productId?.toString();
                     return currentId !== productId.toString();
                 });
+                let totalPrice = 0;
+                let totalItems = 0;
+                updatedCartItems.forEach((item) => {
+                    const itemPrice = item.price * item.quantity;
+                    totalPrice += itemPrice;
+                    totalItems += item.quantity;
+                })
                 const newCartData = {
                     ...cartContainer,
-                    items: updatedCartItems
+                    cartItems: updatedCartItems,
+                    grandTotal: totalPrice,
+                    totalQuantity: totalItems
+
                 };
                 return oldData.cart ? {
                     ...oldData, cart: newCartData
