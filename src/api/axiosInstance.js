@@ -37,7 +37,7 @@ api.interceptors.response.use(
                     if (wasAdminLoggedIn) {
                         toast.error('Admin session expired. Please log in again.', { id: 'auth-error' });
                         localStorage.removeItem('isAdminLoggedIn');
-                        window.location.href = '/admin/login';
+                        window.location.href = '/login';
                     } else if (wasLoggedIn) {
                         toast.error('Session expired. Please log in again.', { id: 'auth-error' });
                         localStorage.removeItem('isLoggedIn');

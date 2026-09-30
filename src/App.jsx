@@ -7,12 +7,10 @@ import Shop from './pages/Shop';
 import StitchingOrder from './pages/StitchingOrder';
 import Gallery from './pages/Gallery';
 import AdminDashboard from './pages/AdminDashboard';
-import AdminLogin from './pages/AdminLogin';
 import Login from './pages/Login';
 import { CartProvider } from './context/CartContext';
 import CartDrawer from './components/cart/CartDrawer';
 import { Navigate, useLocation } from 'react-router-dom';
-// import { useAdminAuth } from "./hook/auth/useAdminAuth";
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import UserDashboard from './pages/UserDashboard';
@@ -41,13 +39,7 @@ const PublicRoute = ({ children }) => {
   const location = useLocation();
   const { isUserAuthenticated, isLoading } = useUserAuth();
   console.log('isUserAuthenticated:', isUserAuthenticated);
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center pt-20">
-  //       <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-  //     </div>
-  //   );
-  // }
+
   if (isUserAuthenticated) {
     const isAdmin = user?.role === 'admin' || user?.role === 'superAdmin';
     const destination = isAdmin ? '/admin' : (location.state?.from || '/');
@@ -148,12 +140,8 @@ function App() {
 
   const AdminLayout = ({ children }) => {
     return (
-      // 1. Lock screen height and hide document-level overflow
       <div className="min-h-screen lg:h-screen w-full bg-background flex flex-col overflow-y-auto lg:overflow-hidden relative">
         <AdminHeader />
-
-        {/* 2. Push content down below floating glass header (pt-20) */}
-        {/* 3. min-h-0 forces child containers to observe height bounds instead of stretching */}
         <main className="flex-1 min-h-0 flex flex-col pt-20 overflow-hidden">
           {children}
         </main>
@@ -186,33 +174,31 @@ function App() {
                 {/* Protected user route */}
                 <Route path="/profile" element={
                   <StorefrontLayout noPadding>
-                    {/* <PrivateRoute> */}
-                    <UserDashboard />
-                    {/* </PrivateRoute> */}
+                    <PrivateRoute>
+                      <UserDashboard />
+                    </PrivateRoute>
                   </StorefrontLayout>
                 } />
 
                 {/* Admin routes */}
-                <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={
-                  // <ProtectedAdminRoute>
-                  <ErrorBoundary>
-                    <AdminLayout>
-                      <AdminDashboard />
-                    </AdminLayout>
-                  </ErrorBoundary>
-                  // </ProtectedAdminRoute>
+                  <ProtectedAdminRoute>
+                    <ErrorBoundary>
+                      <AdminLayout>
+                        <AdminDashboard />
+                      </AdminLayout>
+                    </ErrorBoundary>
+                  </ProtectedAdminRoute>
                 } />
-              
+
               </Routes>
-              {/* </main> */}
               <ScrollToTopButton />
               <Toaster
                 position="top-right"
                 reverseOrder={false}
                 toastOptions={{
                   style: {
-                    background: '#121212', // Clean premium glass background to match your design
+                    background: '#121212', 
                     color: '#ffffff',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                     borderRadius: '12px',
