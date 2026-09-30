@@ -9,11 +9,12 @@ const roundToTwoDecimals = (num) => {
 };
 
 
-export const useFetchCart = () => {
+export const useFetchCart = ({ enabled = true } = {}) => {
     return useQuery({
         queryKey: ['cart'],
         queryFn: fetchCartData,
-        staleTime: 1000 * 60 * 5
+        staleTime: 1000 * 60 * 5,
+        enabled: enabled
     })
 }
 

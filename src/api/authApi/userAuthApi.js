@@ -10,7 +10,7 @@ const handleApiError = (error) => {
 export const userAuthStatus = async () => {
     try {
         const { data } = await api.get('/api/v1/auth/users/auth-status');
-       console.log('data from userAuthStatus:',data);
+       console.log('data from userAuthStatus :',data);
         return data;
     } catch (error) {
         handleApiError(error);

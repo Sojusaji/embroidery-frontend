@@ -4,15 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { CartContext } from '../../context/CartContext';
 import CartPageSkelton from "../../utils/CartPageSkelton";
+import { useUserAuth } from "../../hook/auth/useUserAuth";
+import AuthPrompt from "../../utils/AuthPrompt";
 
 const CartDrawer = () => {
   const { isCartOpen, setIsCartOpen } = useContext(CartContext);
-  const { data: cartData, isLoading: isCartLoading, isError: isCartLoadingError } = useFetchCart();
+  const { isUserAuthenticated, isLoading: isUserAuthStatusLoading } = useUserAuth();
+  const { data: cartData, isLoading: isCartLoading, isError: isCartLoadingError } = useFetchCart({
+    enabled: isUserAuthenticated
+  });
   const { mutate: updateQuantity, isError: isQuantityUpdatingError, isPending: isUpdatingQuantityPending } = useUpdateCartItemQuantity();
   const { mutate: removeItem, isError: isItemRemovingError, isPending: isItemRemovingPending } = useRemoveCartItem();
 
   const handleItemQuantity = async (productId, change) => {
-    console.log('updatecart-item-quantity data:',productId,change)
+    console.log('updatecart-item-quantity data:', productId, change)
     updateQuantity({ productId, change });
   }
 
@@ -58,78 +63,95 @@ const CartDrawer = () => {
               </button>
             </div>
 
-            {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {isCartLoading ?
-                <CartPageSkelton /> :
-                cartData?.cartItems?.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-                    <ShoppingBag className="w-16 h-16 opacity-20" />
-                    <p>Your cart is empty.</p>
-                    <button
-                      onClick={() => setIsCartOpen(false)}
-                      className="text-primary hover:text-primary-dark mt-2"
-                    >
-                      Continue Shopping
-                    </button>
-                  </div>
-                ) : (
-                  cartData?.cartItems?.map((item) => (
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      key={item.id}
-                      className="flex gap-4 p-3 rounded-2xl glass-panel bg-white/5"
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-20 h-24 object-cover rounded-xl bg-black"
-                      />
-                      <div className="flex-1 flex flex-col justify-between py-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-semibold text-gray-200 line-clamp-1">{item.name}</h3>
-                          <button
-                            disabled={isItemRemovingPending}
-                            onClick={() => handleRemoveItem(item._id)}
-                            className="text-gray-500 hover:text-red-400 p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
 
-                        <div className="flex justify-between items-center mt-2">
-                          <p className="text-primary font-bold">${item.price}</p>
 
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-3 bg-black/40 rounded-full px-2 py-1">
+            {
+              isUserAuthenticated
+                ?
+                {/* Cart Items List */ }
+                  (
+                    < div className="flex-1 overflow-y-auto p-6 space-y-4">
+                      {isCartLoading ?
+                        <CartPageSkelton /> :
+                        cartData?.cartItems?.length === 0 ? (
+                          <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
+                            <ShoppingBag className="w-16 h-16 opacity-20" />
+                            <p>Your cart is empty.</p>
                             <button
-                              disabled={isUpdatingQuantityPending}
-                              onClick={() => handleItemQuantity(item._id, -1)}
-                              className="text-gray-400 hover:text-white p-1"
+                              onClick={() => setIsCartOpen(false)}
+                              className="text-primary hover:text-primary-dark mt-2"
                             >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
-                            <button
-                              disabled={isUpdatingQuantityPending}
-                              onClick={() => handleItemQuantity(item._id, 1)}
-                              className="text-gray-400 hover:text-white p-1"
-                            >
-                              <Plus className="w-3 h-3" />
+                              Continue Shopping
                             </button>
                           </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-            </div>
+                        ) : (
+                          cartData?.cartItems?.map((item) => (
+                            <motion.div
+                              layout
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95 }}
+                              key={item._id}
+                              className="flex gap-4 p-3 rounded-2xl glass-panel bg-white/5"
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-20 h-24 object-cover rounded-xl bg-black"
+                              />
+                              <div className="flex-1 flex flex-col justify-between py-1">
+                                <div className="flex justify-between items-start">
+                                  <h3 className="font-semibold text-gray-200 line-clamp-1">{item.name}</h3>
+                                  <button
+                                    disabled={isItemRemovingPending}
+                                    onClick={() => handleRemoveItem(item._id)}
+                                    className="text-gray-500 hover:text-red-400 p-1"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+
+                                <div className="flex justify-between items-center mt-2">
+                                  <p className="text-primary font-bold">${item.price}</p>
+
+                                  {/* Quantity Controls */}
+                                  <div className="flex items-center gap-3 bg-black/40 rounded-full px-2 py-1">
+                                    <button
+                                      disabled={isUpdatingQuantityPending}
+                                      onClick={() => handleItemQuantity(item._id, -1)}
+                                      className="text-gray-400 hover:text-white p-1"
+                                    >
+                                      <Minus className="w-3 h-3" />
+                                    </button>
+                                    <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
+                                    <button
+                                      disabled={isUpdatingQuantityPending}
+                                      onClick={() => handleItemQuantity(item._id, 1)}
+                                      className="text-gray-400 hover:text-white p-1"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))
+                        )}
+                    </div>
+                  )
+                :
+                < AuthPrompt
+                  title="Your Cart is Waiting"
+                  message="Please log in to view your saved items and proceed securely to checkout."
+                  icon={ShoppingBag}
+                  isLoading={isUserAuthStatusLoading}
+                />
+            }
+
+
 
             {/* Footer / Checkout Button */}
-            {cartData?.cartItems?.length > 0 && (
+            {isUserAuthenticated && cartData?.cartItems?.length > 0 && (
               <div className="p-6 border-t border-white/5 bg-black/40 backdrop-blur-md space-y-4">
                 <div className="flex justify-between text-gray-300">
                   <span>Subtotal</span>
@@ -145,8 +167,9 @@ const CartDrawer = () => {
             )}
           </motion.div>
         </>
-      )}
-    </AnimatePresence>
+      )
+      }
+    </AnimatePresence >
   );
 };
 
