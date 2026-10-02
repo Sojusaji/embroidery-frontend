@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, ShoppingBag, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
@@ -9,29 +9,47 @@ import toast from 'react-hot-toast';
 import { useAddToCart } from "../hook/useCart";
 import { ProductDetailsPageSkeleton } from '../utils/ProductDetailsPageSkelton';
 import CheckoutModal from "../components/checkout/CheckoutModal";
+import { UserAuthContext } from "../context/UserAuthContext";
 const ProductDetail = () => {
 
   const { id } = useParams();
   const { mutate: addToCart, isPending: isCartPending } = useAddToCart()
-  // const { addToCart } = useCart();
+
 
   const { data: product, isLoading, isError } = useGetOneProduct(id);
-  // const product = DUMMY_PRODUCTS.find(p => p.id === parseInt(id));
+  const { isUserAuthenticated, user } = useContext(UserAuthContext);
 
   const [imageLoading, setImageLoading] = useState(true);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const handleAddtoCart = (product) => {
-    const cartPayload = {
-      items: [
-        {
-          productId: product.id || product._id,
-          quantity: 1
+    if (isUserAuthenticated) {
+      const cartPayload = {
+        items: [
+          {
+            productId: product.id || product._id,
+            quantity: 1
 
-        }
-      ]
+          }
+        ]
+      }
+      addToCart(cartPayload);
+    } else {
+      toast.error('Please log in to continue.', {
+        id: 'auth-required-error',
+      });
     }
-    addToCart(cartPayload);
+
+  }
+
+  const handleCheckOutModel = () => {
+    if (isUserAuthenticated) {
+      setIsCheckoutOpen(true)
+    } else {
+      toast.error('Please log in to continue.', {
+        id: 'auth-required-error',
+      });
+    }
   }
 
   useEffect(() => {
@@ -152,7 +170,7 @@ const ProductDetail = () => {
               </button>
 
               <button
-                onClick={() => setIsCheckoutOpen(true)}
+                onClick={() => handleCheckOutModel()}
                 className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-primary to-orange-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(var(--color-primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--color-primary),0.5)] transition-all flex items-center justify-center gap-2"
               >
                 Buy Now
