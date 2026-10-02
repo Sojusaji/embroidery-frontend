@@ -1,26 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Plus } from 'lucide-react';
-// import { useCart } from '../../context/CartContext';
-import { cn } from '../../utils/cn';
 import { Link } from 'react-router-dom';
 import { getProductImageUrl } from '../../utils/productUtils';
-import { useAddToCart } from "../../hook/useCart";
+
 
 const ProductCard = ({ product, index }) => {
-
-  const { mutate: addToCart, isPending: isCartAdding } = useAddToCart();
-  const handleAddtoCart = (product) => {
-    const cartPayload = {
-      items: [
-        {
-          productId: product.id || product._id,
-          quantity: 1,
-        }
-      ]
-    }
-    addToCart(cartPayload);
-  }
+ console.log('products we recieved:',product);
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -33,6 +18,12 @@ const ProductCard = ({ product, index }) => {
         {/* Image Container */}
         <div className="relative aspect-[4/5] overflow-hidden rounded-3xl glass-panel p-2 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-primary/20 bg-white/5 border-white/5">
           <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black/20">
+            {/* Discount Badge - Sleek Frosted Glass Style */}
+            {product.comparePrice && product.comparePrice > product.price && (
+              <div className="absolute top-3 right-3 z-10 bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full shadow-lg">
+                {Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}% OFF
+              </div>
+            )}
             <img
               src={getProductImageUrl(product)}
               alt={product.name}
@@ -41,23 +32,6 @@ const ProductCard = ({ product, index }) => {
             {/* Subtle overlay for image protection/focus */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            {/* Quick Add Corner Button (Always visible on mobile, hover on desktop) */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                addToCart(product);
-              }}
-              className={cn(
-                // "absolute bottom-4 right-4 w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg",
-                "md:opacity-0 md:translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300",
-                "active:bg-primary-dark"
-              )}
-              title="Add to Cart"
-            >
-              <Plus className=" w-6 h-6" />
-            </motion.button>
           </div>
         </div>
 
@@ -67,27 +41,25 @@ const ProductCard = ({ product, index }) => {
             <h3 className="text-gray-200 font-bold text-lg group-hover:text-white transition-colors line-clamp-1">
               {product.name}
             </h3>
-            <span className="text-sm px-2 py-0.5 rounded-md bg-white/5 text-gray-400 group-hover:text-gray-300">
-              {product.category}
-            </span>
           </div>
 
-          <div className="flex justify-between items-center mt-auto">
-            <p className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">
-              ${product.price}
-            </p>
+          <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-1">
+            {/* Pricing Group (Current Price, Compare Price, and Badge) */}
+            <div className="flex items-center gap-2.5">
+              <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">
+                ${product.price}
+              </span>
 
-            {/* Mobile-visible text button */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleAddtoCart(product);
-              }}
-              className="md:hidden flex items-center gap-2 text-primary font-bold text-sm tracking-wide uppercase hover:text-white transition-colors"
-            >
-              <span>Add to Cart</span>
-            </button>
+              {/* Compare Price & Discount Badge */}
+              {product.comparePrice && product.comparePrice > product.price && (
+                <>
+                  <span className="text-sm text-gray-500 line-through">
+                    ${product.comparePrice}
+                  </span>
+
+                </>
+              )}
+            </div>
           </div>
         </div>
       </Link>
