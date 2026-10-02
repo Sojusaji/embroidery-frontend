@@ -4,13 +4,21 @@ import { Search, X, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/shared/ProductCard';
 import Footer from '../components/layout/Footer';
 import { useGetProducts } from "../hook/useProducts";
+import { AlertCircle } from "lucide-react";
 
 
 const CATEGORIES = ['All', 'Embroidery', 'Stitching', 'Ornaments'];
 
-const ProductCardSkeleton = () => (
+const ProductCardSkeleton = ({ index = 0 }) => (
   <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col gap-4 animate-pulse">
-    <div className="w-full aspect-square bg-white/10 rounded-xl" />
+    <div className="w-full aspect-square bg-white/2 rounded-xl" >
+      <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white/10 flex items-center justify-center">
+        <div
+          className="w-10 h-10 rounded-full bg-white/10 animate-ping opacity-25"
+          style={{ animationDelay: `${index * 120}ms` }}
+        />
+      </div>
+    </div>
     <div className="space-y-2">
       <div className="h-4 bg-white/10 rounded w-3/4" />
       <div className="h-3 bg-white/10 rounded w-1/2" />
@@ -26,8 +34,9 @@ const Shop = () => {
 
   const { data: products = [], isLoading: isProductLoading, isError: isProductLoadingError } = useGetProducts()
   const [searchParams, setSearchParams] = useSearchParams();
-
+  console.log('active category in initial stage:', searchParams.get('category'))
   const activeCategory = searchParams.get('category') || 'All';
+  console.log('activeCategory:', activeCategory);
   const urlSearchTerm = searchParams.get('search') || '';
 
   const [searchTerm, setSearchTerm] = useState(urlSearchTerm);
@@ -56,7 +65,7 @@ const Shop = () => {
 
 
   const handleCategoryChange = (category) => {
-    console.log('category :',category);
+    console.log('category :', category);
     const params = new URLSearchParams(searchParams);
     console.log('params:', params);
     if (category === 'All') {
@@ -65,17 +74,18 @@ const Shop = () => {
       params.set('category', category.toLowerCase());
     }
     setSearchParams(params, { replace: true });
+
   };
 
   const filteredProducts = useMemo(() => {
     if (!Array.isArray(products)) return [];
     return products.filter(product => {
-      console.log('product:',product);
+      console.log('product:', product);
       const matchesCategory = activeCategory === 'All' || product.category === activeCategory;
       const matchesSearch = product.name.toLowerCase().includes(urlSearchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, urlSearchTerm]);
+  }, [activeCategory, urlSearchTerm, products]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col text-white selection:bg-primary/30">
@@ -124,10 +134,11 @@ const Shop = () => {
               <button
                 key={category}
                 onClick={() => handleCategoryChange(category)}
-                aria-current={activeCategory === category ? 'page' : undefined}
-                className={`px-5 py-2 rounded-full text-xs md:text-sm transition-all duration-200 font-medium ${activeCategory === category
-                  ? 'bg-primary text-white scale-[1.02] shadow-md shadow-primary/10'
-                  : 'bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                aria-current={activeCategory === category.toLowerCase() ? 'page' : undefined}
+                className={`px-5 py-2 rounded-full text-xs md:text-sm transition-all duration-200 font-medium 
+                  ${activeCategory.toLowerCase() === category.toLowerCase()
+                    ? 'bg-primary text-white scale-[1.02] shadow-md shadow-primary/10'
+                    : 'bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
                 {category}
