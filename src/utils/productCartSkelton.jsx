@@ -3,7 +3,7 @@ import React from 'react';
 const ProductCardSkeleton = ({ index = 0 }) => {
   return (
     <div 
-      className="group relative flex flex-col h-full animate-pulse"
+      className="group relative flex flex-col h-full animate-pulse "
       // 🌟 Wave effect: Each card starts its pulse 120ms after the previous one
       style={{ animationDelay: `${index * 120}ms` }}
     >
