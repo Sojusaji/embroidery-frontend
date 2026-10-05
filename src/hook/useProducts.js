@@ -1,11 +1,31 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProducts, fetchOneProduct, fetchFeaturedProducts, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage, fetchLatestProducts } from '../api/productApi';
+import { fetchProducts, fetchOneProduct, fetchFeaturedProducts, fetchTrashedProducts, uploadProductImage, purgeProduct, restoreProduct, createProduct, deleteProduct, updateProduct, updateProductImage, fetchLatestProducts, fetchProductReviews, createProductReview } from '../api/productApi';
 import { logError } from '../utils/logger';
 
 export const useGetProducts = () => {
   return useQuery({
     queryKey: ['products', 'live'],
     queryFn: fetchProducts,
+  });
+};
+
+export const useGetProductReviews = (productId, page = 1, limit = 5) => {
+  return useQuery({
+    queryKey: ['product-reviews', productId, page, limit],
+    queryFn: () => fetchProductReviews(productId, { page, limit }),
+    enabled: !!productId,
+  });
+};
+
+export const useCreateProductReview = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createProductReview,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['product-reviews', variables.productId] });
+      queryClient.invalidateQueries({ queryKey: ['products', 'live', variables.productId] });
+      queryClient.invalidateQueries({ queryKey: ['products', 'live'] });
+    },
   });
 };
 

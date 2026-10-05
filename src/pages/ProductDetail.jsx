@@ -10,6 +10,8 @@ import { useAddToCart } from "../hook/useCart";
 import { ProductDetailsPageSkeleton } from '../utils/ProductDetailsPageSkelton';
 import CheckoutModal from "../components/checkout/CheckoutModal";
 import { UserAuthContext } from "../context/UserAuthContext";
+import Rating from '../components/Rating';
+import ProductReviewsSection from '../components/ProductReviewsSection';
 const ProductDetail = () => {
 
   const { id } = useParams();
@@ -78,7 +80,7 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 container mx-auto px-4 md:px-6 py-12 max-w-7xl pt-10 md:pt-10">
+      <div className="flex-1 container mx-auto px-4 md:px-6 py-12 max-w-7xl pt-20 md:pt-20">
         {/* Breadcrumb */}
         <div className="mb-8">
           <Link to="/shop" className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors duration-200">
@@ -126,12 +128,11 @@ const ProductDetail = () => {
             </h1>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center text-amber-500">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-5 h-5 ${i < Math.floor(product.rating || 5) ? 'fill-current' : 'fill-transparent'}`} />
-                ))}
-              </div>
-              <span className="text-gray-400 text-sm">({product.reviewsCount || 0} reviews)</span>
+              <Rating
+                value={product.rating || 0}
+                showValue={true}
+                text={`(${product.numReviews || product.reviewsCount || 0} reviews)`}
+              />
             </div>
 
             <p className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400 mb-8">
@@ -195,6 +196,13 @@ const ProductDetail = () => {
 
           </motion.div>
         </div>
+
+        {/* Customer Reviews & Ratings Section */}
+        <ProductReviewsSection
+          productId={product.id || product._id || id}
+          initialRating={product.rating || 0}
+          initialNumReviews={product.numReviews || product.reviewsCount || 0}
+        />
       </div>
 
       <CheckoutModal

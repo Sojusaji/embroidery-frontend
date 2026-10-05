@@ -46,7 +46,7 @@ const CartDrawer = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-surface border-l border-white/5 z-50 shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 h-full w-full bg-surface border-l border-white/5 z-50 shadow-2xl flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/5 bg-black/20">
@@ -68,7 +68,6 @@ const CartDrawer = () => {
             {
               isUserAuthenticated
                 ?
-                {/* Cart Items List */ }
                   (
                     < div className="flex-1 overflow-y-auto p-6 space-y-4">
                       {isCartLoading ?

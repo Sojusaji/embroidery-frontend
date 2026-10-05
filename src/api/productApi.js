@@ -83,3 +83,18 @@ export const updateProductImage = async (data) => {
   });
   return response;
 };
+
+export const fetchProductReviews = async (productId, { page = 1, limit = 5 } = {}) => {
+  const { data } = await api.get(`/api/v1/products/${productId}/reviews`, {
+    params: { page, limit },
+  });
+  return data?.data;
+};
+
+export const createProductReview = async ({ productId, rating, comment }) => {
+  const { data } = await api.post(`/api/v1/products/${productId}/reviews`, {
+    rating,
+    comment,
+  });
+  return data;
+};
