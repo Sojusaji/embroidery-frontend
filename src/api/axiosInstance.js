@@ -5,7 +5,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true,
     timeout: 30000, // 30 seconds timeout
-})
+});
 
 api.interceptors.response.use(
     (response) => {
@@ -22,11 +22,11 @@ api.interceptors.response.use(
 
         if (error.response) {
             const { status, data } = error.response;
-            const serverMessage = data.message || 'An unexpected error occurred.';
+            const serverMessage = data?.message || 'An unexpected error occurred.';
+            console.log('serverMessage:',serverMessage);
 
             switch (status) {
                 case 400:
-                    // Clean format for standard bad requests
                     toast.error(serverMessage, { id: `error-400-${serverMessage.substring(0, 10)}` });
                     break;
 
@@ -41,8 +41,8 @@ api.interceptors.response.use(
                     } else if (wasLoggedIn) {
                         toast.error('Session expired. Please log in again.', { id: 'auth-error' });
                         localStorage.removeItem('isLoggedIn');
+                        window.location.href = '/login'; // Added missing redirect
                     }
-
                     break;
                 }
 
@@ -54,11 +54,15 @@ api.interceptors.response.use(
                     toast.error('Requested resource was not found.', { id: 'not-found' });
                     break;
 
+                case 429:
+                    // Fixed unique ID so it never gets swallowed by duplicate toast IDs
+                    toast.error(serverMessage, { id: `error-429`, duration: 6000 });
+                    break;
+
                 case 500:
                     if (isAdminRoute) {
                         toast.error(`Server Error: ${serverMessage}`, { duration: 6000, id: 'server-error' });
                     } else {
-                        // User-friendly message for storefront
                         toast.error('Our servers are currently experiencing issues. Please try again later.', { id: 'server-error', duration: 6000 });
                     }
                     break;
@@ -67,14 +71,11 @@ api.interceptors.response.use(
                     toast.error(serverMessage || 'Oops! Something went wrong.', { id: 'generic-error', duration: 6000 });
             }
         } else if (error.request) {
-            // Request was made but no response received (Network error, CORS, API down)
             toast.error('Network Error: Cannot connect to our servers. Check your internet connection.', { id: 'network-error' });
         } else {
-            // Something happened in setting up the request
             toast.error(`Application Error: ${error.message}`, { id: 'configuration-error' });
         }
 
-        // Standardize the rejected data so components can safely catch it
         const rejectError = error.response?.data || { message: error.message };
         return Promise.reject(rejectError);
     }
