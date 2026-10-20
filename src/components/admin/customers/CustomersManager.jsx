@@ -1,4 +1,5 @@
 import React, { useState, useMemo, lazy, Suspense } from 'react';
+import { useFetchCutomerData } from "../../../hook/admin/useCustomerManagement"
 import {
   Search,
   X,
@@ -11,6 +12,8 @@ import {
   ArrowUpDown,
   ChevronRight,
 } from 'lucide-react';
+import { LoadingSpinner } from "../../../utils/LoadingSpinner";
+import { formatDate } from "../../../utils/formateDate.js";
 
 const CustomerDetailsModal = lazy(() => import('./CustomerDetailsModal'));
 
@@ -108,12 +111,19 @@ const formatCurrency = (amount) => {
 };
 
 const CustomersManager = () => {
-  const [customers, setCustomers] = useState(initialCustomersDb);
+  console.log('CustomersManager component muted')
+  // const [customers, setCustomers] = useState(initialCustomersDb);
+  const { data, isFetching: customerDataLoading, isError: cutomerDataError } = useFetchCutomerData();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('spent-desc');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  console.log('seleted Customer data:',selectedCustomer);
 
-  // Summary Metrics Calculation
+  const customers = useMemo(() => {
+    return Array.isArray(data) ? data : data?.users || [];
+  }, [data]);
+  console.log("customers data:", customers);
+
   const stats = useMemo(() => {
     const totalCustomers = customers.length;
     const totalRevenue = customers.reduce((acc, c) => acc + (c.totalSpent || 0), 0);
@@ -121,6 +131,7 @@ const CustomersManager = () => {
     return { totalCustomers, totalRevenue, avgSpend };
   }, [customers]);
 
+  console.log('stats values:', stats);
   // Filter & Search Logic
   const filteredCustomers = useMemo(() => {
     return customers
@@ -137,7 +148,11 @@ const CustomersManager = () => {
         if (sortBy === 'spent-desc') return (b.totalSpent || 0) - (a.totalSpent || 0);
         if (sortBy === 'spent-asc') return (a.totalSpent || 0) - (b.totalSpent || 0);
         if (sortBy === 'orders-desc') return (b.ordersCount || 0) - (a.ordersCount || 0);
-        if (sortBy === 'newest') return new Date(b.joined) - new Date(a.joined);
+        if (sortBy === 'newest') {
+          const dateA = a.joined ? new Date(a.joined) : 0;
+          const dateB = b.joined ? new Date(b.joined) : 0;
+          return dateB - dateA;
+        }
         return 0;
       });
   }, [customers, searchTerm, sortBy]);
@@ -170,6 +185,15 @@ const CustomersManager = () => {
   const handleApplyDiscount = (customer) => {
     alert(`20% VIP Promo Code applied to ${customer.name}'s account.`);
   };
+
+  if (customerDataLoading) {
+    return <LoadingSpinner value={customerDataLoading} message="Loading customers data" />
+  }
+
+  if (cutomerDataError) {
+    return <p className="text-red-400 text-center py-10">Failed to load customer data.</p>;
+  }
+
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6 pb-12">
@@ -261,7 +285,7 @@ const CustomersManager = () => {
           const badge = getCustomerBadge(customer.totalSpent, customer.status);
           return (
             <div
-              key={customer.id}
+              key={customer._id}
               onClick={() => setSelectedCustomer(customer)}
               className="glass-panel p-5 bg-black/30 border border-white/5 hover:border-primary/40 transition-all rounded-2xl group flex flex-col justify-between cursor-pointer"
             >
@@ -313,7 +337,7 @@ const CustomersManager = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[10px] text-gray-500">Joined {customer.joined}</span>
+                  <span className="text-[10px] text-gray-500">Joined {formatDate(customer.joined)}</span>
                   <button className="inline-flex items-center gap-1 text-xs text-primary group-hover:translate-x-1 transition-transform font-medium">
                     View Details <ChevronRight size={12} />
                   </button>

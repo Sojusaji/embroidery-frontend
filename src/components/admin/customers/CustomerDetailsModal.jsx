@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from "react";
+import { formatDate } from "../../../utils/formateDate.js"
 import {
   X,
   Mail,
@@ -55,16 +56,15 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold">{customer.name}</h2>
                 <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                    isBlocked
-                      ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                      : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  }`}
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isBlocked
+                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                    : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                    }`}
                 >
                   {customer.status || 'Active'}
                 </span>
               </div>
-              <p className="text-xs text-gray-400 font-mono mt-0.5">{customer.id} • Joined {customer.joined}</p>
+              <p className="text-xs text-gray-400 font-mono mt-0.5">{customer._id} • Joined {formatDate(customer.joined)}</p>
             </div>
           </div>
 
@@ -124,9 +124,9 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
                 <div className="flex items-center gap-2 text-primary text-xs font-medium mb-1">
                   <Building size={14} /> Shipping Address
                 </div>
-                <p className="text-xs text-white font-medium">{customer.shippingAddress?.street}</p>
+                <p className="text-xs text-white font-medium">{customer.shippingAddress?.addressLine}</p>
                 <p className="text-xs text-gray-400">
-                  {customer.shippingAddress?.city}, {customer.shippingAddress?.state} - {customer.shippingAddress?.pincode}
+                  {customer.shippingAddress?.city}, {customer.shippingAddress?.state} - {customer.shippingAddress?.postalCode} -{customer.shippingAddress?.country}
                 </p>
               </div>
 
@@ -135,9 +135,9 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
                 <div className="flex items-center gap-2 text-blue-400 text-xs font-medium mb-1">
                   <CreditCard size={14} /> Billing Address
                 </div>
-                <p className="text-xs text-white font-medium">{customer.billingAddress?.street}</p>
+                <p className="text-xs text-white font-medium">{customer.billingAddress?.addressLine}</p>
                 <p className="text-xs text-gray-400">
-                  {customer.billingAddress?.city}, {customer.billingAddress?.state} - {customer.billingAddress?.pincode}
+                  {customer.billingAddress?.city}, {customer.billingAddress?.state} - {customer.billingAddress?.postalCode } - {customer.billingAddress?.country}
                 </p>
               </div>
             </div>
@@ -161,14 +161,13 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
                     {customer.orderHistory.map((ord) => (
                       <tr key={ord.id} className="hover:bg-white/5 transition-colors">
                         <td className="p-3 font-mono font-medium text-white">{ord.id}</td>
-                        <td className="p-3 text-gray-400">{ord.date}</td>
+                        <td className="p-3 text-gray-400">{formatDate(ord.date)}</td>
                         <td className="p-3">
                           <span
-                            className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border ${
-                              ord.status === 'Delivered'
-                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                            }`}
+                            className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border ${ord.status === 'Delivered'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                              }`}
                           >
                             {ord.status === 'Delivered' ? <CheckCircle2 size={10} /> : <Clock size={10} />}
                             {ord.status}
@@ -197,18 +196,17 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
               </button>
 
               <button
-                onClick={() => onBlock(customer.id)}
-                className={`flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2 border rounded-xl text-xs font-medium transition-colors ${
-                  isBlocked
-                    ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
-                    : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/20'
-                }`}
+                onClick={() => onBlock(customer._id)}
+                className={`flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2 border rounded-xl text-xs font-medium transition-colors ${isBlocked
+                  ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                  : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/20'
+                  }`}
               >
                 <Ban size={14} /> {isBlocked ? 'Unblock Account' : 'Block Account'}
               </button>
 
               <button
-                onClick={() => onDelete(customer.id)}
+                onClick={() => onDelete(customer._id)}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-medium transition-colors"
               >
                 <Trash2 size={14} /> Delete

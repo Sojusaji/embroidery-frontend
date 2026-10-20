@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchAdmins, createAdmin, deleteAdmin } from '../api/adminApi';
+import { fetchAdmins, createAdmin, deleteAdmin } from '../../api/adminApiServices/adminApi';
 
 export const useAdmins = () => {
   return useQuery({
@@ -10,7 +10,7 @@ export const useAdmins = () => {
 
 export const useCreateAdmin = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: createAdmin,
     onSuccess: () => {
@@ -21,7 +21,7 @@ export const useCreateAdmin = () => {
 
 export const useDeleteAdmin = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteAdmin,
     onSuccess: () => {
@@ -29,3 +29,5 @@ export const useDeleteAdmin = () => {
     },
   });
 };
+
+

@@ -1,4 +1,4 @@
-import api from './axiosInstance';
+import api from '../axiosInstance';
 
 export const fetchAdmins = async () => {
   const { data } = await api.get('/api/v1/admins');
