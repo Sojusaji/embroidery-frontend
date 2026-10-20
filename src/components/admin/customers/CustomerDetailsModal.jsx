@@ -10,7 +10,7 @@ import {
   Clock,
   Ban,
   Building,
-  CreditCard
+  CreditCard,
 } from 'lucide-react';
 
 // Helper: Currency Formatter
@@ -18,7 +18,7 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
 };
 
-const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDiscount }) => {
+const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, deleting, blocking, onApplyDiscount }) => {
 
   const handleCloseModal = useCallback(() => {
     if (onClose) onClose();
@@ -35,7 +35,7 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
 
   if (!customer) return null;
 
-  const isBlocked = customer.status === 'Blocked';
+  const isBlocked = customer.status === 'blocked';
 
   return (
     <div
@@ -137,7 +137,7 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
                 </div>
                 <p className="text-xs text-white font-medium">{customer.billingAddress?.addressLine}</p>
                 <p className="text-xs text-gray-400">
-                  {customer.billingAddress?.city}, {customer.billingAddress?.state} - {customer.billingAddress?.postalCode } - {customer.billingAddress?.country}
+                  {customer.billingAddress?.city}, {customer.billingAddress?.state} - {customer.billingAddress?.postalCode} - {customer.billingAddress?.country}
                 </p>
               </div>
             </div>
@@ -196,20 +196,33 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, onApplyDis
               </button>
 
               <button
-                onClick={() => onBlock(customer._id)}
+                onClick={() => onBlock(customer._id || customer.id)}
+                disabled={blocking}
                 className={`flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2 border rounded-xl text-xs font-medium transition-colors ${isBlocked
                   ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
                   : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/20'
                   }`}
               >
-                <Ban size={14} /> {isBlocked ? 'Unblock Account' : 'Block Account'}
+
+                <Ban size={14} /> {
+                  blocking
+                    ? 'processing...'
+                    : isBlocked ? 'Unblock Account' : 'Block Account'
+
+                }
+
               </button>
 
               <button
-                onClick={() => onDelete(customer._id)}
+                onClick={() => onDelete(customer._id || customer.id)}
+                disabled={deleting}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-medium transition-colors"
               >
-                <Trash2 size={14} /> Delete
+                <Trash2 size={14} />
+                {deleting
+                  ? "processing..."
+                  : "Delete"
+                }
               </button>
             </div>
           </div>

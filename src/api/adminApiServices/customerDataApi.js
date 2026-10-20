@@ -2,8 +2,16 @@ import api from '../axiosInstance';
 
 
 export const fetchCustomerData = async () => {
-    console.log('fetchCustomerData api function working');
     const { data } = await api.get('/api/v1/admins/customer');
-    console.log('fetched customer data:', data);
     return data?.users;
+}
+
+export const blockCustomer = async (customerId) => {
+    const { data } = await api.patch(`/api/v1/admins/customer/${customerId}/block`);
+    return data;
+}
+
+export const deleteCustomer = async (customerId) => {
+    const { data } = await api.delete(`/api/v1/admins/customer/${customerId}`);
+    return data;
 }

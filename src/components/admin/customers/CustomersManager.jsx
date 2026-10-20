@@ -14,110 +14,25 @@ import {
 } from 'lucide-react';
 import { LoadingSpinner } from "../../../utils/LoadingSpinner";
 import { formatDate } from "../../../utils/formateDate.js";
+import { useBlockCustomer, useDeleteCustomer } from "../../../hook/admin/useCustomerManagement.js";
 
 const CustomerDetailsModal = lazy(() => import('./CustomerDetailsModal'));
 
-// Enhanced Mock Database with Addresses & Order History
-const initialCustomersDb = [
-  {
-    id: 'CUST-01',
-    name: 'Alina Starkov',
-    email: 'alina@example.com',
-    phone: '+91 98765 43210',
-    place: 'Ketterdam',
-    totalSpent: 4500,
-    ordersCount: 12,
-    joined: '2025-01-15',
-    status: 'Active',
-    shippingAddress: { street: '42 Sunken Harbor Street', city: 'Ketterdam', state: 'Kerch', pincode: '682001' },
-    billingAddress: { street: '42 Sunken Harbor Street', city: 'Ketterdam', state: 'Kerch', pincode: '682001' },
-    orderHistory: [
-      { id: 'ORD-8821', date: '2026-03-10', items: 4, total: 1200, status: 'Delivered' },
-      { id: 'ORD-7620', date: '2026-02-18', items: 2, total: 850, status: 'Delivered' },
-      { id: 'ORD-6102', date: '2026-01-05', items: 6, total: 2450, status: 'Delivered' },
-    ]
-  },
-  {
-    id: 'CUST-02',
-    name: 'Kaz Brekker',
-    email: 'kaz@example.com',
-    phone: '+91 98765 11223',
-    place: 'Ravka',
-    totalSpent: 3200,
-    ordersCount: 8,
-    joined: '2025-02-10',
-    status: 'Active',
-    shippingAddress: { street: '12 Crow Club Alley', city: 'Os Alta', state: 'Ravka', pincode: '682002' },
-    billingAddress: { street: 'The Slat Main Office', city: 'Ketterdam', state: 'Kerch', pincode: '682001' },
-    orderHistory: [
-      { id: 'ORD-9104', date: '2026-03-12', items: 1, total: 1800, status: 'Processing' },
-      { id: 'ORD-8112', date: '2026-02-01', items: 3, total: 1400, status: 'Delivered' },
-    ]
-  },
-  {
-    id: 'CUST-03',
-    name: 'Inej Ghafa',
-    email: 'inej@example.com',
-    phone: '+91 98765 99887',
-    place: 'Ketterdam',
-    totalSpent: 1800,
-    ordersCount: 5,
-    joined: '2025-03-22',
-    status: 'Active',
-    shippingAddress: { street: '78 Wraith Way', city: 'Ketterdam', state: 'Kerch', pincode: '682003' },
-    billingAddress: { street: '78 Wraith Way', city: 'Ketterdam', state: 'Kerch', pincode: '682003' },
-    orderHistory: [
-      { id: 'ORD-5401', date: '2026-02-25', items: 2, total: 900, status: 'Delivered' },
-      { id: 'ORD-4310', date: '2026-01-14', items: 3, total: 900, status: 'Delivered' },
-    ]
-  },
-  {
-    id: 'CUST-04',
-    name: 'Jesper Fahey',
-    email: 'jesper@example.com',
-    phone: '+91 98765 55443',
-    place: 'Fjerda',
-    totalSpent: 120,
-    ordersCount: 2,
-    joined: '2025-06-05',
-    status: 'Blocked',
-    shippingAddress: { street: '8 Gunslinger Ridge', city: 'Djerholm', state: 'Fjerda', pincode: '682004' },
-    billingAddress: { street: '8 Gunslinger Ridge', city: 'Djerholm', state: 'Fjerda', pincode: '682004' },
-    orderHistory: [
-      { id: 'ORD-2100', date: '2025-11-20', items: 1, total: 120, status: 'Delivered' },
-    ]
-  },
-  {
-    id: 'CUST-05',
-    name: 'Nina Zenik',
-    email: 'nina@example.com',
-    phone: '+91 98765 77665',
-    place: 'Ravka',
-    totalSpent: 890,
-    ordersCount: 3,
-    joined: '2025-08-11',
-    status: 'Active',
-    shippingAddress: { street: '104 Little Palace Road', city: 'Os Alta', state: 'Ravka', pincode: '682005' },
-    billingAddress: { street: '104 Little Palace Road', city: 'Os Alta', state: 'Ravka', pincode: '682005' },
-    orderHistory: [
-      { id: 'ORD-3011', date: '2026-01-28', items: 5, total: 890, status: 'Delivered' },
-    ]
-  },
-];
 
-// Helper: Currency Formatter
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
 };
 
 const CustomersManager = () => {
-  console.log('CustomersManager component muted')
-  // const [customers, setCustomers] = useState(initialCustomersDb);
+
   const { data, isFetching: customerDataLoading, isError: cutomerDataError } = useFetchCutomerData();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('spent-desc');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  console.log('seleted Customer data:',selectedCustomer);
+  console.log('seleted Customer data:', selectedCustomer);
+
+  const { mutateAsync: blockCustomer, isPending: blocking, isError: blockingError } = useBlockCustomer();
+  const { mutateAsync: deleteCustomer, isPending: deleting, isError: deletingError } = useDeleteCustomer();
 
   const customers = useMemo(() => {
     return Array.isArray(data) ? data : data?.users || [];
@@ -166,18 +81,14 @@ const CustomersManager = () => {
   };
 
   // Admin Actions
-  const handleToggleBlockStatus = (id) => {
-    setCustomers((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: c.status === 'Blocked' ? 'Active' : 'Blocked' } : c))
-    );
-    if (selectedCustomer?.id === id) {
-      setSelectedCustomer((prev) => ({ ...prev, status: prev.status === 'Blocked' ? 'Active' : 'Blocked' }));
-    }
+  const handleToggleBlockStatus = async (id) => {
+    await blockCustomer(id);
+
   };
 
-  const handleDeleteCustomer = (id) => {
+  const handleDeleteCustomer = async (id) => {
     if (window.confirm('Are you sure you want to delete this customer account? This action cannot be undone.')) {
-      setCustomers((prev) => prev.filter((c) => c.id !== id));
+      await deleteCustomer(id);
       setSelectedCustomer(null);
     }
   };
@@ -363,6 +274,8 @@ const CustomersManager = () => {
             onClose={() => setSelectedCustomer(null)}
             onBlock={handleToggleBlockStatus}
             onDelete={handleDeleteCustomer}
+            deleting={deleting}
+            blocking={blocking}
             onApplyDiscount={handleApplyDiscount}
           />
         </Suspense>
