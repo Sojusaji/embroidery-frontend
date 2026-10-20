@@ -4,7 +4,7 @@ import { useUserLogout } from "../../hook/auth/userAuth.js"
 import { useUserAuth } from '../../hook/auth/useUserAuth.js';
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {
-  const { user: admin } = useUserAuth;
+  const { user: admin } = useUserAuth();
   const logoutMutation = useUserLogout();
 
   const navItems = [
@@ -37,8 +37,8 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`flex items-center gap-3 px-4 py-2.5 lg:py-3 rounded-xl transition-all duration-300 ${isActive
-                  ? 'bg-primary/20 text-primary border border-primary/30'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                ? 'bg-primary/20 text-primary border border-primary/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
                 }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />

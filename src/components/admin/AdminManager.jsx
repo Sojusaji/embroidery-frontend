@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, UserPlus, Trash2, Mail, User, Key, AlertCircle, Loader2 } from 'lucide-react';
-import { useAdmins, useCreateAdmin, useDeleteAdmin } from '../../hook/useAdmins';
+import { useAdmins, useCreateAdmin, useDeleteAdmin } from '../../hook/admin/useAdmins';
 
 const AdminManager = () => {
   const { data: fetchedAdmins, isLoading: loading, isError: fetchError, error: fetchErrorMsg } = useAdmins();
@@ -8,7 +8,7 @@ const AdminManager = () => {
   const deleteAdminMutation = useDeleteAdmin();
 
   const admins = fetchedAdmins?.data || [];
-  
+
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -43,7 +43,7 @@ const AdminManager = () => {
 
   const handleDeleteAdmin = async (id) => {
     if (!window.confirm('Are you sure you want to delete this admin?')) return;
-    
+
     try {
       await deleteAdminMutation.mutateAsync(id);
       setSuccess('Admin deleted successfully');
@@ -59,8 +59,8 @@ const AdminManager = () => {
           <h1 className="text-3xl font-bold text-white tracking-wide">Admin Management</h1>
           <p className="text-gray-400 mt-2">Manage privileged users and roles for the dashboard.</p>
         </div>
-        
-        <button 
+
+        <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="flex items-center gap-2 bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-lg hover:bg-primary/30 transition-colors"
         >
@@ -91,8 +91,8 @@ const AdminManager = () => {
               <label className="text-sm text-gray-400 ml-1">Username</label>
               <div className="relative">
                 <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="username"
                   required
                   value={formData.username}
@@ -106,8 +106,8 @@ const AdminManager = () => {
               <label className="text-sm text-gray-400 ml-1">Gmail Address</label>
               <div className="relative">
                 <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   name="gmail"
                   required
                   value={formData.gmail}
@@ -121,8 +121,8 @@ const AdminManager = () => {
               <label className="text-sm text-gray-400 ml-1">Password</label>
               <div className="relative">
                 <Key className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   name="password"
                   required
                   value={formData.password}
@@ -134,7 +134,7 @@ const AdminManager = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm text-gray-400 ml-1">Role</label>
-              <select 
+              <select
                 name="role"
                 value={formData.role}
                 onChange={handleInputChange}
@@ -145,7 +145,7 @@ const AdminManager = () => {
               </select>
             </div>
             <div className="md:col-span-2 mt-4">
-              <button 
+              <button
                 type="submit"
                 className="w-full bg-primary text-black font-bold py-3 rounded-xl hover:bg-primary/90 transition-all duration-300"
               >
@@ -166,7 +166,7 @@ const AdminManager = () => {
           {admins.map(adminUser => (
             <div key={adminUser._id} className="glass-panel p-6 bg-black/30 border-white/5 hover:border-primary/30 transition-all duration-300 group relative overflow-hidden">
               <div className={`absolute top-0 right-0 w-2 h-full ${adminUser.role === 'superAdmin' ? 'bg-primary' : 'bg-blue-500'}`} />
-              
+
               <div className="flex justify-between items-start mb-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold ${adminUser.role === 'superAdmin' ? 'bg-primary/20 text-primary' : 'bg-blue-500/20 text-blue-400'}`}>
                   {adminUser.username.charAt(0).toUpperCase()}
@@ -175,20 +175,20 @@ const AdminManager = () => {
                   {adminUser.role}
                 </span>
               </div>
-              
+
               <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">{adminUser.username}</h3>
               <p className="text-sm text-gray-400 flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5" />
                 {adminUser.gmail}
               </p>
-              
+
               <div className="mt-6 pt-6 border-t border-white/10 flex justify-between items-center">
                 <div className="text-[10px] text-gray-500 uppercase tracking-widest">
                   Created {new Date(adminUser.createdAt).toLocaleDateString()}
                 </div>
-                
+
                 {adminUser.role !== 'superAdmin' && (
-                  <button 
+                  <button
                     onClick={() => handleDeleteAdmin(adminUser._id)}
                     className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
                     title="Delete Admin"
@@ -201,7 +201,7 @@ const AdminManager = () => {
           ))}
         </div>
       )}
-      
+
       {!loading && admins.length === 0 && (
         <div className="text-center py-12 text-gray-500 glass-panel bg-black/20 border-white/5">
           No administrators found.
