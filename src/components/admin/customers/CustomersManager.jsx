@@ -81,8 +81,8 @@ const CustomersManager = () => {
   };
 
   // Admin Actions
-  const handleToggleBlockStatus = async (id) => {
-    await blockCustomer(id);
+  const handleToggleBlockStatus = async (id,status) => {
+    await blockCustomer(id,status);
 
   };
 

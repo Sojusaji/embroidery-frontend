@@ -6,8 +6,10 @@ export const fetchCustomerData = async () => {
     return data?.users;
 }
 
-export const blockCustomer = async (customerId) => {
-    const { data } = await api.patch(`/api/v1/admins/customer/${customerId}/block`);
+export const blockCustomer = async (customerId, status) => {
+    const { data } = await api.patch(`/api/v1/admins/customer/${customerId}/block`, {
+        status
+    });
     return data;
 }
 

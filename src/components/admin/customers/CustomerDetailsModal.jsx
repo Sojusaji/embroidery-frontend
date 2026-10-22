@@ -196,7 +196,10 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, deleting, 
               </button>
 
               <button
-                onClick={() => onBlock(customer._id || customer.id)}
+                onClick={() => {
+                  const nextStatus = isBlocked ? 'active' : 'block';
+                  onBlock(customer._id || customer.id, nextStatus)
+                }}
                 disabled={blocking}
                 className={`flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2 border rounded-xl text-xs font-medium transition-colors ${isBlocked
                   ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
