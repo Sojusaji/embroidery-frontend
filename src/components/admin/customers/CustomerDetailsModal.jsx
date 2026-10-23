@@ -197,7 +197,7 @@ const CustomerDetailsModal = ({ customer, onClose, onBlock, onDelete, deleting, 
 
               <button
                 onClick={() => {
-                  const nextStatus = isBlocked ? 'active' : 'block';
+                  const nextStatus = isBlocked ? 'active' : 'blocked';
                   onBlock(customer._id || customer.id, nextStatus)
                 }}
                 disabled={blocking}

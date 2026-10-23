@@ -81,8 +81,14 @@ const CustomersManager = () => {
   };
 
   // Admin Actions
-  const handleToggleBlockStatus = async (id,status) => {
-    await blockCustomer(id,status);
+  const handleToggleBlockStatus = async (customerId, status) => {
+    const response = await blockCustomer({ customerId, status });
+    if (response) {
+      setSelectedCustomer(prev => ({
+        ...prev,
+        status: status
+      }))
+    }
 
   };
 
