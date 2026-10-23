@@ -6,7 +6,8 @@ export const fetchCustomerData = async () => {
     return data?.users;
 }
 
-export const blockCustomer = async (customerId, status) => {
+export const blockCustomer = async ({customerId, status}) => {
+    console.log('status and id :',customerId,status);
     const { data } = await api.patch(`/api/v1/admins/customer/${customerId}/block`, {
         status
     });
@@ -14,6 +15,6 @@ export const blockCustomer = async (customerId, status) => {
 }
 
 export const deleteCustomer = async (customerId) => {
-    const { data } = await api.delete(`/api/v1/admins/customer/${customerId}`);
+    const { data } = await api.delete(`/api/v1/admins/customer/${customerId}/delete`);
     return data;
 }
