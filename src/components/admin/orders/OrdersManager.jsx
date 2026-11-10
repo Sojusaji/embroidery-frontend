@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useFetchAllOrders, useFetchOrdersCount, useUpdateOrderStatus } from "../../../hook/admin/useOrdersManagement.js";
 import { Search, X, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -6,77 +7,38 @@ import OrderStats from './OrderStatus';
 import OrderTableRow from './OrderTableRow';
 import OrderDetailsModal from './OrderDetailsModal';
 
-const mockOrdersDb = [
-  {
-    id: '#ORD-001',
-    customer: 'Alina Starkov',
-    email: 'alina@ravka.com',
-    phone: '+91 98765 43210',
-    address: 'Sun Palace, Os Alta, Ravka - 682001',
-    date: '2026-04-20',
-    total: 1250,
-    status: 'Processing',
-    paymentStatus: 'Paid',
-    items: [{ name: 'Floral Embroidery A', qty: 5, price: 250 }],
-  },
-  {
-    id: '#ORD-002',
-    customer: 'Kaz Brekker',
-    email: 'kaz@crowclub.com',
-    phone: '+91 98765 11223',
-    address: 'The Crow Club, Ketterdam - 682002',
-    date: '2026-04-19',
-    total: 3200,
-    status: 'Shipped',
-    paymentStatus: 'Paid',
-    items: [{ name: 'Stitched Kurti B', qty: 10, price: 320 }],
-  },
-  {
-    id: '#ORD-003',
-    customer: 'Inej Ghafa',
-    email: 'inej@wraith.com',
-    phone: '+91 98765 99887',
-    address: 'Slat District, Ketterdam - 682003',
-    date: '2026-04-18',
-    total: 450,
-    status: 'Delivered',
-    paymentStatus: 'Paid',
-    items: [{ name: 'Rose Embroidery C', qty: 8, price: 56.25 }],
-  },
-  {
-    id: '#ORD-004',
-    customer: 'Jesper Fahey',
-    email: 'jesper@sharpshooter.com',
-    phone: '+91 98765 55443',
-    address: 'University Quarter, Ketterdam - 682004',
-    date: '2026-04-18',
-    total: 120,
-    status: 'Pending',
-    paymentStatus: 'Unpaid',
-    items: [{ name: 'Silver Drop Earrings', qty: 1, price: 120 }],
-  },
-  {
-    id: '#ORD-005',
-    customer: 'Nina Zenik',
-    email: 'nina@waffles.com',
-    phone: '+91 98765 77665',
-    address: 'Little Palace, Os Alta - 682005',
-    date: '2026-04-17',
-    total: 890,
-    status: 'Processing',
-    paymentStatus: 'Paid',
-    items: [{ name: 'Stitched Gown A', qty: 2, price: 445 }],
-  },
-];
 
 const STATUS_OPTIONS = ['Pending', 'Processing', 'Shipped', 'Delivered'];
 
 const OrdersManager = () => {
-  const [orders, setOrders] = useState(mockOrdersDb);
+  // const [orders, setOrders] = useState(mockOrdersDb);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [activeModalOrder, setActiveModalOrder] = useState(null);
 
+  const queryStatus = selectedStatus === 'All' ? undefined : selectedStatus.toLowerCase();
+  console.log('queryStatus:', queryStatus);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isOrderLoading,
+    isError: isOrderLoadingError,
+    error,
+
+  } = useFetchAllOrders(queryStatus);
+
+  const { mutateAsync: updateStatus, isLoading, isError } = useUpdateOrderStatus();
+  console.log('isOrderLoading:', isOrderLoading);
+  const { data: counts, isLoading: isCountLoading, isError: isCountError } = useFetchOrdersCount();
+  console.log('orders count:', counts);
+  // if (isLoading) return <LoadingSpinner value={isLoading} message={"Loading orders..."} />;
+  // if (isError) return <div className="p-6 text-red-500">Error: {error.message}</div>;
+
+
+  const orders = data?.pages.flatMap((page) => page.orders) || [];
+  console.log('ordersd:', orders);
   // Status Badge Styling Helper
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -94,31 +56,34 @@ const OrdersManager = () => {
   // Filter Logic
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some((item) =>
+      order?.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order?.billingAddress?.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order?.items.some((item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
     const matchesStatus =
-      selectedStatus === 'All' || order.status === selectedStatus;
+      selectedStatus === 'All' || order.orderStatus === selectedStatus.toLowerCase();
 
     return matchesSearch && matchesStatus;
   });
 
-  const updateStatus = (id, newStatus) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === id ? { ...order, status: newStatus } : order
-      )
-    );
+  const updateOrderStatus = async (orderId, currentStatus, newStatus) => {
+    console.log("order status updation funciton called:", orderId, currentStatus, newStatus);
+    try {
+      await updateStatus({ orderId, currentStatus, newStatus });
+    } catch (error) {
 
-    if (activeModalOrder && activeModalOrder.id === id) {
-      setActiveModalOrder((prev) => ({ ...prev, status: newStatus }));
+      if (activeModalOrder && activeModalOrder.id === orderId) {
+        setActiveModalOrder((prev) => ({ ...prev, orderStatus: newStatus }));
+      }
+
+      toast.success(`Order ${orderId} status updated to ${newStatus}`);
     }
 
-    toast.success(`Order ${id} status updated to ${newStatus}`);
   };
+
+
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6 pb-12">
@@ -155,19 +120,19 @@ const OrdersManager = () => {
       </div>
 
       {/* Quick Summary Pill Bar */}
-      <OrderStats orders={orders} />
+      <OrderStats counts={counts} isLoading={isCountLoading} />
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         {['All', ...STATUS_OPTIONS].map((status) => (
+          console.log('status option status:', status),
           <button
             key={status}
             onClick={() => setSelectedStatus(status)}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-              selectedStatus === status
-                ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                : 'bg-black/30 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5'
-            }`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${selectedStatus === status
+              ? 'bg-primary text-white shadow-lg shadow-primary/20'
+              : 'bg-black/30 text-gray-400 hover:text-white hover:bg-white/5 border border-white/5'
+              }`}
           >
             {status}
           </button>
@@ -191,40 +156,76 @@ const OrdersManager = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-xs sm:text-sm">
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
-                  <OrderTableRow
-                    key={order.id}
-                    order={order}
-                    statusOptions={STATUS_OPTIONS}
-                    getStatusBadgeClass={getStatusBadgeClass}
-                    onViewDetails={setActiveModalOrder}
-                    onUpdateStatus={updateStatus}
-                  />
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="py-12 text-center text-gray-500">
-                    <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-600" />
-                    No orders found matching your search or filter.
-                  </td>
-                </tr>
-              )}
+              {
+                isOrderLoading
+                  ?
+                  <tr>
+                    <td colSpan="3" className="py-12 text-center text-gray-500">
+                      Orders are loading...
+                    </td>
+                  </tr>
+                  : filteredOrders.length > 0 ? (
+                    filteredOrders.map((order) => (
+                      <OrderTableRow
+                        key={order.id}
+                        order={order}
+                        statusOptions={STATUS_OPTIONS}
+                        getStatusBadgeClass={getStatusBadgeClass}
+                        onViewDetails={setActiveModalOrder}
+                        onUpdateStatus={updateOrderStatus}
+                      />
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" className="py-12 text-center text-gray-500">
+                        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-600" />
+                        No orders found matching your search or filter.
+                      </td>
+                    </tr>
+                  )
+              }
             </tbody>
           </table>
         </div>
-      </div>
 
+
+        {/* Professional Load More / Cursor Pagination Footer */}
+        {hasNextPage && (
+          <div className="p-4 sm:p-6 border-t border-white/5 flex items-center justify-center bg-white/[0.01]">
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 shadow-sm"
+            >
+              {isFetchingNextPage ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-45" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading more orders...
+                </>
+              ) : (
+                "Show More Orders"
+              )}
+            </button>
+          </div>
+        )}
+      </div>
       {/* Order Details Modal - FIX: Only mount when an order is selected */}
-      {activeModalOrder && (
-        <OrderDetailsModal
-          order={activeModalOrder}
-          statusOptions={STATUS_OPTIONS}
-          onClose={() => setActiveModalOrder(null)}
-          onUpdateStatus={updateStatus}
-        />
-      )}
-    </div>
+
+
+      {
+        activeModalOrder && (
+          <OrderDetailsModal
+            order={activeModalOrder}
+            statusOptions={STATUS_OPTIONS}
+            onClose={() => setActiveModalOrder(null)}
+            onUpdateStatus={updateOrderStatus}
+          />
+        )
+      }
+    </div >
   );
 };
 

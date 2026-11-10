@@ -46,7 +46,7 @@ const OrderDetailsModal = ({ order, onClose, onUpdateStatus, statusOptions = [] 
 
   return (
     /* STEP 4: Backdrop overlay with overflow safety fallback */
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm overflow-y-auto py-6 animate-in fade-in duration-200"
       onClick={onClose}
     >
@@ -158,7 +158,7 @@ const OrderDetailsModal = ({ order, onClose, onUpdateStatus, statusOptions = [] 
           <select
             id="modal-status-select"
             value={order.status}
-            onChange={(e) => onUpdateStatus(order.id, e.target.value)}
+            onChange={(e) => onUpdateStatus(order.id, order.orderStatus, e.target.value)}
             className="bg-black border border-white/20 text-xs text-white rounded-lg px-3 py-1.5 outline-none focus:border-primary cursor-pointer"
           >
             {statusOptions.map((st) => (
