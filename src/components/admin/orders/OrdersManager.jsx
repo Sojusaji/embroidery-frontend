@@ -67,7 +67,6 @@ const OrdersManager = () => {
 
     return matchesSearch && matchesStatus;
   });
-
   const updateOrderStatus = async (orderId, currentStatus, newStatus) => {
     console.log("order status updation funciton called:", orderId, currentStatus, newStatus);
     try {

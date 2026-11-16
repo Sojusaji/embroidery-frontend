@@ -29,10 +29,12 @@ export const fetchOrderStatusCount = async () => {
 }
 
 
-export const updateOrderStatus = async ({ status, id }) => {
+export const updateOrderStatus = async (id, newStatus) => {
+  console.log('status and order ID:', id, newStatus);
   try {
-    const { data } = await api.patch(`/api/v1/admins/orders/${id}`, { orderStatus: status });
-    return data;
+    // const { data } = await api.patch(`/api/v1/admins/orders/${id}`, { newStatus });
+    // console.log('updated order stats data:', data);
+    // return data;
   } catch (error) {
     console.log('order status update error:', error);
   }
